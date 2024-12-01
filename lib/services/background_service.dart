@@ -28,6 +28,11 @@ class BackgroundService {
   static Future<void> schedulePeriodicFetch() async {
     final settings = await DatabaseService.getSettings();
 
+    if (settings?.notificationsEnabled == false) {
+      await wm.Workmanager().cancelAll();
+      return;
+    }
+
     final frequency = settings?.frequency ?? NotificationFrequency.minutes30;
 
     await wm.Workmanager().registerPeriodicTask(
@@ -47,6 +52,11 @@ class BackgroundService {
   static Future<void> handleBackground() async {
     try {
       await DatabaseService.initialize();
+
+      final settings = await DatabaseService.getSettings();
+      if (settings?.notificationsEnabled == false) {
+        return;
+      }
 
       final repository = CarListingRepository();
       final Future<List<CarListing>> fetchFuture =

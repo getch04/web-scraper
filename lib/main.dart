@@ -4,6 +4,7 @@ import 'package:car_web_scrapepr/car_listing_screen.dart';
 import 'package:car_web_scrapepr/core/theme.dart';
 import 'package:car_web_scrapepr/services/database_service.dart';
 import 'package:car_web_scrapepr/services/notification_service.dart';
+import 'package:car_web_scrapepr/services/trial_service.dart';
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:permission_handler/permission_handler.dart';
@@ -18,6 +19,8 @@ Future<void> main() async {
 
   await DatabaseService.initialize();
   // await BackgroundService.initialize();
+
+  await TrialService.init();
 
   runApp(const ProviderScope(child: MyApp()));
 }

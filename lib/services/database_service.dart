@@ -33,4 +33,9 @@ class DatabaseService {
       await _isar.carListingIsars.putAll(listings);
     });
   }
+
+  //get settings
+  static Future<SettingsIsar?> getSettings() async {
+    return _isar.settingsIsars.filter().idEqualTo(0).findFirst();
+  }
 }

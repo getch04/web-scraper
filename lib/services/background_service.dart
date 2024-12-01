@@ -6,6 +6,7 @@ import 'package:workmanager/workmanager.dart' as wm;
 import '../repo/car_listing_repository.dart';
 import 'database_service.dart';
 import 'notification_service.dart';
+import 'package:car_web_scrapepr/models/settings_isar.dart';
 
 class BackgroundService {
   static const taskName = 'carListingsFetch';
@@ -25,15 +26,19 @@ class BackgroundService {
   }
 
   static Future<void> schedulePeriodicFetch() async {
+    final settings = await DatabaseService.getSettings();
+
+    final frequency = settings?.frequency ?? NotificationFrequency.minutes30;
+
     await wm.Workmanager().registerPeriodicTask(
       taskName,
       taskName,
-      frequency: const Duration(minutes: 1),
+      frequency: frequency.duration,
       constraints: wm.Constraints(
         requiresBatteryNotLow: true,
         networkType: wm.NetworkType.connected,
       ),
-      existingWorkPolicy: wm.ExistingWorkPolicy.append,
+      existingWorkPolicy: wm.ExistingWorkPolicy.replace,
       backoffPolicy: wm.BackoffPolicy.linear,
       initialDelay: const Duration(seconds: 10),
     );

@@ -4,7 +4,9 @@ import 'package:car_web_scrapepr/core/theme.dart';
 import 'package:car_web_scrapepr/core/transitions.dart';
 import 'package:car_web_scrapepr/models/car_listing_model.dart';
 import 'package:car_web_scrapepr/provider/car_listing_provider.dart';
+import 'package:car_web_scrapepr/screens/paywall_page.dart';
 import 'package:car_web_scrapepr/screens/settings_page.dart';
+import 'package:car_web_scrapepr/services/trial_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
@@ -23,95 +25,105 @@ class CarListingPage extends HookConsumerWidget {
       return null;
     }, []);
 
-    return Scaffold(
-      backgroundColor: AppTheme.lightGreen,
-      appBar: AppBar(
-        title: const Text(
-          'Premium Cars',
-          style: TextStyle(
-            fontSize: 24,
-            fontWeight: FontWeight.bold,
-            color: Colors.white,
-          ),
-        ),
-        centerTitle: true,
-        backgroundColor: AppTheme.primaryGreen,
-        leading: Container(
-          margin: const EdgeInsets.all(8),
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-              colors: [
-                AppTheme.lightGreen.withOpacity(0.9),
-                AppTheme.lightGreen.withOpacity(0.7),
-              ],
+    return StreamBuilder<bool>(
+  stream: TrialService.watchShouldShowPaywall(),
+  builder: (context, snapshot) {
+    if (snapshot.data == true) {
+      return const PaywallPage();
+    }
+
+
+        return Scaffold(
+          backgroundColor: AppTheme.lightGreen,
+          appBar: AppBar(
+            title: const Text(
+              'Premium Cars',
+              style: TextStyle(
+                fontSize: 24,
+                fontWeight: FontWeight.bold,
+                color: Colors.white,
+              ),
             ),
-            borderRadius: BorderRadius.circular(12),
-            boxShadow: [
-              BoxShadow(
-                color: AppTheme.primaryGreen.withOpacity(0.2),
-                blurRadius: 8,
-                offset: const Offset(0, 2),
-              ),
-            ],
-          ),
-          child: Material(
-            color: Colors.transparent,
-            child: InkWell(
-              borderRadius: BorderRadius.circular(12),
-              onTap: () => Navigator.of(context).push(
-                PageTransitions.scaleTransition(const SettingsPage()),
-              ),
-              child: Stack(
-                alignment: Alignment.center,
-                children: [
-                  // Decorative background circle
-                  Positioned(
-                    right: -5,
-                    top: -5,
-                    child: Container(
-                      width: 20,
-                      height: 20,
-                      decoration: BoxDecoration(
-                        color: AppTheme.primaryGreen.withOpacity(0.1),
-                        shape: BoxShape.circle,
-                      ),
-                    ),
-                  ),
-                  const Icon(
-                    Icons.settings,
-                    color: AppTheme.primaryGreen,
-                    size: 24,
-                  ),
-                  // Small dot indicator (optional, for showing active filters)
-                  Positioned(
-                    top: 8,
-                    right: 8,
-                    child: Container(
-                      width: 8,
-                      height: 8,
-                      decoration: const BoxDecoration(
-                        color: AppTheme.primaryGreen,
-                        shape: BoxShape.circle,
-                      ),
-                    ),
+            centerTitle: true,
+            backgroundColor: AppTheme.primaryGreen,
+            leading: Container(
+              margin: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                  colors: [
+                    AppTheme.lightGreen.withOpacity(0.9),
+                    AppTheme.lightGreen.withOpacity(0.7),
+                  ],
+                ),
+                borderRadius: BorderRadius.circular(12),
+                boxShadow: [
+                  BoxShadow(
+                    color: AppTheme.primaryGreen.withOpacity(0.2),
+                    blurRadius: 8,
+                    offset: const Offset(0, 2),
                   ),
                 ],
               ),
+              child: Material(
+                color: Colors.transparent,
+                child: InkWell(
+                  borderRadius: BorderRadius.circular(12),
+                  onTap: () => Navigator.of(context).push(
+                    PageTransitions.scaleTransition(const SettingsPage()),
+                  ),
+                  child: Stack(
+                    alignment: Alignment.center,
+                    children: [
+                      // Decorative background circle
+                      Positioned(
+                        right: -5,
+                        top: -5,
+                        child: Container(
+                          width: 20,
+                          height: 20,
+                          decoration: BoxDecoration(
+                            color: AppTheme.primaryGreen.withOpacity(0.1),
+                            shape: BoxShape.circle,
+                          ),
+                        ),
+                      ),
+                      const Icon(
+                        Icons.settings,
+                        color: AppTheme.primaryGreen,
+                        size: 24,
+                      ),
+                      // Small dot indicator (optional, for showing active filters)
+                      Positioned(
+                        top: 8,
+                        right: 8,
+                        child: Container(
+                          width: 8,
+                          height: 8,
+                          decoration: const BoxDecoration(
+                            color: AppTheme.primaryGreen,
+                            shape: BoxShape.circle,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
             ),
           ),
-        ),
-      ),
-      body: state.isLoading
-          ? const Center(
-              child: CircularProgressIndicator(
-                color: AppTheme.primaryGreen,
-              ),
-            )
-          : state.error != null
-              ? _buildErrorWidget(state.error!, ref)
-              : _buildListView(state.listings, ref),
+          body: state.isLoading
+              ? const Center(
+                  child: CircularProgressIndicator(
+                    color: AppTheme.primaryGreen,
+                  ),
+                )
+              : state.error != null
+                  ? _buildErrorWidget(state.error!, ref)
+                  : _buildListView(state.listings, ref),
+        );
+      },
     );
   }
 

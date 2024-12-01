@@ -1,4 +1,3 @@
-
 import 'package:car_web_scrapepr/models/car_listing_isar.dart';
 import 'package:car_web_scrapepr/models/car_listing_model.dart';
 import 'package:flutter/foundation.dart';
@@ -66,12 +65,12 @@ class BackgroundService {
 
     final newItems = newListingIds.difference(existingListingIds).length;
 
-    // if (newItems > 0) {
-    await NotificationService.showNotification(
-      title: 'New Car Listings Available',
-      body: 'Found $newItems new car listings!',
-    );
-    // }
+    if (newItems > 0) {
+      await NotificationService.showNotification(
+        title: 'New Car Listings Available',
+        body: 'Found $newItems new car listings!',
+      );
+    }
   }
 }
 

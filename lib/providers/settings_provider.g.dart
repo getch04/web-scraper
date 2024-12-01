@@ -1,25 +1,25 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of 'filter_provider.dart';
+part of 'settings_provider.dart';
 
 // **************************************************************************
 // RiverpodGenerator
 // **************************************************************************
 
-String _$filtersHash() => r'b3fe28fe5df02c30d1e9b14f9dda5ad9d9c9dff9';
+String _$settingsHash() => r'b367d191e19f73616b8bc3594d00f34512ee875e';
 
-/// See also [Filters].
-@ProviderFor(Filters)
-final filtersProvider =
-    AutoDisposeStreamNotifierProvider<Filters, List<FilterIsar>>.internal(
-  Filters.new,
-  name: r'filtersProvider',
+/// See also [Settings].
+@ProviderFor(Settings)
+final settingsProvider =
+    AutoDisposeStreamNotifierProvider<Settings, SettingsIsar>.internal(
+  Settings.new,
+  name: r'settingsProvider',
   debugGetCreateSourceHash:
-      const bool.fromEnvironment('dart.vm.product') ? null : _$filtersHash,
+      const bool.fromEnvironment('dart.vm.product') ? null : _$settingsHash,
   dependencies: null,
   allTransitiveDependencies: null,
 );
 
-typedef _$Filters = AutoDisposeStreamNotifier<List<FilterIsar>>;
+typedef _$Settings = AutoDisposeStreamNotifier<SettingsIsar>;
 // ignore_for_file: type=lint
 // ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member

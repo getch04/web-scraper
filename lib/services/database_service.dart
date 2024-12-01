@@ -1,5 +1,6 @@
 import 'package:car_web_scrapepr/models/car_listing_isar.dart';
 import 'package:car_web_scrapepr/models/filter_isar.dart';
+import 'package:car_web_scrapepr/models/settings_isar.dart';
 import 'package:isar/isar.dart';
 import 'package:path_provider/path_provider.dart';
 
@@ -9,7 +10,7 @@ class DatabaseService {
   static Future<void> initialize() async {
     final dir = await getApplicationDocumentsDirectory();
     _isar = await Isar.open(
-      [CarListingIsarSchema, FilterIsarSchema],
+      [CarListingIsarSchema, FilterIsarSchema, SettingsIsarSchema],
       directory: dir.path,
     );
   }

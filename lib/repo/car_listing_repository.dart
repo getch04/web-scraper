@@ -33,7 +33,9 @@ class CarListingRepository {
       await _isar.writeTxn(() async {
         await _isar.carListingIsars.clear();
         await _isar.carListingIsars.putAll(
-          listings.map((listing) => CarListingIsar.fromCarListing(listing)).toList(),
+          listings
+              .map((listing) => CarListingIsar.fromCarListing(listing))
+              .toList(),
         );
       });
 
@@ -48,8 +50,13 @@ class CarListingRepository {
     }
   }
 
-  Future<List<CarListing>> _fetchFromNetwork({String? hakuValue}) async {
-    final url = 'https://www.nettiauto.com/hakutulokset?haku=${hakuValue ?? 'P3681341742'}';
+  Future<List<CarListing>> _fetchFromNetwork() async {
+    // Get active filter
+    final activeFilter = await getActiveFilter();
+    final hakuValue = activeFilter?.hakuValue;
+
+    final url =
+        'https://www.nettiauto.com/hakutulokset?haku=${hakuValue ?? ''}';
     final response = await http.get(Uri.parse(url));
 
     if (response.statusCode != 200) {
@@ -98,6 +105,10 @@ class CarListingRepository {
   }
 
   Future<FilterIsar?> getActiveFilter() async {
-    return await _isar.filterIsars.where().filter().isActiveEqualTo(true).findFirst();
+    return await _isar.filterIsars
+        .where()
+        .filter()
+        .isActiveEqualTo(true)
+        .findFirst();
   }
 }

@@ -15,6 +15,7 @@ class CarListing with _$CarListing {
     required String price,
     required String location,
     required String seller,
+    required String filter,
     required List<String> images,
     required String detailPage,
   }) = _CarListing;

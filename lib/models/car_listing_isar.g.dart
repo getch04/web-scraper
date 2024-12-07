@@ -22,53 +22,58 @@ const CarListingIsarSchema = CollectionSchema(
       name: r'detailPage',
       type: IsarType.string,
     ),
-    r'fuel': PropertySchema(
+    r'filter': PropertySchema(
       id: 1,
+      name: r'filter',
+      type: IsarType.string,
+    ),
+    r'fuel': PropertySchema(
+      id: 2,
       name: r'fuel',
       type: IsarType.string,
     ),
     r'images': PropertySchema(
-      id: 2,
+      id: 3,
       name: r'images',
       type: IsarType.stringList,
     ),
     r'lastUpdated': PropertySchema(
-      id: 3,
+      id: 4,
       name: r'lastUpdated',
       type: IsarType.dateTime,
     ),
     r'location': PropertySchema(
-      id: 4,
+      id: 5,
       name: r'location',
       type: IsarType.string,
     ),
     r'mileage': PropertySchema(
-      id: 5,
+      id: 6,
       name: r'mileage',
       type: IsarType.string,
     ),
     r'price': PropertySchema(
-      id: 6,
+      id: 7,
       name: r'price',
       type: IsarType.string,
     ),
     r'seller': PropertySchema(
-      id: 7,
+      id: 8,
       name: r'seller',
       type: IsarType.string,
     ),
     r'title': PropertySchema(
-      id: 8,
+      id: 9,
       name: r'title',
       type: IsarType.string,
     ),
     r'transmission': PropertySchema(
-      id: 9,
+      id: 10,
       name: r'transmission',
       type: IsarType.string,
     ),
     r'year': PropertySchema(
-      id: 10,
+      id: 11,
       name: r'year',
       type: IsarType.string,
     )
@@ -94,6 +99,7 @@ int _carListingIsarEstimateSize(
 ) {
   var bytesCount = offsets.last;
   bytesCount += 3 + object.detailPage.length * 3;
+  bytesCount += 3 + object.filter.length * 3;
   bytesCount += 3 + object.fuel.length * 3;
   bytesCount += 3 + object.images.length * 3;
   {
@@ -119,16 +125,17 @@ void _carListingIsarSerialize(
   Map<Type, List<int>> allOffsets,
 ) {
   writer.writeString(offsets[0], object.detailPage);
-  writer.writeString(offsets[1], object.fuel);
-  writer.writeStringList(offsets[2], object.images);
-  writer.writeDateTime(offsets[3], object.lastUpdated);
-  writer.writeString(offsets[4], object.location);
-  writer.writeString(offsets[5], object.mileage);
-  writer.writeString(offsets[6], object.price);
-  writer.writeString(offsets[7], object.seller);
-  writer.writeString(offsets[8], object.title);
-  writer.writeString(offsets[9], object.transmission);
-  writer.writeString(offsets[10], object.year);
+  writer.writeString(offsets[1], object.filter);
+  writer.writeString(offsets[2], object.fuel);
+  writer.writeStringList(offsets[3], object.images);
+  writer.writeDateTime(offsets[4], object.lastUpdated);
+  writer.writeString(offsets[5], object.location);
+  writer.writeString(offsets[6], object.mileage);
+  writer.writeString(offsets[7], object.price);
+  writer.writeString(offsets[8], object.seller);
+  writer.writeString(offsets[9], object.title);
+  writer.writeString(offsets[10], object.transmission);
+  writer.writeString(offsets[11], object.year);
 }
 
 CarListingIsar _carListingIsarDeserialize(
@@ -139,16 +146,17 @@ CarListingIsar _carListingIsarDeserialize(
 ) {
   final object = CarListingIsar(
     detailPage: reader.readString(offsets[0]),
-    fuel: reader.readString(offsets[1]),
-    images: reader.readStringList(offsets[2]) ?? [],
-    lastUpdated: reader.readDateTime(offsets[3]),
-    location: reader.readString(offsets[4]),
-    mileage: reader.readString(offsets[5]),
-    price: reader.readString(offsets[6]),
-    seller: reader.readString(offsets[7]),
-    title: reader.readString(offsets[8]),
-    transmission: reader.readString(offsets[9]),
-    year: reader.readString(offsets[10]),
+    filter: reader.readString(offsets[1]),
+    fuel: reader.readString(offsets[2]),
+    images: reader.readStringList(offsets[3]) ?? [],
+    lastUpdated: reader.readDateTime(offsets[4]),
+    location: reader.readString(offsets[5]),
+    mileage: reader.readString(offsets[6]),
+    price: reader.readString(offsets[7]),
+    seller: reader.readString(offsets[8]),
+    title: reader.readString(offsets[9]),
+    transmission: reader.readString(offsets[10]),
+    year: reader.readString(offsets[11]),
   );
   object.id = id;
   return object;
@@ -166,11 +174,11 @@ P _carListingIsarDeserializeProp<P>(
     case 1:
       return (reader.readString(offset)) as P;
     case 2:
-      return (reader.readStringList(offset) ?? []) as P;
-    case 3:
-      return (reader.readDateTime(offset)) as P;
-    case 4:
       return (reader.readString(offset)) as P;
+    case 3:
+      return (reader.readStringList(offset) ?? []) as P;
+    case 4:
+      return (reader.readDateTime(offset)) as P;
     case 5:
       return (reader.readString(offset)) as P;
     case 6:
@@ -182,6 +190,8 @@ P _carListingIsarDeserializeProp<P>(
     case 9:
       return (reader.readString(offset)) as P;
     case 10:
+      return (reader.readString(offset)) as P;
+    case 11:
       return (reader.readString(offset)) as P;
     default:
       throw IsarError('Unknown property with id $propertyId');
@@ -415,6 +425,142 @@ extension CarListingIsarQueryFilter
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.greaterThan(
         property: r'detailPage',
+        value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<CarListingIsar, CarListingIsar, QAfterFilterCondition>
+      filterEqualTo(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'filter',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<CarListingIsar, CarListingIsar, QAfterFilterCondition>
+      filterGreaterThan(
+    String value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'filter',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<CarListingIsar, CarListingIsar, QAfterFilterCondition>
+      filterLessThan(
+    String value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'filter',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<CarListingIsar, CarListingIsar, QAfterFilterCondition>
+      filterBetween(
+    String lower,
+    String upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'filter',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<CarListingIsar, CarListingIsar, QAfterFilterCondition>
+      filterStartsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.startsWith(
+        property: r'filter',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<CarListingIsar, CarListingIsar, QAfterFilterCondition>
+      filterEndsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.endsWith(
+        property: r'filter',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<CarListingIsar, CarListingIsar, QAfterFilterCondition>
+      filterContains(String value, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.contains(
+        property: r'filter',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<CarListingIsar, CarListingIsar, QAfterFilterCondition>
+      filterMatches(String pattern, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.matches(
+        property: r'filter',
+        wildcard: pattern,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<CarListingIsar, CarListingIsar, QAfterFilterCondition>
+      filterIsEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'filter',
+        value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<CarListingIsar, CarListingIsar, QAfterFilterCondition>
+      filterIsNotEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        property: r'filter',
         value: '',
       ));
     });
@@ -1867,6 +2013,19 @@ extension CarListingIsarQuerySortBy
     });
   }
 
+  QueryBuilder<CarListingIsar, CarListingIsar, QAfterSortBy> sortByFilter() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'filter', Sort.asc);
+    });
+  }
+
+  QueryBuilder<CarListingIsar, CarListingIsar, QAfterSortBy>
+      sortByFilterDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'filter', Sort.desc);
+    });
+  }
+
   QueryBuilder<CarListingIsar, CarListingIsar, QAfterSortBy> sortByFuel() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'fuel', Sort.asc);
@@ -1996,6 +2155,19 @@ extension CarListingIsarQuerySortThenBy
       thenByDetailPageDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'detailPage', Sort.desc);
+    });
+  }
+
+  QueryBuilder<CarListingIsar, CarListingIsar, QAfterSortBy> thenByFilter() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'filter', Sort.asc);
+    });
+  }
+
+  QueryBuilder<CarListingIsar, CarListingIsar, QAfterSortBy>
+      thenByFilterDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'filter', Sort.desc);
     });
   }
 
@@ -2136,6 +2308,13 @@ extension CarListingIsarQueryWhereDistinct
     });
   }
 
+  QueryBuilder<CarListingIsar, CarListingIsar, QDistinct> distinctByFilter(
+      {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'filter', caseSensitive: caseSensitive);
+    });
+  }
+
   QueryBuilder<CarListingIsar, CarListingIsar, QDistinct> distinctByFuel(
       {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
@@ -2220,6 +2399,12 @@ extension CarListingIsarQueryProperty
     });
   }
 
+  QueryBuilder<CarListingIsar, String, QQueryOperations> filterProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'filter');
+    });
+  }
+
   QueryBuilder<CarListingIsar, String, QQueryOperations> fuelProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'fuel');
@@ -2298,6 +2483,7 @@ CarListingIsar _$CarListingIsarFromJson(Map<String, dynamic> json) =>
       price: json['price'] as String,
       location: json['location'] as String,
       seller: json['seller'] as String,
+      filter: json['filter'] as String,
       images:
           (json['images'] as List<dynamic>).map((e) => e as String).toList(),
       detailPage: json['detailPage'] as String,
@@ -2315,6 +2501,7 @@ Map<String, dynamic> _$CarListingIsarToJson(CarListingIsar instance) =>
       'price': instance.price,
       'location': instance.location,
       'seller': instance.seller,
+      'filter': instance.filter,
       'images': instance.images,
       'detailPage': instance.detailPage,
       'lastUpdated': instance.lastUpdated.toIso8601String(),

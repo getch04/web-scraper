@@ -24,6 +24,7 @@ mixin _$CarListing {
   String get price => throw _privateConstructorUsedError;
   String get location => throw _privateConstructorUsedError;
   String get seller => throw _privateConstructorUsedError;
+  String get filter => throw _privateConstructorUsedError;
   List<String> get images => throw _privateConstructorUsedError;
   String get detailPage => throw _privateConstructorUsedError;
 
@@ -47,6 +48,7 @@ abstract class $CarListingCopyWith<$Res> {
       String price,
       String location,
       String seller,
+      String filter,
       List<String> images,
       String detailPage});
 }
@@ -72,6 +74,7 @@ class _$CarListingCopyWithImpl<$Res, $Val extends CarListing>
     Object? price = null,
     Object? location = null,
     Object? seller = null,
+    Object? filter = null,
     Object? images = null,
     Object? detailPage = null,
   }) {
@@ -108,6 +111,10 @@ class _$CarListingCopyWithImpl<$Res, $Val extends CarListing>
           ? _value.seller
           : seller // ignore: cast_nullable_to_non_nullable
               as String,
+      filter: null == filter
+          ? _value.filter
+          : filter // ignore: cast_nullable_to_non_nullable
+              as String,
       images: null == images
           ? _value.images
           : images // ignore: cast_nullable_to_non_nullable
@@ -137,6 +144,7 @@ abstract class _$$CarListingImplCopyWith<$Res>
       String price,
       String location,
       String seller,
+      String filter,
       List<String> images,
       String detailPage});
 }
@@ -160,6 +168,7 @@ class __$$CarListingImplCopyWithImpl<$Res>
     Object? price = null,
     Object? location = null,
     Object? seller = null,
+    Object? filter = null,
     Object? images = null,
     Object? detailPage = null,
   }) {
@@ -196,6 +205,10 @@ class __$$CarListingImplCopyWithImpl<$Res>
           ? _value.seller
           : seller // ignore: cast_nullable_to_non_nullable
               as String,
+      filter: null == filter
+          ? _value.filter
+          : filter // ignore: cast_nullable_to_non_nullable
+              as String,
       images: null == images
           ? _value._images
           : images // ignore: cast_nullable_to_non_nullable
@@ -220,6 +233,7 @@ class _$CarListingImpl implements _CarListing {
       required this.price,
       required this.location,
       required this.seller,
+      required this.filter,
       required final List<String> images,
       required this.detailPage})
       : _images = images;
@@ -240,6 +254,8 @@ class _$CarListingImpl implements _CarListing {
   final String location;
   @override
   final String seller;
+  @override
+  final String filter;
   final List<String> _images;
   @override
   List<String> get images {
@@ -253,7 +269,7 @@ class _$CarListingImpl implements _CarListing {
 
   @override
   String toString() {
-    return 'CarListing(title: $title, year: $year, mileage: $mileage, fuel: $fuel, transmission: $transmission, price: $price, location: $location, seller: $seller, images: $images, detailPage: $detailPage)';
+    return 'CarListing(title: $title, year: $year, mileage: $mileage, fuel: $fuel, transmission: $transmission, price: $price, location: $location, seller: $seller, filter: $filter, images: $images, detailPage: $detailPage)';
   }
 
   @override
@@ -271,6 +287,7 @@ class _$CarListingImpl implements _CarListing {
             (identical(other.location, location) ||
                 other.location == location) &&
             (identical(other.seller, seller) || other.seller == seller) &&
+            (identical(other.filter, filter) || other.filter == filter) &&
             const DeepCollectionEquality().equals(other._images, _images) &&
             (identical(other.detailPage, detailPage) ||
                 other.detailPage == detailPage));
@@ -287,6 +304,7 @@ class _$CarListingImpl implements _CarListing {
       price,
       location,
       seller,
+      filter,
       const DeepCollectionEquality().hash(_images),
       detailPage);
 
@@ -307,6 +325,7 @@ abstract class _CarListing implements CarListing {
       required final String price,
       required final String location,
       required final String seller,
+      required final String filter,
       required final List<String> images,
       required final String detailPage}) = _$CarListingImpl;
 
@@ -326,6 +345,8 @@ abstract class _CarListing implements CarListing {
   String get location;
   @override
   String get seller;
+  @override
+  String get filter;
   @override
   List<String> get images;
   @override

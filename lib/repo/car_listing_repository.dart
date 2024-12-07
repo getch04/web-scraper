@@ -35,17 +35,30 @@ class CarListingRepository {
     return _fetchAndUpdateCache();
   }
 
+  Future<void> _updateListings(List<CarListing> listings) async {
+    await _isar.writeTxn(() async {
+      for (var listing
+          in listings.map((l) => CarListingIsar.fromCarListing(l))) {
+        // Check if listing with same detailPage already exists
+        final existingListing = await _isar.carListingIsars
+            .filter()
+            .detailPageEqualTo(listing.detailPage)
+            .findFirst();
+
+        if (existingListing != null) {
+          // Update existing listing with new data
+          listing.id = existingListing.id;
+        }
+
+        await _isar.carListingIsars.put(listing);
+      }
+    });
+  }
+
   Future<List<CarListing>> _fetchAndUpdateCache() async {
     try {
-      final listings = await _fetchFromNetwork();
-
-      await _isar.writeTxn(() async {
-        for (var listing
-            in listings.map((l) => CarListingIsar.fromCarListing(l))) {
-          await _isar.carListingIsars.put(listing);
-        }
-      });
-
+      final listings = await fetchFromNetwork();
+      await _updateListings(listings);
       return listings;
     } catch (e) {
       final cachedListings = await _isar.carListingIsars.where().findAll();
@@ -56,8 +69,9 @@ class CarListingRepository {
     }
   }
 
-  Future<List<CarListing>> _fetchFromNetwork() async {
-    final activeFilter = await getActiveFilter();
+  Future<List<CarListing>> fetchFromNetwork(
+      [final FilterIsar? searchValue]) async {
+    final activeFilter = searchValue ?? await getActiveFilter();
     final hakuValue = activeFilter?.hakuValue;
 
     final url =
@@ -82,6 +96,7 @@ class CarListingRepository {
                 ?.text
                 .trim() ??
             'Unknown',
+        filter: activeFilter?.hakuValue ?? 'Unknown',
         year: infoDetails.isNotEmpty ? infoDetails[0].text.trim() : '',
         mileage: infoDetails.length > 1 ? infoDetails[1].text.trim() : '',
         fuel: infoDetails.length > 2 ? infoDetails[2].text.trim() : '',
@@ -115,5 +130,13 @@ class CarListingRepository {
         .filter()
         .isActiveEqualTo(true)
         .findFirst();
+  }
+
+  Stream<List<CarListing>> watchCarListings() {
+    return _isar.carListingIsars
+        .where()
+        .sortByLastUpdated()
+        .watch(fireImmediately: true)
+        .map((listings) => listings.map((e) => e.toCarListing()).toList());
   }
 }

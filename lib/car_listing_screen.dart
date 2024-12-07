@@ -36,7 +36,8 @@ class CarListingPage extends HookConsumerWidget {
           backgroundColor: AppTheme.backgroundColor,
           appBar: AppBar(
             title: ShaderMask(
-              shaderCallback: (bounds) => AppTheme.primaryGradient.createShader(bounds),
+              shaderCallback: (bounds) =>
+                  AppTheme.primaryGradient.createShader(bounds),
               child: const Text(
                 'Premium Cars',
                 style: TextStyle(
@@ -119,7 +120,8 @@ class CarListingPage extends HookConsumerWidget {
                       ),
                       const SizedBox(height: 16),
                       ShaderMask(
-                        shaderCallback: (bounds) => AppTheme.primaryGradient.createShader(bounds),
+                        shaderCallback: (bounds) =>
+                            AppTheme.primaryGradient.createShader(bounds),
                         child: const Text(
                           'Loading...',
                           style: TextStyle(
@@ -146,7 +148,8 @@ class CarListingPage extends HookConsumerWidget {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           ShaderMask(
-            shaderCallback: (bounds) => AppTheme.primaryGradient.createShader(bounds),
+            shaderCallback: (bounds) =>
+                AppTheme.primaryGradient.createShader(bounds),
             child: const Icon(
               Icons.error_outline,
               size: 48,
@@ -213,16 +216,35 @@ class CarListingPage extends HookConsumerWidget {
     return RefreshIndicator(
       color: AppTheme.primaryBlue,
       backgroundColor: AppTheme.surfaceColor,
-      onRefresh: () =>
-          ref.read(carListingNotifierProvider.notifier).fetchListings(),
-      child: ListView.builder(
-        padding: const EdgeInsets.all(16),
-        itemCount: listings.length,
-        itemBuilder: (context, index) {
-          final car = listings[index];
-          return CarListingCard(car: car);
-        },
-      ),
+      onRefresh: () async {
+        // Wait for the fetch to complete and handle any errors
+        try {
+          await ref.read(carListingNotifierProvider.notifier).fetchListings();
+        } catch (e) {
+          // Optional: Handle any errors that occur during refresh
+          debugPrint('Error refreshing: $e');
+        }
+      },
+      child: listings.isEmpty
+        ? ListView(
+            padding: const EdgeInsets.all(16),
+            children: const [
+              Center(
+                child: Text(
+                  'No cars found',
+                  style: TextStyle(color: AppTheme.textLight),
+                ),
+              ),
+            ],
+          )
+        : ListView.builder(
+            padding: const EdgeInsets.all(16),
+            itemCount: listings.length,
+            itemBuilder: (context, index) {
+              final car = listings[index];
+              return CarListingCard(car: car);
+            },
+          ),
     );
   }
 }
@@ -400,7 +422,7 @@ class CarListingCard extends StatelessWidget {
                   borderRadius: BorderRadius.circular(20),
                 ),
                 child: Text(
-                  car.price,
+                  RegExp(r'.*?[€$£]').firstMatch(car.price)?[0] ?? car.price,
                   style: const TextStyle(
                     color: AppTheme.textLight,
                     fontWeight: FontWeight.bold,
@@ -624,7 +646,8 @@ class CarDetailPage extends StatelessWidget {
                             borderRadius: BorderRadius.circular(20),
                           ),
                           child: Text(
-                            car.price,
+                            RegExp(r'.*?[€$£]').firstMatch(car.price)?[0] ??
+                                car.price,
                             style: const TextStyle(
                               color: AppTheme.textLight,
                               fontWeight: FontWeight.bold,
@@ -669,7 +692,8 @@ class CarDetailPage extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           ShaderMask(
-            shaderCallback: (bounds) => AppTheme.primaryGradient.createShader(bounds),
+            shaderCallback: (bounds) =>
+                AppTheme.primaryGradient.createShader(bounds),
             child: const Text(
               'Specifications',
               style: TextStyle(
@@ -708,7 +732,8 @@ class CarDetailPage extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           ShaderMask(
-            shaderCallback: (bounds) => AppTheme.primaryGradient.createShader(bounds),
+            shaderCallback: (bounds) =>
+                AppTheme.primaryGradient.createShader(bounds),
             child: const Text(
               'Location & Seller',
               style: TextStyle(

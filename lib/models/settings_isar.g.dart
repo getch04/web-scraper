@@ -99,20 +99,22 @@ P _settingsIsarDeserializeProp<P>(
 const _SettingsIsarfrequencyEnumValueMap = {
   'minutes15': 0,
   'minutes30': 1,
-  'hourly': 2,
-  'hours2': 3,
-  'hours4': 4,
-  'hours8': 5,
-  'daily': 6,
+  'minutes45': 2,
+  'hourly': 3,
+  'hours2': 4,
+  'hours4': 5,
+  'hours8': 6,
+  'daily': 7,
 };
 const _SettingsIsarfrequencyValueEnumMap = {
   0: NotificationFrequency.minutes15,
   1: NotificationFrequency.minutes30,
-  2: NotificationFrequency.hourly,
-  3: NotificationFrequency.hours2,
-  4: NotificationFrequency.hours4,
-  5: NotificationFrequency.hours8,
-  6: NotificationFrequency.daily,
+  2: NotificationFrequency.minutes45,
+  3: NotificationFrequency.hourly,
+  4: NotificationFrequency.hours2,
+  5: NotificationFrequency.hours4,
+  6: NotificationFrequency.hours8,
+  7: NotificationFrequency.daily,
 };
 
 Id _settingsIsarGetId(SettingsIsar object) {

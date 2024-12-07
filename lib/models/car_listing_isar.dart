@@ -17,10 +17,10 @@ class CarListingIsar {
   String price;
   String location;
   String seller;
+  String filter;
   List<String> images;
   String detailPage;
   DateTime lastUpdated;
-
 
   CarListingIsar({
     required this.title,
@@ -31,6 +31,7 @@ class CarListingIsar {
     required this.price,
     required this.location,
     required this.seller,
+    required this.filter,
     required this.images,
     required this.detailPage,
     required this.lastUpdated,
@@ -51,6 +52,7 @@ class CarListingIsar {
       price: listing.price,
       location: listing.location,
       seller: listing.seller,
+      filter: listing.filter,
       images: listing.images,
       detailPage: listing.detailPage,
       lastUpdated: DateTime.now(),
@@ -67,6 +69,7 @@ class CarListingIsar {
       price: price,
       location: location,
       seller: seller,
+      filter: filter,
       images: images,
       detailPage: detailPage,
     );

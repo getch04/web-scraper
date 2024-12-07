@@ -1,7 +1,9 @@
+import 'package:car_web_scrapepr/models/car_listing_isar.dart';
 import 'package:car_web_scrapepr/models/filter_isar.dart';
 import 'package:car_web_scrapepr/provider/car_listing_provider.dart';
 import 'package:isar/isar.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
+
 import '../services/database_service.dart';
 
 part 'filter_provider.g.dart';
@@ -17,14 +19,32 @@ class Filters extends _$Filters {
 
   Future<void> addFilter(FilterIsar filter) async {
     try {
+      final carListings =
+          await ref.read(carListingNotifierProvider.notifier).fetchFromRemote(
+                filter,
+              );
+
       await _isar.writeTxn(() async {
         await _isar.filterIsars.put(filter);
+
+        // Check for duplicates when adding listings
+        for (var listing
+            in carListings.map((l) => CarListingIsar.fromCarListing(l))) {
+          final existingListing = await _isar.carListingIsars
+              .filter()
+              .detailPageEqualTo(listing.detailPage)
+              .findFirst();
+
+          if (existingListing != null) {
+            listing.id = existingListing.id;
+          }
+
+          await _isar.carListingIsars.put(listing);
+        }
       });
 
       if (filter.isActive) {
-        await ref.read(carListingNotifierProvider.notifier).fetchListings(
-          forceRefresh: true,
-        );
+        await ref.read(carListingNotifierProvider.notifier).fetchListings();
       }
     } catch (e) {
       throw Exception(e);
@@ -37,10 +57,8 @@ class Filters extends _$Filters {
       if (targetFilter == null) return;
 
       if (!targetFilter.isActive) {
-        final activeFilters = await _isar.filterIsars
-            .filter()
-            .isActiveEqualTo(true)
-            .findAll();
+        final activeFilters =
+            await _isar.filterIsars.filter().isActiveEqualTo(true).findAll();
 
         for (final filter in activeFilters) {
           await _isar.filterIsars.put(
@@ -53,9 +71,7 @@ class Filters extends _$Filters {
         targetFilter.copyWith(isActive: !targetFilter.isActive),
       );
 
-      await ref.read(carListingNotifierProvider.notifier).fetchListings(
-        forceRefresh: true,
-      );
+      await ref.read(carListingNotifierProvider.notifier).fetchListings();
     });
   }
 

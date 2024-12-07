@@ -77,6 +77,16 @@ class Filters extends _$Filters {
 
   Future<void> deleteFilter(Id id) async {
     await _isar.writeTxn(() async {
+      // Delete associated car listings first
+      final filter = await _isar.filterIsars.get(id);
+      if (filter != null) {
+        await _isar.carListingIsars
+            .filter()
+            .filterEqualTo(filter.hakuValue)
+            .deleteAll();
+      }
+
+      // Then delete the filter itself
       await _isar.filterIsars.delete(id);
     });
   }

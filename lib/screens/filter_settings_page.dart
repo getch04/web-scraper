@@ -247,10 +247,10 @@ class FilterSettingsPage extends HookConsumerWidget {
                                           .read(filtersProvider.notifier)
                                           .deleteFilter(filter.id ?? 0);
 
-                                      await ref
-                                          .read(carListingNotifierProvider
-                                              .notifier)
-                                          .fetchListings();
+                                      // await ref
+                                      //     .read(carListingNotifierProvider
+                                      //         .notifier)
+                                      //     .fetchListings();
 
                                       Navigator.pop(context, true);
                                       ToastUtils.showSuccessToast(

@@ -11,37 +11,43 @@ class CarListingRepository {
   static const cacheValidityDuration = Duration(minutes: 15);
   final _isar = DatabaseService.instance;
 
-  Future<List<CarListing>> fetchCarListings({bool forceRefresh = false}) async {
-    // Check cache first
-    if (!forceRefresh) {
-      final cachedListings =
-          await _isar.carListingIsars.where().sortByLastUpdated().findAll();
+  Future<void> invalidateCache() async {
+    await _isar.writeTxn(() async {
+      await _isar.carListingIsars.clear();
+    });
+  }
 
-      if (cachedListings.isNotEmpty) {
-        final lastUpdated = cachedListings.first.lastUpdated;
-        if (DateTime.now().difference(lastUpdated) < cacheValidityDuration) {
-          return cachedListings.map((e) => e.toCarListing()).toList();
-        }
+  Future<List<CarListing>> fetchCarListings({bool forceRefresh = false}) async {
+    if (forceRefresh) {
+      return _fetchAndUpdateCache();
+    }
+
+    final cachedListings =
+        await _isar.carListingIsars.where().sortByLastUpdated().findAll();
+
+    if (cachedListings.isNotEmpty) {
+      final lastUpdated = cachedListings.first.lastUpdated;
+      if (DateTime.now().difference(lastUpdated) < cacheValidityDuration) {
+        return cachedListings.map((e) => e.toCarListing()).toList();
       }
     }
 
-    // Fetch from network if cache is invalid or empty
+    return _fetchAndUpdateCache();
+  }
+
+  Future<List<CarListing>> _fetchAndUpdateCache() async {
     try {
       final listings = await _fetchFromNetwork();
 
-      // Update cache
       await _isar.writeTxn(() async {
-        await _isar.carListingIsars.clear();
-        await _isar.carListingIsars.putAll(
-          listings
-              .map((listing) => CarListingIsar.fromCarListing(listing))
-              .toList(),
-        );
+        for (var listing
+            in listings.map((l) => CarListingIsar.fromCarListing(l))) {
+          await _isar.carListingIsars.put(listing);
+        }
       });
 
       return listings;
     } catch (e) {
-      // If network fetch fails, try to return cached data as fallback
       final cachedListings = await _isar.carListingIsars.where().findAll();
       if (cachedListings.isNotEmpty) {
         return cachedListings.map((e) => e.toCarListing()).toList();
@@ -51,7 +57,6 @@ class CarListingRepository {
   }
 
   Future<List<CarListing>> _fetchFromNetwork() async {
-    // Get active filter
     final activeFilter = await getActiveFilter();
     final hakuValue = activeFilter?.hakuValue;
 

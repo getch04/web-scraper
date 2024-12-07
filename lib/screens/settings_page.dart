@@ -9,24 +9,55 @@ class SettingsPage extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final theme = Theme.of(context);
-
     return Scaffold(
       backgroundColor: AppTheme.backgroundColor,
       appBar: AppBar(
         centerTitle: true,
-        title: Text(
-          'Settings',
-          style: theme.textTheme.titleLarge?.copyWith(
-            fontWeight: FontWeight.bold,
-            color: Colors.white,
+        title: ShaderMask(
+          shaderCallback: (bounds) => AppTheme.primaryGradient.createShader(bounds),
+          child: const Text(
+            'Settings',
+            style: TextStyle(
+              fontSize: 24,
+              fontWeight: FontWeight.bold,
+              color: Colors.white,
+            ),
           ),
         ),
-        leading: IconButton(
-          onPressed: () => Navigator.pop(context),
-          icon: const Icon(Icons.arrow_back_ios_new_rounded, color: Colors.white),
+        leading: Container(
+          margin: const EdgeInsets.all(8),
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [
+                AppTheme.surfaceColor.withOpacity(0.9),
+                AppTheme.surfaceColor.withOpacity(0.7),
+              ],
+            ),
+            borderRadius: BorderRadius.circular(12),
+            boxShadow: [
+              BoxShadow(
+                color: AppTheme.primaryBlue.withOpacity(0.2),
+                blurRadius: 8,
+                offset: const Offset(0, 2),
+              ),
+            ],
+          ),
+          child: Material(
+            color: Colors.transparent,
+            child: InkWell(
+              borderRadius: BorderRadius.circular(12),
+              onTap: () => Navigator.pop(context),
+              child: const Icon(
+                Icons.arrow_back_ios_new_rounded,
+                color: AppTheme.primaryBlue,
+                size: 20,
+              ),
+            ),
+          ),
         ),
-        backgroundColor: AppTheme.primaryGreen,
+        backgroundColor: AppTheme.backgroundColor,
         elevation: 0,
       ),
       body: Container(
@@ -36,7 +67,7 @@ class SettingsPage extends HookConsumerWidget {
             end: Alignment.bottomCenter,
             colors: [
               AppTheme.backgroundColor,
-              AppTheme.lightGreen.withOpacity(0.3),
+              AppTheme.surfaceColor.withOpacity(0.3),
             ],
             stops: const [0.2, 1.0],
           ),
@@ -46,11 +77,15 @@ class SettingsPage extends HookConsumerWidget {
           children: [
             Padding(
               padding: const EdgeInsets.only(bottom: 24),
-              child: Text(
-                'Customize your experience',
-                style: theme.textTheme.bodyLarge?.copyWith(
-                  color: Colors.grey[600],
-                  fontStyle: FontStyle.italic,
+              child: ShaderMask(
+                shaderCallback: (bounds) => AppTheme.primaryGradient.createShader(bounds),
+                child: const Text(
+                  'Customize your experience',
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontStyle: FontStyle.italic,
+                    color: Colors.white,
+                  ),
                 ),
               ),
             ),
@@ -88,59 +123,96 @@ class SettingsPage extends HookConsumerWidget {
     required VoidCallback onTap,
     String? subtitle,
   }) {
-    return Card(
-      elevation: 4,
-      shape: RoundedRectangleBorder(
+    return Container(
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            AppTheme.surfaceColor,
+            AppTheme.surfaceColor.withOpacity(0.9),
+          ],
+        ),
         borderRadius: BorderRadius.circular(16),
-        side: BorderSide(color: AppTheme.lightGreen.withOpacity(0.2)),
+        border: Border.all(
+          color: AppTheme.primaryBlue.withOpacity(0.1),
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: AppTheme.primaryBlue.withOpacity(0.1),
+            blurRadius: 8,
+            offset: const Offset(0, 4),
+          ),
+        ],
       ),
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(16),
-        child: Padding(
-          padding: const EdgeInsets.all(20),
-          child: Row(
-            children: [
-              Container(
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  color: AppTheme.lightGreen.withOpacity(0.2),
-                  borderRadius: BorderRadius.circular(12),
-                  boxShadow: [
-                    BoxShadow(
-                      color: AppTheme.primaryGreen.withOpacity(0.1),
-                      blurRadius: 8,
-                      offset: const Offset(0, 2),
-                    ),
-                  ],
-                ),
-                child: Icon(icon, color: AppTheme.primaryGreen, size: 28),
-              ),
-              const SizedBox(width: 20),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      title,
-                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                            fontWeight: FontWeight.w600,
-                          ),
-                    ),
-                    if (subtitle != null) ...[
-                      const SizedBox(height: 4),
-                      Text(
-                        subtitle,
-                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                              color: Colors.grey[600],
-                            ),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: onTap,
+          borderRadius: BorderRadius.circular(16),
+          child: Padding(
+            padding: const EdgeInsets.all(20),
+            child: Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    gradient: AppTheme.primaryGradient.scale(0.3),
+                    borderRadius: BorderRadius.circular(12),
+                    boxShadow: [
+                      BoxShadow(
+                        color: AppTheme.primaryBlue.withOpacity(0.2),
+                        blurRadius: 8,
+                        offset: const Offset(0, 2),
                       ),
                     ],
-                  ],
+                  ),
+                  child: Icon(
+                    icon,
+                    color: AppTheme.primaryBlue,
+                    size: 28,
+                  ),
                 ),
-              ),
-              Icon(Icons.arrow_forward_ios_rounded, size: 20, color: Colors.grey[400]),
-            ],
+                const SizedBox(width: 20),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        title,
+                        style: const TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                          color: AppTheme.textLight,
+                        ),
+                      ),
+                      if (subtitle != null) ...[
+                        const SizedBox(height: 4),
+                        Text(
+                          subtitle,
+                          style: TextStyle(
+                            fontSize: 14,
+                            color: AppTheme.textLight.withOpacity(0.7),
+                          ),
+                        ),
+                      ],
+                    ],
+                  ),
+                ),
+                Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    gradient: AppTheme.primaryGradient.scale(0.3),
+                    shape: BoxShape.circle,
+                  ),
+                  child: Icon(
+                    Icons.arrow_forward_ios_rounded,
+                    size: 16,
+                    color: AppTheme.primaryBlue,
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ),

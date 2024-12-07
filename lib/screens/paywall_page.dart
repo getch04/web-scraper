@@ -7,11 +7,24 @@ class PaywallPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppTheme.lightGreen,
+      backgroundColor: AppTheme.backgroundColor,
       body: SafeArea(
         child: Stack(
           children: [
-            // Decorative background circles
+            // Gradient background
+            Container(
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                  colors: [
+                    AppTheme.backgroundColor,
+                    AppTheme.surfaceColor.withOpacity(0.8),
+                  ],
+                ),
+              ),
+            ),
+            // Decorative background circles with gradients
             Positioned(
               top: -50,
               right: -30,
@@ -20,7 +33,12 @@ class PaywallPage extends StatelessWidget {
                 height: 200,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  color: AppTheme.primaryGreen.withOpacity(0.1),
+                  gradient: LinearGradient(
+                    colors: [
+                      AppTheme.primaryBlue.withOpacity(0.2),
+                      AppTheme.primaryPink.withOpacity(0.1),
+                    ],
+                  ),
                 ),
               ),
             ),
@@ -32,7 +50,12 @@ class PaywallPage extends StatelessWidget {
                 height: 250,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  color: AppTheme.primaryGreen.withOpacity(0.15),
+                  gradient: LinearGradient(
+                    colors: [
+                      AppTheme.primaryPink.withOpacity(0.2),
+                      AppTheme.primaryYellow.withOpacity(0.1),
+                    ],
+                  ),
                 ),
               ),
             ),
@@ -42,7 +65,7 @@ class PaywallPage extends StatelessWidget {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  // Animated lock icon
+                  // Animated lock icon with gradient background
                   TweenAnimationBuilder(
                     duration: const Duration(seconds: 1),
                     tween: Tween<double>(begin: 0, end: 1),
@@ -52,11 +75,11 @@ class PaywallPage extends StatelessWidget {
                         child: Container(
                           padding: const EdgeInsets.all(20),
                           decoration: BoxDecoration(
-                            color: Colors.white,
+                            gradient: AppTheme.primaryGradient,
                             shape: BoxShape.circle,
                             boxShadow: [
                               BoxShadow(
-                                color: AppTheme.primaryGreen.withOpacity(0.3),
+                                color: AppTheme.primaryBlue.withOpacity(0.3),
                                 blurRadius: 20,
                                 spreadRadius: 5,
                               ),
@@ -65,7 +88,7 @@ class PaywallPage extends StatelessWidget {
                           child: const Icon(
                             Icons.lock_outline,
                             size: 80,
-                            color: AppTheme.primaryGreen,
+                            color: AppTheme.textLight,
                           ),
                         ),
                       );
@@ -76,8 +99,8 @@ class PaywallPage extends StatelessWidget {
                   ShaderMask(
                     shaderCallback: (bounds) => LinearGradient(
                       colors: [
-                        AppTheme.darkGreen,
-                        AppTheme.primaryGreen,
+                        AppTheme.primaryBlue,
+                        AppTheme.primaryPink,
                       ],
                     ).createShader(bounds),
                     child: const Text(
@@ -91,70 +114,101 @@ class PaywallPage extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(height: 24),
-                  // Description with card
+                  // Description with gradient card
                   Container(
                     padding: const EdgeInsets.all(20),
                     decoration: BoxDecoration(
-                      color: Colors.white,
+                      gradient: LinearGradient(
+                        colors: [
+                          AppTheme.surfaceColor,
+                          AppTheme.surfaceColor.withOpacity(0.8),
+                        ],
+                      ),
                       borderRadius: BorderRadius.circular(20),
+                      border: Border.all(
+                        color: AppTheme.primaryBlue.withOpacity(0.2),
+                        width: 1,
+                      ),
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.black.withOpacity(0.1),
+                          color: AppTheme.primaryBlue.withOpacity(0.1),
                           blurRadius: 10,
                           offset: const Offset(0, 5),
                         ),
                       ],
                     ),
-                    child: Text(
+                    child: const Text(
                       'To continue using this app, please contact the developer to purchase a license.',
                       style: TextStyle(
                         fontSize: 16,
-                        color: Colors.grey[700],
+                        color: AppTheme.textLight,
                         height: 1.5,
                       ),
                       textAlign: TextAlign.center,
                     ),
                   ),
                   const SizedBox(height: 40),
-                  // Animated button
+                  // Animated gradient button
                   TweenAnimationBuilder(
                     duration: const Duration(milliseconds: 800),
                     tween: Tween<double>(begin: 0, end: 1),
                     builder: (context, value, child) {
                       return Transform.scale(
                         scale: value,
-                        child: ElevatedButton(
-                          onPressed: () {
-                            // Implement your payment logic here
-                          },
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: AppTheme.primaryGreen,
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 40,
-                              vertical: 20,
-                            ),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(30),
-                            ),
-                            elevation: 8,
-                          ),
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              const Text(
-                                'Contact Developer',
-                                style: TextStyle(
-                                  fontSize: 20,
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.white,
-                                ),
-                              ),
-                              const SizedBox(width: 8),
-                              const Icon(
-                                Icons.arrow_forward,
-                                color: Colors.white,
+                        child: Container(
+                          decoration: BoxDecoration(
+                            gradient: AppTheme.primaryGradient,
+                            borderRadius: BorderRadius.circular(30),
+                            boxShadow: [
+                              BoxShadow(
+                                color: AppTheme.primaryBlue.withOpacity(0.3),
+                                blurRadius: 10,
+                                offset: const Offset(0, 5),
                               ),
                             ],
+                          ),
+                          child: ElevatedButton(
+                            onPressed: () {
+                              // Implement your payment logic here
+                            },
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.transparent,
+                              foregroundColor: AppTheme.textLight,
+                              elevation: 0,
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 40,
+                                vertical: 20,
+                              ),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(30),
+                              ),
+                            ),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                const Text(
+                                  'Contact Developer',
+                                  style: TextStyle(
+                                    fontSize: 20,
+                                    fontWeight: FontWeight.bold,
+                                    color: AppTheme.textLight,
+                                  ),
+                                ),
+                                const SizedBox(width: 8),
+                                Container(
+                                  padding: const EdgeInsets.all(8),
+                                  decoration: BoxDecoration(
+                                    color: AppTheme.textLight.withOpacity(0.2),
+                                    shape: BoxShape.circle,
+                                  ),
+                                  child: const Icon(
+                                    Icons.arrow_forward,
+                                    color: AppTheme.textLight,
+                                    size: 20,
+                                  ),
+                                ),
+                              ],
+                            ),
                           ),
                         ),
                       );

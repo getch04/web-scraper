@@ -1,4 +1,5 @@
 import 'package:car_web_scrapepr/models/filter_isar.dart';
+import 'package:car_web_scrapepr/provider/car_listing_provider.dart';
 import 'package:isar/isar.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import '../services/database_service.dart';
@@ -19,6 +20,12 @@ class Filters extends _$Filters {
       await _isar.writeTxn(() async {
         await _isar.filterIsars.put(filter);
       });
+
+      if (filter.isActive) {
+        await ref.read(carListingNotifierProvider.notifier).fetchListings(
+          forceRefresh: true,
+        );
+      }
     } catch (e) {
       throw Exception(e);
     }
@@ -26,15 +33,14 @@ class Filters extends _$Filters {
 
   Future<void> toggleFilter(Id id) async {
     await _isar.writeTxn(() async {
-      // Get the filter we want to toggle
       final targetFilter = await _isar.filterIsars.get(id);
       if (targetFilter == null) return;
 
-      // If we're trying to activate this filter
       if (!targetFilter.isActive) {
-        // First, deactivate all currently active filters
-        final activeFilters =
-            await _isar.filterIsars.filter().isActiveEqualTo(true).findAll();
+        final activeFilters = await _isar.filterIsars
+            .filter()
+            .isActiveEqualTo(true)
+            .findAll();
 
         for (final filter in activeFilters) {
           await _isar.filterIsars.put(
@@ -43,9 +49,12 @@ class Filters extends _$Filters {
         }
       }
 
-      // Now toggle the target filter
       await _isar.filterIsars.put(
         targetFilter.copyWith(isActive: !targetFilter.isActive),
+      );
+
+      await ref.read(carListingNotifierProvider.notifier).fetchListings(
+        forceRefresh: true,
       );
     });
   }

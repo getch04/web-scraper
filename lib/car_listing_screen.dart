@@ -26,26 +26,28 @@ class CarListingPage extends HookConsumerWidget {
     }, []);
 
     return StreamBuilder<bool>(
-  stream: TrialService.watchShouldShowPaywall(),
-  builder: (context, snapshot) {
-    if (snapshot.data == true) {
-      return const PaywallPage();
-    }
-
+      stream: TrialService.watchShouldShowPaywall(),
+      builder: (context, snapshot) {
+        if (snapshot.data == true) {
+          return const PaywallPage();
+        }
 
         return Scaffold(
-          backgroundColor: AppTheme.lightGreen,
+          backgroundColor: AppTheme.backgroundColor,
           appBar: AppBar(
-            title: const Text(
-              'Premium Cars',
-              style: TextStyle(
-                fontSize: 24,
-                fontWeight: FontWeight.bold,
-                color: Colors.white,
+            title: ShaderMask(
+              shaderCallback: (bounds) => AppTheme.primaryGradient.createShader(bounds),
+              child: const Text(
+                'Premium Cars',
+                style: TextStyle(
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white,
+                ),
               ),
             ),
             centerTitle: true,
-            backgroundColor: AppTheme.primaryGreen,
+            backgroundColor: AppTheme.backgroundColor,
             leading: Container(
               margin: const EdgeInsets.all(8),
               decoration: BoxDecoration(
@@ -53,14 +55,14 @@ class CarListingPage extends HookConsumerWidget {
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
                   colors: [
-                    AppTheme.lightGreen.withOpacity(0.9),
-                    AppTheme.lightGreen.withOpacity(0.7),
+                    AppTheme.surfaceColor.withOpacity(0.9),
+                    AppTheme.surfaceColor.withOpacity(0.7),
                   ],
                 ),
                 borderRadius: BorderRadius.circular(12),
                 boxShadow: [
                   BoxShadow(
-                    color: AppTheme.primaryGreen.withOpacity(0.2),
+                    color: AppTheme.primaryBlue.withOpacity(0.2),
                     blurRadius: 8,
                     offset: const Offset(0, 2),
                   ),
@@ -76,33 +78,19 @@ class CarListingPage extends HookConsumerWidget {
                   child: Stack(
                     alignment: Alignment.center,
                     children: [
-                      // Decorative background circle
-                      Positioned(
-                        right: -5,
-                        top: -5,
-                        child: Container(
-                          width: 20,
-                          height: 20,
-                          decoration: BoxDecoration(
-                            color: AppTheme.primaryGreen.withOpacity(0.1),
-                            shape: BoxShape.circle,
-                          ),
-                        ),
-                      ),
                       const Icon(
                         Icons.settings,
-                        color: AppTheme.primaryGreen,
+                        color: AppTheme.primaryBlue,
                         size: 24,
                       ),
-                      // Small dot indicator (optional, for showing active filters)
                       Positioned(
                         top: 8,
                         right: 8,
                         child: Container(
                           width: 8,
                           height: 8,
-                          decoration: const BoxDecoration(
-                            color: AppTheme.primaryGreen,
+                          decoration: BoxDecoration(
+                            gradient: AppTheme.primaryGradient,
                             shape: BoxShape.circle,
                           ),
                         ),
@@ -114,9 +102,34 @@ class CarListingPage extends HookConsumerWidget {
             ),
           ),
           body: state.isLoading
-              ? const Center(
-                  child: CircularProgressIndicator(
-                    color: AppTheme.primaryGreen,
+              ? Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Container(
+                        decoration: BoxDecoration(
+                          gradient: AppTheme.primaryGradient,
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        padding: const EdgeInsets.all(2),
+                        child: const CircularProgressIndicator(
+                          color: AppTheme.textLight,
+                          backgroundColor: Colors.transparent,
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                      ShaderMask(
+                        shaderCallback: (bounds) => AppTheme.primaryGradient.createShader(bounds),
+                        child: const Text(
+                          'Loading...',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                 )
               : state.error != null
@@ -132,10 +145,13 @@ class CarListingPage extends HookConsumerWidget {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          const Icon(
-            Icons.error_outline,
-            color: AppTheme.primaryGreen,
-            size: 48,
+          ShaderMask(
+            shaderCallback: (bounds) => AppTheme.primaryGradient.createShader(bounds),
+            child: const Icon(
+              Icons.error_outline,
+              size: 48,
+              color: Colors.white,
+            ),
           ),
           const SizedBox(height: 16),
           Text(
@@ -143,21 +159,50 @@ class CarListingPage extends HookConsumerWidget {
             style: TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.bold,
-              color: Colors.grey[800],
+              color: AppTheme.textLight.withOpacity(0.9),
             ),
           ),
           const SizedBox(height: 8),
           Text(
             error,
-            style: TextStyle(color: Colors.grey[600]),
+            style: TextStyle(
+              color: AppTheme.textLight.withOpacity(0.7),
+            ),
             textAlign: TextAlign.center,
           ),
           const SizedBox(height: 24),
-          ElevatedButton.icon(
-            onPressed: () =>
-                ref.read(carListingNotifierProvider.notifier).fetchListings(),
-            icon: const Icon(Icons.refresh),
-            label: const Text('Try Again'),
+          Container(
+            decoration: BoxDecoration(
+              gradient: AppTheme.primaryGradient,
+              borderRadius: BorderRadius.circular(30),
+              boxShadow: [
+                BoxShadow(
+                  color: AppTheme.primaryBlue.withOpacity(0.3),
+                  blurRadius: 10,
+                  offset: const Offset(0, 5),
+                ),
+              ],
+            ),
+            child: ElevatedButton.icon(
+              onPressed: () =>
+                  ref.read(carListingNotifierProvider.notifier).fetchListings(),
+              icon: const Icon(Icons.refresh, color: AppTheme.textLight),
+              label: const Text(
+                'Try Again',
+                style: TextStyle(color: AppTheme.textLight),
+              ),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.transparent,
+                elevation: 0,
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 24,
+                  vertical: 12,
+                ),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(30),
+                ),
+              ),
+            ),
           ),
         ],
       ),
@@ -166,7 +211,8 @@ class CarListingPage extends HookConsumerWidget {
 
   Widget _buildListView(List<CarListing> listings, WidgetRef ref) {
     return RefreshIndicator(
-      color: AppTheme.primaryGreen,
+      color: AppTheme.primaryBlue,
+      backgroundColor: AppTheme.surfaceColor,
       onRefresh: () =>
           ref.read(carListingNotifierProvider.notifier).fetchListings(),
       child: ListView.builder(
@@ -196,13 +242,24 @@ class CarListingCard extends StatelessWidget {
       child: Container(
         margin: const EdgeInsets.only(bottom: 16),
         decoration: BoxDecoration(
-          color: Colors.white,
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [
+              AppTheme.surfaceColor,
+              AppTheme.surfaceColor.withOpacity(0.9),
+            ],
+          ),
           borderRadius: BorderRadius.circular(20),
+          border: Border.all(
+            color: AppTheme.primaryBlue.withOpacity(0.1),
+            width: 1,
+          ),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.05),
+              color: AppTheme.backgroundColor.withOpacity(0.5),
               blurRadius: 10,
-              offset: const Offset(0, 2),
+              offset: const Offset(0, 5),
             ),
           ],
         ),
@@ -235,19 +292,24 @@ class CarListingCard extends StatelessWidget {
                                 width: double.infinity,
                                 height: double.infinity,
                                 placeholder: (context, url) => Container(
-                                  color: AppTheme.lightGreen.withOpacity(0.3),
+                                  decoration: BoxDecoration(
+                                    gradient: AppTheme.primaryGradient,
+                                    // opacity: 0.3,
+                                  ),
                                   child: const Center(
                                     child: CircularProgressIndicator(
-                                      color: AppTheme.primaryGreen,
+                                      color: AppTheme.primaryBlue,
                                     ),
                                   ),
                                 ),
                               )
                             : Container(
-                                color: AppTheme.lightGreen.withOpacity(0.3),
-                                child: const Icon(
+                                decoration: BoxDecoration(
+                                  gradient: AppTheme.primaryGradient.scale(0.3),
+                                ),
+                                child: Icon(
                                   Icons.directions_car,
-                                  color: AppTheme.primaryGreen,
+                                  color: AppTheme.primaryBlue,
                                   size: 40,
                                 ),
                               ),
@@ -276,10 +338,11 @@ class CarListingCard extends StatelessWidget {
                       children: [
                         Text(
                           car.title,
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.bold,
                             letterSpacing: -0.5,
+                            color: AppTheme.textLight.withOpacity(0.9),
                           ),
                           maxLines: 2,
                           overflow: TextOverflow.ellipsis,
@@ -298,21 +361,21 @@ class CarListingCard extends StatelessWidget {
                             Container(
                               padding: const EdgeInsets.all(6),
                               decoration: BoxDecoration(
-                                color: AppTheme.lightGreen,
+                                gradient: AppTheme.primaryGradient.scale(0.3),
                                 borderRadius: BorderRadius.circular(8),
                               ),
-                              child: const Icon(
+                              child: Icon(
                                 Icons.local_gas_station,
                                 size: 14,
-                                color: AppTheme.primaryGreen,
+                                color: AppTheme.primaryBlue,
                               ),
                             ),
                             const SizedBox(width: 8),
                             Text(
                               car.fuel,
-                              style: const TextStyle(
+                              style: TextStyle(
                                 fontSize: 12,
-                                color: Colors.black54,
+                                color: AppTheme.textLight.withOpacity(0.7),
                               ),
                             ),
                           ],
@@ -333,13 +396,13 @@ class CarListingCard extends StatelessWidget {
                   vertical: 6,
                 ),
                 decoration: BoxDecoration(
-                  color: AppTheme.primaryGreen,
+                  gradient: AppTheme.primaryGradient,
                   borderRadius: BorderRadius.circular(20),
                 ),
                 child: Text(
                   car.price,
                   style: const TextStyle(
-                    color: Colors.white,
+                    color: AppTheme.textLight,
                     fontWeight: FontWeight.bold,
                     fontSize: 12,
                   ),
@@ -352,17 +415,17 @@ class CarListingCard extends StatelessWidget {
               right: 12,
               child: Row(
                 children: [
-                  const Icon(
+                  Icon(
                     Icons.location_on,
                     size: 12,
-                    color: Colors.black54,
+                    color: AppTheme.textLight.withOpacity(0.7),
                   ),
                   const SizedBox(width: 4),
                   Text(
                     car.location,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 12,
-                      color: Colors.black54,
+                      color: AppTheme.textLight.withOpacity(0.7),
                     ),
                   ),
                 ],
@@ -377,9 +440,9 @@ class CarListingCard extends StatelessWidget {
   Widget _buildSpecChip(String text) {
     return Text(
       text,
-      style: const TextStyle(
+      style: TextStyle(
         fontSize: 12,
-        color: Colors.black54,
+        color: AppTheme.textLight.withOpacity(0.7),
         fontWeight: FontWeight.w500,
       ),
     );
@@ -390,8 +453,8 @@ class CarListingCard extends StatelessWidget {
       margin: const EdgeInsets.symmetric(horizontal: 6),
       width: 3,
       height: 3,
-      decoration: const BoxDecoration(
-        color: Colors.black54,
+      decoration: BoxDecoration(
+        color: AppTheme.textLight.withOpacity(0.7),
         shape: BoxShape.circle,
       ),
     );
@@ -406,6 +469,7 @@ class CarDetailPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: AppTheme.backgroundColor,
       body: CustomScrollView(
         slivers: [
           SliverAppBar(
@@ -417,11 +481,16 @@ class CarDetailPage extends StatelessWidget {
               child: Container(
                 margin: const EdgeInsets.all(8),
                 decoration: BoxDecoration(
-                  color: Colors.white,
+                  gradient: LinearGradient(
+                    colors: [
+                      AppTheme.surfaceColor.withOpacity(0.9),
+                      AppTheme.surfaceColor.withOpacity(0.7),
+                    ],
+                  ),
                   borderRadius: BorderRadius.circular(12),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withOpacity(0.1),
+                      color: AppTheme.primaryBlue.withOpacity(0.2),
                       blurRadius: 8,
                       offset: const Offset(0, 2),
                     ),
@@ -437,24 +506,10 @@ class CarDetailPage extends StatelessWidget {
                         (route) => false,
                       );
                     },
-                    child: Container(
-                      padding: const EdgeInsets.all(8),
-                      decoration: BoxDecoration(
-                        gradient: LinearGradient(
-                          begin: Alignment.topLeft,
-                          end: Alignment.bottomRight,
-                          colors: [
-                            Colors.white,
-                            Colors.white.withOpacity(0.9),
-                          ],
-                        ),
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: const Icon(
-                        Icons.arrow_back_ios_new_rounded,
-                        color: AppTheme.primaryGreen,
-                        size: 20,
-                      ),
+                    child: const Icon(
+                      Icons.arrow_back_ios_new_rounded,
+                      color: AppTheme.primaryBlue,
+                      size: 20,
                     ),
                   ),
                 ),
@@ -463,7 +518,6 @@ class CarDetailPage extends StatelessWidget {
             flexibleSpace: FlexibleSpaceBar(
               background: Stack(
                 children: [
-                  // Existing image code
                   car.images.isNotEmpty
                       ? PageView.builder(
                           itemCount: car.images.length,
@@ -472,33 +526,39 @@ class CarDetailPage extends StatelessWidget {
                               imageUrl: car.images[index],
                               fit: BoxFit.cover,
                               placeholder: (context, url) => Container(
-                                color: AppTheme.lightGreen,
+                                decoration: BoxDecoration(
+                                  gradient: AppTheme.primaryGradient.scale(0.3),
+                                ),
                                 child: const Center(
                                   child: CircularProgressIndicator(
-                                    color: AppTheme.primaryGreen,
+                                    color: AppTheme.primaryBlue,
                                   ),
                                 ),
                               ),
                               errorWidget: (context, url, error) => Container(
-                                color: AppTheme.lightGreen,
+                                decoration: BoxDecoration(
+                                  gradient: AppTheme.primaryGradient.scale(0.3),
+                                ),
                                 child: const Icon(
                                   Icons.directions_car,
                                   size: 64,
-                                  color: AppTheme.primaryGreen,
+                                  color: AppTheme.primaryBlue,
                                 ),
                               ),
                             );
                           },
                         )
                       : Container(
-                          color: AppTheme.lightGreen,
+                          decoration: BoxDecoration(
+                            gradient: AppTheme.primaryGradient.scale(0.3),
+                          ),
                           child: const Icon(
                             Icons.directions_car,
                             size: 64,
-                            color: AppTheme.primaryGreen,
+                            color: AppTheme.primaryBlue,
                           ),
                         ),
-                  // Add gradient overlay for better visibility
+                  // Gradient overlay
                   Positioned(
                     top: 0,
                     left: 0,
@@ -522,54 +582,66 @@ class CarDetailPage extends StatelessWidget {
             ),
           ),
           SliverToBoxAdapter(
-            child: Padding(
-              padding: const EdgeInsets.all(16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Expanded(
-                        child: Text(
-                          car.title,
-                          style: const TextStyle(
-                            fontSize: 24,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.black87,
-                          ),
-                          maxLines: 3,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ),
-                      const SizedBox(width: 16),
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 16,
-                          vertical: 8,
-                        ),
-                        decoration: BoxDecoration(
-                          color: AppTheme.primaryGreen,
-                          borderRadius: BorderRadius.circular(20),
-                        ),
-                        child: Text(
-                          car.price,
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontWeight: FontWeight.bold,
-                            fontSize: 18,
+            child: Container(
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  colors: [
+                    AppTheme.backgroundColor,
+                    AppTheme.surfaceColor,
+                  ],
+                ),
+              ),
+              child: Padding(
+                padding: const EdgeInsets.all(16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Expanded(
+                          child: Text(
+                            car.title,
+                            style: const TextStyle(
+                              fontSize: 24,
+                              fontWeight: FontWeight.bold,
+                              color: AppTheme.textLight,
+                            ),
+                            maxLines: 3,
+                            overflow: TextOverflow.ellipsis,
                           ),
                         ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 24),
-                  _buildSpecificationCard(),
-                  const SizedBox(height: 24),
-                  _buildLocationCard(),
-                  const SizedBox(height: 24),
-                  _buildContactButton(),
-                ],
+                        const SizedBox(width: 16),
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 16,
+                            vertical: 8,
+                          ),
+                          decoration: BoxDecoration(
+                            gradient: AppTheme.primaryGradient,
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                          child: Text(
+                            car.price,
+                            style: const TextStyle(
+                              color: AppTheme.textLight,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 18,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 24),
+                    _buildSpecificationCard(),
+                    const SizedBox(height: 24),
+                    _buildLocationCard(),
+                    const SizedBox(height: 24),
+                    _buildContactButton(),
+                  ],
+                ),
               ),
             ),
           ),
@@ -579,57 +651,77 @@ class CarDetailPage extends StatelessWidget {
   }
 
   Widget _buildSpecificationCard() {
-    return Card(
-      elevation: 0,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      color: Colors.white,
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Text(
+    return Container(
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [
+            AppTheme.surfaceColor,
+            AppTheme.surfaceColor.withOpacity(0.9),
+          ],
+        ),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+          color: AppTheme.primaryBlue.withOpacity(0.1),
+        ),
+      ),
+      padding: const EdgeInsets.all(16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          ShaderMask(
+            shaderCallback: (bounds) => AppTheme.primaryGradient.createShader(bounds),
+            child: const Text(
               'Specifications',
               style: TextStyle(
                 fontSize: 20,
                 fontWeight: FontWeight.bold,
-                color: AppTheme.darkGreen,
+                color: AppTheme.textLight,
               ),
             ),
-            const SizedBox(height: 16),
-            _buildSpecRow(Icons.calendar_today, 'Year', car.year),
-            _buildSpecRow(Icons.speed, 'Mileage', car.mileage),
-            _buildSpecRow(Icons.local_gas_station, 'Fuel Type', car.fuel),
-            _buildSpecRow(Icons.settings, 'Transmission', car.transmission),
-          ],
-        ),
+          ),
+          const SizedBox(height: 16),
+          _buildSpecRow(Icons.calendar_today, 'Year', car.year),
+          _buildSpecRow(Icons.speed, 'Mileage', car.mileage),
+          _buildSpecRow(Icons.local_gas_station, 'Fuel Type', car.fuel),
+          _buildSpecRow(Icons.settings, 'Transmission', car.transmission),
+        ],
       ),
     );
   }
 
   Widget _buildLocationCard() {
-    return Card(
-      elevation: 0,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      color: Colors.white,
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Text(
+    return Container(
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [
+            AppTheme.surfaceColor,
+            AppTheme.surfaceColor.withOpacity(0.9),
+          ],
+        ),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+          color: AppTheme.primaryBlue.withOpacity(0.1),
+        ),
+      ),
+      padding: const EdgeInsets.all(16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          ShaderMask(
+            shaderCallback: (bounds) => AppTheme.primaryGradient.createShader(bounds),
+            child: const Text(
               'Location & Seller',
               style: TextStyle(
                 fontSize: 20,
                 fontWeight: FontWeight.bold,
-                color: AppTheme.darkGreen,
+                color: AppTheme.textLight,
               ),
             ),
-            const SizedBox(height: 16),
-            _buildSpecRow(Icons.location_on, 'Location', car.location),
-            _buildSpecRow(Icons.store, 'Seller', car.seller),
-          ],
-        ),
+          ),
+          const SizedBox(height: 16),
+          _buildSpecRow(Icons.location_on, 'Location', car.location),
+          _buildSpecRow(Icons.store, 'Seller', car.seller),
+        ],
       ),
     );
   }
@@ -643,13 +735,13 @@ class CarDetailPage extends StatelessWidget {
           Container(
             padding: const EdgeInsets.all(8),
             decoration: BoxDecoration(
-              color: AppTheme.lightGreen,
+              gradient: AppTheme.primaryGradient.scale(0.3),
               borderRadius: BorderRadius.circular(8),
             ),
             child: Icon(
               icon,
               size: 20,
-              color: AppTheme.primaryGreen,
+              color: AppTheme.primaryBlue,
             ),
           ),
           const SizedBox(width: 12),
@@ -659,8 +751,8 @@ class CarDetailPage extends StatelessWidget {
               children: [
                 Text(
                   label,
-                  style: const TextStyle(
-                    color: Colors.black54,
+                  style: TextStyle(
+                    color: AppTheme.textLight.withOpacity(0.7),
                     fontSize: 14,
                   ),
                 ),
@@ -668,7 +760,7 @@ class CarDetailPage extends StatelessWidget {
                 Text(
                   value,
                   style: const TextStyle(
-                    color: Colors.black87,
+                    color: AppTheme.textLight,
                     fontSize: 16,
                     fontWeight: FontWeight.w500,
                   ),
@@ -684,8 +776,19 @@ class CarDetailPage extends StatelessWidget {
   }
 
   Widget _buildContactButton() {
-    return SizedBox(
+    return Container(
       width: double.infinity,
+      decoration: BoxDecoration(
+        gradient: AppTheme.primaryGradient,
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: [
+          BoxShadow(
+            color: AppTheme.primaryBlue.withOpacity(0.3),
+            blurRadius: 10,
+            offset: const Offset(0, 5),
+          ),
+        ],
+      ),
       child: ElevatedButton.icon(
         onPressed: () {
           // Implement contact functionality
@@ -693,12 +796,18 @@ class CarDetailPage extends StatelessWidget {
             // Launch URL
           }
         },
-        icon: const Icon(Icons.phone),
-        label: const Text('Contact Seller'),
+        icon: const Icon(Icons.phone, color: AppTheme.textLight),
+        label: const Text(
+          'Contact Seller',
+          style: TextStyle(
+            color: AppTheme.textLight,
+            fontSize: 16,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
         style: ElevatedButton.styleFrom(
           padding: const EdgeInsets.symmetric(vertical: 16),
-          backgroundColor: AppTheme.primaryGreen,
-          foregroundColor: Colors.white,
+          backgroundColor: Colors.transparent,
           elevation: 0,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(12),

@@ -2,6 +2,8 @@ import 'dart:io';
 
 import 'package:car_web_scrapepr/car_listing_screen.dart';
 import 'package:car_web_scrapepr/core/theme.dart';
+import 'package:car_web_scrapepr/providers/settings_provider.dart';
+import 'package:car_web_scrapepr/services/background_service.dart';
 import 'package:car_web_scrapepr/services/database_service.dart';
 import 'package:car_web_scrapepr/services/notification_service.dart';
 import 'package:car_web_scrapepr/services/trial_service.dart';
@@ -18,18 +20,20 @@ Future<void> main() async {
   await NotificationService.initialize();
 
   await DatabaseService.initialize();
-  // await BackgroundService.initialize();
+  await BackgroundService.initialize();
 
   await TrialService.init();
 
   runApp(const ProviderScope(child: MyApp()));
 }
 
-class MyApp extends StatelessWidget {
+class MyApp extends ConsumerWidget {
   const MyApp({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    ref.watch(settingsProvider);
+
     return MaterialApp(
       title: 'Flutter Demo',
       home: const CarListingPage(),

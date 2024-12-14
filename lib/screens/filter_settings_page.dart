@@ -5,7 +5,7 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import '../core/theme.dart';
 import '../core/toast_utils.dart';
 import '../models/filter_isar.dart';
-import '../provider/car_listing_provider.dart';
+import '../providers/car_listing_provider.dart';
 
 class FilterSettingsPage extends HookConsumerWidget {
   const FilterSettingsPage({super.key});

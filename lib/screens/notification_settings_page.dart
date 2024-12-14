@@ -17,7 +17,8 @@ class NotificationSettingsPage extends HookConsumerWidget {
       appBar: AppBar(
         centerTitle: true,
         title: ShaderMask(
-          shaderCallback: (bounds) => AppTheme.primaryGradient.createShader(bounds),
+          shaderCallback: (bounds) =>
+              AppTheme.primaryGradient.createShader(bounds),
           child: const Text(
             'Notification Settings',
             style: TextStyle(
@@ -143,7 +144,8 @@ class NotificationSettingsPage extends HookConsumerWidget {
                       ),
                     ),
                     child: SwitchListTile.adaptive(
-                      contentPadding: const EdgeInsets.symmetric(horizontal: 16),
+                      contentPadding:
+                          const EdgeInsets.symmetric(horizontal: 16),
                       title: Text(
                         'Enable Notifications',
                         style: TextStyle(

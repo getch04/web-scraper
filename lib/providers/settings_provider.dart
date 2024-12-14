@@ -9,9 +9,22 @@ class Settings extends _$Settings {
   final _isar = DatabaseService.instance;
 
   @override
-  Stream<SettingsIsar> build() {
-    return _isar.settingsIsars.watchObject(0, fireImmediately: true).map(
-          (settings) => settings ?? SettingsIsar(),
+  Stream<SettingsIsar> build() async* {
+    // Initialize settings if they don't exist
+    final existingSettings = await _isar.settingsIsars.get(0);
+    if (existingSettings == null) {
+      await _isar.writeTxn(() async {
+        await _isar.settingsIsars.put(SettingsIsar(
+          id: 0,
+          notificationsEnabled: true,
+          frequency: NotificationFrequency.hourly,
+        ));
+      });
+    }
+
+    // Watch for changes
+    yield* _isar.settingsIsars.watchObject(0, fireImmediately: true).map(
+          (settings) => settings ?? SettingsIsar(id: 0),
         );
   }
 
@@ -22,12 +35,12 @@ class Settings extends _$Settings {
   }
 
   Future<void> toggleNotifications(bool enabled) async {
-    final settings = await _isar.settingsIsars.get(0) ?? SettingsIsar();
+    final settings = await _isar.settingsIsars.get(0) ?? SettingsIsar(id: 0);
     await updateSettings(settings.copyWith(notificationsEnabled: enabled));
   }
 
   Future<void> updateFrequency(NotificationFrequency frequency) async {
-    final settings = await _isar.settingsIsars.get(0) ?? SettingsIsar();
+    final settings = await _isar.settingsIsars.get(0) ?? SettingsIsar(id: 0);
     await updateSettings(settings.copyWith(frequency: frequency));
   }
 }

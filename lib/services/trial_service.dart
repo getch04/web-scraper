@@ -2,7 +2,7 @@ import 'package:streaming_shared_preferences/streaming_shared_preferences.dart';
 
 class TrialService {
   static const _installDateKey = 'install_date';
-  static const _trialDays = 40;
+  static const _trialDays = 4;
   // static const _trialDays = 1 / (24 * 60); // 1 minute expressed in days
 
   static late StreamingSharedPreferences _streamPrefs;

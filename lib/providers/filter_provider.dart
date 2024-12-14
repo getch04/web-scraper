@@ -1,6 +1,6 @@
 import 'package:car_web_scrapepr/models/car_listing_isar.dart';
 import 'package:car_web_scrapepr/models/filter_isar.dart';
-import 'package:car_web_scrapepr/provider/car_listing_provider.dart';
+import 'package:car_web_scrapepr/providers/car_listing_provider.dart';
 import 'package:isar/isar.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 

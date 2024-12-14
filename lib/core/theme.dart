@@ -8,9 +8,10 @@ class AppTheme {
   static const primaryYellow = Color(0xFFFFD93D);
 
   // Background and accent colors
-  static const backgroundColor = Color(0xFF051B2C);  // Dark blue background
-  static const surfaceColor = Color(0xFF0A2A44);    // Slightly lighter blue for cards
-  static const accentColor = Color(0xFF00E1FF);     // Cyan for accents
+  static const backgroundColor = Color(0xFF051B2C); // Dark blue background
+  static const surfaceColor =
+      Color(0xFF0A2A44); // Slightly lighter blue for cards
+  static const accentColor = Color(0xFF00E1FF); // Cyan for accents
 
   // Text colors
   static const textLight = Colors.white;
@@ -55,14 +56,14 @@ class AppTheme {
 
   // Helper method for creating gradients
   static LinearGradient get primaryGradient => const LinearGradient(
-    colors: [primaryBlue, primaryPink],
-    begin: Alignment.topLeft,
-    end: Alignment.bottomRight,
-  );
+        colors: [primaryBlue, primaryPink],
+        begin: Alignment.topLeft,
+        end: Alignment.bottomRight,
+      );
 
   static LinearGradient get accentGradient => const LinearGradient(
-    colors: [primaryBlue, primaryYellow],
-    begin: Alignment.topLeft,
-    end: Alignment.bottomRight,
-  );
+        colors: [primaryBlue, primaryYellow],
+        begin: Alignment.topLeft,
+        end: Alignment.bottomRight,
+      );
 }

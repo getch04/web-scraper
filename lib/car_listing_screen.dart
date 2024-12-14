@@ -3,7 +3,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:car_web_scrapepr/core/theme.dart';
 import 'package:car_web_scrapepr/core/transitions.dart';
 import 'package:car_web_scrapepr/models/car_listing_model.dart';
-import 'package:car_web_scrapepr/provider/car_listing_provider.dart';
+import 'package:car_web_scrapepr/providers/car_listing_provider.dart';
 import 'package:car_web_scrapepr/screens/paywall_page.dart';
 import 'package:car_web_scrapepr/screens/settings_page.dart';
 import 'package:car_web_scrapepr/services/trial_service.dart';
@@ -226,25 +226,95 @@ class CarListingPage extends HookConsumerWidget {
         }
       },
       child: listings.isEmpty
-        ? ListView(
-            padding: const EdgeInsets.all(16),
-            children: const [
-              Center(
-                child: Text(
-                  'No cars found',
-                  style: TextStyle(color: AppTheme.textLight),
+          ? ListView(
+              padding: const EdgeInsets.all(24),
+              children: [
+                const SizedBox(height: 40),
+                Container(
+                  padding: const EdgeInsets.all(20),
+                  decoration: BoxDecoration(
+                    gradient: AppTheme.primaryGradient.scale(0.3),
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  child: const Icon(
+                    Icons.directions_car_outlined,
+                    size: 80,
+                    color: AppTheme.primaryBlue,
+                  ),
                 ),
-              ),
-            ],
-          )
-        : ListView.builder(
-            padding: const EdgeInsets.all(16),
-            itemCount: listings.length,
-            itemBuilder: (context, index) {
-              final car = listings[index];
-              return CarListingCard(car: car);
-            },
-          ),
+                const SizedBox(height: 24),
+                ShaderMask(
+                  shaderCallback: (bounds) =>
+                      AppTheme.primaryGradient.createShader(bounds),
+                  child: const Text(
+                    'No Cars Found',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 12),
+                Text(
+                  'Please add filters to start searching for cars.\nYou can set your preferences in the settings.',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    color: AppTheme.textLight.withOpacity(0.7),
+                    fontSize: 16,
+                    height: 1.5,
+                  ),
+                ),
+                const SizedBox(height: 32),
+                Container(
+                  decoration: BoxDecoration(
+                    gradient: AppTheme.primaryGradient,
+                    borderRadius: BorderRadius.circular(30),
+                    boxShadow: [
+                      BoxShadow(
+                        color: AppTheme.primaryBlue.withOpacity(0.3),
+                        blurRadius: 10,
+                        offset: const Offset(0, 5),
+                      ),
+                    ],
+                  ),
+                  child: ElevatedButton.icon(
+                    onPressed: () => ref
+                        .read(carListingNotifierProvider.notifier)
+                        .fetchListings(),
+                    icon: const Icon(Icons.refresh, color: AppTheme.textLight),
+                    label: const Text(
+                      'Refresh',
+                      style: TextStyle(
+                        color: AppTheme.textLight,
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.transparent,
+                      elevation: 0,
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 32,
+                        vertical: 16,
+                      ),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(30),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            )
+          : ListView.builder(
+              padding: const EdgeInsets.all(16),
+              itemCount: listings.length,
+              itemBuilder: (context, index) {
+                final car = listings[index];
+                return CarListingCard(car: car);
+              },
+            ),
     );
   }
 }

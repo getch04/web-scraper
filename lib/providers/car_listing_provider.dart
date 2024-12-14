@@ -41,7 +41,8 @@ class CarListingNotifier extends _$CarListingNotifier {
   }
 
   //fetch from remote
-  Future<List<CarListing>> fetchFromRemote([final FilterIsar? searchValue]) async {
-   return  await _repository.fetchFromNetwork(searchValue);
+  Future<List<CarListing>> fetchFromRemote(
+      [final FilterIsar? searchValue]) async {
+    return await _repository.fetchFromNetwork(searchValue);
   }
 }

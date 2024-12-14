@@ -1,12 +1,14 @@
 import 'package:car_web_scrapepr/models/car_listing_isar.dart';
 import 'package:car_web_scrapepr/models/car_listing_model.dart';
+import 'package:car_web_scrapepr/models/filter_isar.dart';
+import 'package:car_web_scrapepr/models/settings_isar.dart';
 import 'package:flutter/foundation.dart';
+import 'package:isar/isar.dart';
 import 'package:workmanager/workmanager.dart' as wm;
 
 import '../repo/car_listing_repository.dart';
 import 'database_service.dart';
 import 'notification_service.dart';
-import 'package:car_web_scrapepr/models/settings_isar.dart';
 
 class BackgroundService {
   static const taskName = 'carListingsFetch';
@@ -54,18 +56,33 @@ class BackgroundService {
       await DatabaseService.initialize();
 
       final settings = await DatabaseService.getSettings();
-      if (settings?.notificationsEnabled == false) {
-        return;
-      }
+      if (settings?.notificationsEnabled == false) return;
+
+      // Get all active filters
+      final activeFilters = await DatabaseService.instance.filterIsars
+          .filter()
+          .isActiveEqualTo(true)
+          .findAll();
+
+      if (activeFilters.isEmpty) return;
 
       final repository = CarListingRepository();
-      final Future<List<CarListing>> fetchFuture =
-          repository.fetchCarListings(forceRefresh: true);
+      final List<CarListing> allNewListings = [];
 
-      final newListings = await fetchFuture.timeout(_fetchTimeout);
+      // Fetch listings for each active filter
+      for (final filter in activeFilters) {
+        try {
+          final listings =
+              await repository.fetchFromNetwork(filter).timeout(_fetchTimeout);
+          allNewListings.addAll(listings);
+        } catch (e) {
+          debugPrint('Failed to fetch listings for filter ${filter.name}: $e');
+          continue; // Continue with next filter if one fails
+        }
+      }
+
       final existingListings = await DatabaseService.getExistingListings();
-
-      await _handleNewListings(newListings, existingListings);
+      await _handleNewListings(allNewListings, existingListings);
     } catch (e, stackTrace) {
       debugPrint('Background fetch failed: $e\n$stackTrace');
     }
@@ -75,15 +92,28 @@ class BackgroundService {
     List<CarListing> newListings,
     List<CarListingIsar> existingListings,
   ) async {
-    final newListingIds = newListings.map((l) => l.title).toSet();
-    final existingListingIds = existingListings.map((l) => l.title).toSet();
+    // Use detailPage URL as unique identifier
+    final existingUrls = existingListings.map((e) => e.detailPage).toSet();
+    final newUrls = newListings.map((e) => e.detailPage).toSet();
 
-    final newItems = newListingIds.difference(existingListingIds).length;
+    final uniqueNewListings = newUrls
+        .difference(existingUrls)
+        .map((url) => newListings.firstWhere((l) => l.detailPage == url))
+        .toList();
 
-    if (newItems > 0) {
+    if (uniqueNewListings.isNotEmpty) {
+      // Save new listings to database
+      await DatabaseService.instance.writeTxn(() async {
+        for (var listing in uniqueNewListings) {
+          await DatabaseService.instance.carListingIsars
+              .put(CarListingIsar.fromCarListing(listing));
+        }
+      });
+
+      // Show notification
       await NotificationService.showNotification(
         title: 'New Car Listings Available',
-        body: 'Found $newItems new car listings!',
+        body: 'Found ${uniqueNewListings.length} new car listings!',
       );
     }
   }

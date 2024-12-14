@@ -3,6 +3,7 @@ import 'package:car_web_scrapepr/models/car_listing_isar.dart';
 import 'package:car_web_scrapepr/models/car_listing_model.dart';
 import 'package:car_web_scrapepr/models/filter_isar.dart';
 import 'package:car_web_scrapepr/services/database_service.dart';
+import 'package:flutter/material.dart';
 import 'package:html/parser.dart' as html;
 import 'package:http/http.dart' as http;
 import 'package:isar/isar.dart';
@@ -57,9 +58,27 @@ class CarListingRepository {
 
   Future<List<CarListing>> _fetchAndUpdateCache() async {
     try {
-      final listings = await fetchFromNetwork();
-      await _updateListings(listings);
-      return listings;
+      // Get all active filters
+      final activeFilters = await _isar.filterIsars
+          .filter()
+          .isActiveEqualTo(true)
+          .findAll();
+
+      final allListings = <CarListing>[];
+
+      // Fetch listings for each active filter
+      for (final filter in activeFilters) {
+        try {
+          final listings = await fetchFromNetwork(filter);
+          allListings.addAll(listings);
+        } catch (e) {
+          debugPrint('Failed to fetch listings for filter ${filter.name}: $e');
+          continue;
+        }
+      }
+
+      await _updateListings(allListings);
+      return allListings;
     } catch (e) {
       final cachedListings = await _isar.carListingIsars.where().findAll();
       if (cachedListings.isNotEmpty) {

@@ -732,7 +732,6 @@ class CarDetailPage extends StatelessWidget {
                     const SizedBox(height: 24),
                     _buildLocationCard(),
                     const SizedBox(height: 24),
-                    _buildContactButton(),
                   ],
                 ),
               ),
@@ -866,48 +865,6 @@ class CarDetailPage extends StatelessWidget {
             ),
           ),
         ],
-      ),
-    );
-  }
-
-  Widget _buildContactButton() {
-    return Container(
-      width: double.infinity,
-      decoration: BoxDecoration(
-        gradient: AppTheme.primaryGradient,
-        borderRadius: BorderRadius.circular(12),
-        boxShadow: [
-          BoxShadow(
-            color: AppTheme.primaryBlue.withOpacity(0.3),
-            blurRadius: 10,
-            offset: const Offset(0, 5),
-          ),
-        ],
-      ),
-      child: ElevatedButton.icon(
-        onPressed: () {
-          // Implement contact functionality
-          if (car.detailPage.isNotEmpty) {
-            // Launch URL
-          }
-        },
-        icon: const Icon(Icons.phone, color: AppTheme.textLight),
-        label: const Text(
-          'Contact Seller',
-          style: TextStyle(
-            color: AppTheme.textLight,
-            fontSize: 16,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-        style: ElevatedButton.styleFrom(
-          padding: const EdgeInsets.symmetric(vertical: 16),
-          backgroundColor: Colors.transparent,
-          elevation: 0,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
-          ),
-        ),
       ),
     );
   }

@@ -23,6 +23,10 @@ class CarListingNotifier extends _$CarListingNotifier {
     return const CarListingState();
   }
 
+  void setLoading(bool loading) {
+    state = state.copyWith(isLoading: loading);
+  }
+
   Future<void> fetchCarListingsFromDb() async {
     state = state.copyWith(isLoading: true, error: null);
     try {

@@ -5,7 +5,6 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import '../core/theme.dart';
 import '../core/toast_utils.dart';
 import '../models/filter_isar.dart';
-import '../providers/car_listing_provider.dart';
 
 class FilterSettingsPage extends HookConsumerWidget {
   const FilterSettingsPage({super.key});
@@ -247,17 +246,76 @@ class FilterSettingsPage extends HookConsumerWidget {
                                           .read(filtersProvider.notifier)
                                           .deleteFilter(filter.id ?? 0);
 
-                                      // await ref
-                                      //     .read(carListingNotifierProvider
-                                      //         .notifier)
-                                      //     .fetchListings();
+                                      // Show loading dialog
+                                      showDialog(
+                                        context: context,
+                                        barrierDismissible: false,
+                                        builder: (context) => Center(
+                                          child: Container(
+                                            padding: const EdgeInsets.all(32),
+                                            decoration: BoxDecoration(
+                                              color: AppTheme.surfaceColor,
+                                              borderRadius:
+                                                  BorderRadius.circular(16),
+                                              boxShadow: [
+                                                BoxShadow(
+                                                  color: AppTheme.primaryBlue
+                                                      .withOpacity(0.2),
+                                                  blurRadius: 10,
+                                                  offset: const Offset(0, 4),
+                                                ),
+                                              ],
+                                            ),
+                                            child: Column(
+                                              mainAxisSize: MainAxisSize.min,
+                                              children: [
+                                                Container(
+                                                  padding:
+                                                      const EdgeInsets.all(2),
+                                                  decoration: BoxDecoration(
+                                                    gradient: AppTheme
+                                                        .primaryGradient,
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            10),
+                                                  ),
+                                                  child:
+                                                      const CircularProgressIndicator(
+                                                    color: AppTheme.textLight,
+                                                    backgroundColor:
+                                                        Colors.transparent,
+                                                  ),
+                                                ),
+                                                const SizedBox(height: 16),
+                                                const Text(
+                                                  'Deleting filter...',
+                                                  style: TextStyle(
+                                                    color: AppTheme.textLight,
+                                                    fontSize: 16,
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                        ),
+                                      );
 
-                                      Navigator.pop(context, true);
+                                      await ref
+                                          .read(filtersProvider.notifier)
+                                          .deleteFilter(filter.id ?? 0);
+
+                                      // Close both dialogs
+                                      Navigator.pop(
+                                          context); // Close loading dialog
+                                      Navigator.pop(
+                                          context); // Close confirmation dialog
                                       ToastUtils.showSuccessToast(
                                         context,
                                         'Filter deleted successfully',
                                       );
                                     } catch (e) {
+                                      // Close loading dialog if error occurs
+                                      Navigator.pop(context);
                                       ToastUtils.showErrorToast(
                                         context,
                                         'Failed to delete filter',
@@ -492,8 +550,59 @@ class FilterSettingsPage extends HookConsumerWidget {
   Future<void> _toggleFilter(
       WidgetRef ref, int id, BuildContext context) async {
     try {
+      // Show loading dialog
+      showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (context) => Center(
+          child: Container(
+            padding: const EdgeInsets.all(32),
+            decoration: BoxDecoration(
+              color: AppTheme.surfaceColor,
+              borderRadius: BorderRadius.circular(16),
+              boxShadow: [
+                BoxShadow(
+                  color: AppTheme.primaryBlue.withOpacity(0.2),
+                  blurRadius: 10,
+                  offset: const Offset(0, 4),
+                ),
+              ],
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(2),
+                  decoration: BoxDecoration(
+                    gradient: AppTheme.primaryGradient,
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: const CircularProgressIndicator(
+                    color: AppTheme.textLight,
+                    backgroundColor: Colors.transparent,
+                  ),
+                ),
+                const SizedBox(height: 16),
+                const Text(
+                  'Updating filter...',
+                  style: TextStyle(
+                    color: AppTheme.textLight,
+                    fontSize: 16,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      );
+
       await ref.read(filtersProvider.notifier).toggleFilter(id);
+
+      // Close loading dialog
+      Navigator.pop(context);
     } catch (e) {
+      // Close loading dialog if error occurs
+      Navigator.pop(context);
       ToastUtils.showErrorToast(
         context,
         'Failed to update filter',
@@ -619,16 +728,54 @@ class FilterSettingsPage extends HookConsumerWidget {
                             isActive: true,
                           );
 
+                          // Show loading dialog
+                          showDialog(
+                            context: context,
+                            barrierDismissible: false,
+                            builder: (context) => Center(
+                              child: Container(
+                                padding: const EdgeInsets.all(32),
+                                decoration: BoxDecoration(
+                                  color: AppTheme.surfaceColor,
+                                  borderRadius: BorderRadius.circular(16),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color:
+                                          AppTheme.primaryBlue.withOpacity(0.2),
+                                      blurRadius: 10,
+                                      offset: const Offset(0, 4),
+                                    ),
+                                  ],
+                                ),
+                                child: Container(
+                                  padding: const EdgeInsets.all(2),
+                                  decoration: BoxDecoration(
+                                    gradient: AppTheme.primaryGradient,
+                                    borderRadius: BorderRadius.circular(10),
+                                  ),
+                                  child: const CircularProgressIndicator(
+                                    color: AppTheme.textLight,
+                                    backgroundColor: Colors.transparent,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          );
+
                           await ref
                               .read(filtersProvider.notifier)
                               .addFilter(newFilter);
 
-                          Navigator.pop(context);
+                          // Close loading dialog and add filter dialog
+                          Navigator.pop(context); // Close loading dialog
+                          Navigator.pop(context); // Close add filter dialog
                           ToastUtils.showSuccessToast(
                             context,
                             'Filter added successfully',
                           );
                         } catch (e) {
+                          // Close loading dialog if error occurs
+                          Navigator.pop(context);
                           ToastUtils.showErrorToast(
                             context,
                             'Failed to add filter: $e',

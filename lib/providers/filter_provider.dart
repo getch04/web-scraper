@@ -19,12 +19,18 @@ class Filters extends _$Filters {
 
   Future<void> addFilter(FilterIsar filter) async {
     try {
+      // Set loading state
+      ref.read(carListingNotifierProvider.notifier).setLoading(true);
+
       final carListings =
           await ref.read(carListingNotifierProvider.notifier).fetchFromRemote(
                 filter,
               );
 
-      if (carListings.isEmpty) return;
+      if (carListings.isEmpty) {
+        ref.read(carListingNotifierProvider.notifier).setLoading(false);
+        return;
+      }
 
       await _isar.writeTxn(() async {
         await _isar.filterIsars.put(filter);
@@ -45,21 +51,29 @@ class Filters extends _$Filters {
         }
       });
 
-      // Always fetch after adding a filter since it affects the active filters
-      // await _fetchAllActiveFilters();
+      // Reset loading state after operation is complete
+      ref.read(carListingNotifierProvider.notifier).setLoading(false);
     } catch (e) {
+      // Reset loading state on error
+      ref.read(carListingNotifierProvider.notifier).setLoading(false);
       throw Exception(e);
     }
   }
 
   Future<void> toggleFilter(Id id) async {
     try {
+      // Set loading state
+      ref.read(carListingNotifierProvider.notifier).setLoading(true);
+
       late final bool wasActive;
       late final String hakuValue;
 
       await _isar.writeTxn(() async {
         final targetFilter = await _isar.filterIsars.get(id);
-        if (targetFilter == null) return;
+        if (targetFilter == null) {
+          ref.read(carListingNotifierProvider.notifier).setLoading(false);
+          return;
+        }
 
         wasActive = targetFilter.isActive;
         hakuValue = targetFilter.hakuValue;
@@ -81,29 +95,51 @@ class Filters extends _$Filters {
       // If the filter was turned on, fetch new data
       if (!wasActive) {
         await _fetchAllActiveFilters();
-      } 
+      } else {
+        // If filter was turned off, refresh the UI
+        await ref
+            .read(carListingNotifierProvider.notifier)
+            .fetchCarListingsFromDb();
+      }
+
+      // Reset loading state after operation is complete
+      ref.read(carListingNotifierProvider.notifier).setLoading(false);
     } catch (e) {
+      // Reset loading state on error
+      ref.read(carListingNotifierProvider.notifier).setLoading(false);
       throw Exception(e);
     }
   }
 
   Future<void> deleteFilter(Id id) async {
-    await _isar.writeTxn(() async {
-      // Delete associated car listings first
-      final filter = await _isar.filterIsars.get(id);
-      if (filter != null) {
-        await _isar.carListingIsars
-            .filter()
-            .filterEqualTo(filter.hakuValue)
-            .deleteAll();
-      }
+    try {
+      // Set loading state
+      ref.read(carListingNotifierProvider.notifier).setLoading(true);
 
-      // Then delete the filter itself
-      await _isar.filterIsars.delete(id);
+      await _isar.writeTxn(() async {
+        // Delete associated car listings first
+        final filter = await _isar.filterIsars.get(id);
+        if (filter != null) {
+          await _isar.carListingIsars
+              .filter()
+              .filterEqualTo(filter.hakuValue)
+              .deleteAll();
+        }
 
-      // Refresh car listings for remaining active filters
-      await _fetchAllActiveFilters();
-    });
+        // Then delete the filter itself
+        await _isar.filterIsars.delete(id);
+
+        // Refresh car listings for remaining active filters
+        await _fetchAllActiveFilters();
+      });
+
+      // Reset loading state after operation is complete
+      ref.read(carListingNotifierProvider.notifier).setLoading(false);
+    } catch (e) {
+      // Reset loading state on error
+      ref.read(carListingNotifierProvider.notifier).setLoading(false);
+      throw Exception(e);
+    }
   }
 
   // Helper method to fetch data for all active filters

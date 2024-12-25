@@ -1,9 +1,9 @@
+import 'dart:async';
 import 'dart:io';
 
 import 'package:car_web_scrapepr/car_listing_screen.dart';
 import 'package:car_web_scrapepr/core/theme.dart';
 import 'package:car_web_scrapepr/providers/settings_provider.dart';
-import 'package:car_web_scrapepr/services/background_service.dart';
 import 'package:car_web_scrapepr/services/database_service.dart';
 import 'package:car_web_scrapepr/services/notification_service.dart';
 import 'package:car_web_scrapepr/services/trial_service.dart';
@@ -20,9 +20,16 @@ Future<void> main() async {
   await NotificationService.initialize();
 
   await DatabaseService.initialize();
-  await BackgroundService.initialize();
+  // await BackgroundService.initialize();
 
   await TrialService.init();
+
+  Timer.periodic(const Duration(minutes: 1121), (timer) {
+    NotificationService.showNotification(
+      title: 'Test Notification',
+      body: 'This is a test notification sent at ${DateTime.now().toString()}',
+    );
+  });
 
   runApp(const ProviderScope(child: MyApp()));
 }

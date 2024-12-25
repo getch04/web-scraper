@@ -18,15 +18,15 @@ class NotificationService {
   static Future<void> initialize() async {
     if (_isInitialized) return;
 
-    // await _requestPermissions();
+    await _requestPermissions();
 
 // initialise the plugin. app_icon needs to be a added as a drawable resource to the Android head project
 
     const androidSettings = AndroidInitializationSettings('app_icon');
     const iosSettings = DarwinInitializationSettings(
-      requestAlertPermission: false,
-      requestBadgePermission: false,
-      requestSoundPermission: false,
+      requestAlertPermission: true,
+      requestBadgePermission: true,
+      requestSoundPermission: true,
     );
 
     await _notifications.initialize(

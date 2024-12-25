@@ -24,6 +24,8 @@ class Filters extends _$Filters {
                 filter,
               );
 
+      if (carListings.isEmpty) return;
+
       await _isar.writeTxn(() async {
         await _isar.filterIsars.put(filter);
 
@@ -43,36 +45,46 @@ class Filters extends _$Filters {
         }
       });
 
-      if (filter.isActive) {
-        await ref.read(carListingNotifierProvider.notifier).fetchListings();
-      }
+      // Always fetch after adding a filter since it affects the active filters
+      // await _fetchAllActiveFilters();
     } catch (e) {
       throw Exception(e);
     }
   }
 
   Future<void> toggleFilter(Id id) async {
-    await _isar.writeTxn(() async {
-      final targetFilter = await _isar.filterIsars.get(id);
-      if (targetFilter == null) return;
+    try {
+      late final bool wasActive;
+      late final String hakuValue;
 
-      if (!targetFilter.isActive) {
-        final activeFilters =
-            await _isar.filterIsars.filter().isActiveEqualTo(true).findAll();
+      await _isar.writeTxn(() async {
+        final targetFilter = await _isar.filterIsars.get(id);
+        if (targetFilter == null) return;
 
-        for (final filter in activeFilters) {
-          await _isar.filterIsars.put(
-            filter.copyWith(isActive: false),
-          );
+        wasActive = targetFilter.isActive;
+        hakuValue = targetFilter.hakuValue;
+
+        // Toggle the target filter
+        await _isar.filterIsars.put(
+          targetFilter.copyWith(isActive: !wasActive),
+        );
+
+        // If the filter was turned off, remove its car listings
+        if (wasActive) {
+          await _isar.carListingIsars
+              .filter()
+              .filterEqualTo(hakuValue)
+              .deleteAll();
         }
-      }
+      });
 
-      await _isar.filterIsars.put(
-        targetFilter.copyWith(isActive: !targetFilter.isActive),
-      );
-
-      await ref.read(carListingNotifierProvider.notifier).fetchListings();
-    });
+      // If the filter was turned on, fetch new data
+      if (!wasActive) {
+        await _fetchAllActiveFilters();
+      } 
+    } catch (e) {
+      throw Exception(e);
+    }
   }
 
   Future<void> deleteFilter(Id id) async {
@@ -88,6 +100,50 @@ class Filters extends _$Filters {
 
       // Then delete the filter itself
       await _isar.filterIsars.delete(id);
+
+      // Refresh car listings for remaining active filters
+      await _fetchAllActiveFilters();
     });
+  }
+
+  // Helper method to fetch data for all active filters
+  Future<void> _fetchAllActiveFilters() async {
+    try {
+      // Get all active filters
+      final activeFilters =
+          await _isar.filterIsars.filter().isActiveEqualTo(true).findAll();
+
+      // Fetch remote data for each active filter
+      for (final filter in activeFilters) {
+        final carListings = await ref
+            .read(carListingNotifierProvider.notifier)
+            .fetchFromRemote(filter);
+
+        if (carListings.isNotEmpty) {
+          await _isar.writeTxn(() async {
+            for (var listing
+                in carListings.map((l) => CarListingIsar.fromCarListing(l))) {
+              final existingListing = await _isar.carListingIsars
+                  .filter()
+                  .detailPageEqualTo(listing.detailPage)
+                  .findFirst();
+
+              if (existingListing != null) {
+                listing.id = existingListing.id;
+              }
+
+              await _isar.carListingIsars.put(listing);
+            }
+          });
+        }
+      }
+
+      // Finally, refresh the UI with all fetched data
+      await ref
+          .read(carListingNotifierProvider.notifier)
+          .fetchCarListingsFromDb();
+    } catch (e) {
+      throw Exception(e);
+    }
   }
 }

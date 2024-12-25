@@ -1,4 +1,6 @@
 // car_listing_repository.dart
+import 'dart:convert' show json;
+
 import 'package:car_web_scrapepr/models/car_listing_isar.dart';
 import 'package:car_web_scrapepr/models/car_listing_model.dart';
 import 'package:car_web_scrapepr/models/filter_isar.dart';
@@ -18,74 +20,11 @@ class CarListingRepository {
     });
   }
 
-  Future<List<CarListing>> fetchCarListings({bool forceRefresh = false}) async {
-    if (forceRefresh) {
-      return _fetchAndUpdateCache();
-    }
-
-    final cachedListings =
+  Future<List<CarListing>> fetchCarListingsFromDb() async {
+    final cars =
         await _isar.carListingIsars.where().sortByLastUpdated().findAll();
 
-    if (cachedListings.isNotEmpty) {
-      final lastUpdated = cachedListings.first.lastUpdated;
-      if (DateTime.now().difference(lastUpdated) < cacheValidityDuration) {
-        return cachedListings.map((e) => e.toCarListing()).toList();
-      }
-    }
-
-    return _fetchAndUpdateCache();
-  }
-
-  Future<void> _updateListings(List<CarListing> listings) async {
-    await _isar.writeTxn(() async {
-      for (var listing
-          in listings.map((l) => CarListingIsar.fromCarListing(l))) {
-        // Check if listing with same detailPage already exists
-        final existingListing = await _isar.carListingIsars
-            .filter()
-            .detailPageEqualTo(listing.detailPage)
-            .findFirst();
-
-        if (existingListing != null) {
-          // Update existing listing with new data
-          listing.id = existingListing.id;
-        }
-
-        await _isar.carListingIsars.put(listing);
-      }
-    });
-  }
-
-  Future<List<CarListing>> _fetchAndUpdateCache() async {
-    try {
-      // Get all active filters
-      final activeFilters = await _isar.filterIsars
-          .filter()
-          .isActiveEqualTo(true)
-          .findAll();
-
-      final allListings = <CarListing>[];
-
-      // Fetch listings for each active filter
-      for (final filter in activeFilters) {
-        try {
-          final listings = await fetchFromNetwork(filter);
-          allListings.addAll(listings);
-        } catch (e) {
-          debugPrint('Failed to fetch listings for filter ${filter.name}: $e');
-          continue;
-        }
-      }
-
-      await _updateListings(allListings);
-      return allListings;
-    } catch (e) {
-      final cachedListings = await _isar.carListingIsars.where().findAll();
-      if (cachedListings.isNotEmpty) {
-        return cachedListings.map((e) => e.toCarListing()).toList();
-      }
-      rethrow;
-    }
+    return cars.map((e) => e.toCarListing()).toList();
   }
 
   Future<List<CarListing>> fetchFromNetwork(
@@ -102,43 +41,44 @@ class CarListingRepository {
     }
 
     final document = html.parse(response.body);
-    final listings =
-        document.querySelectorAll('.swiper-slider-custom-on-card.list-card');
+    final listings = document.querySelectorAll('.swiper-slider-custom-on-card');
 
     return listings.map((listing) {
-      final infoDetails =
-          listing.querySelectorAll('ul.list-card__info_details__vinfo li');
+      // Extract and parse the data-datalayer attribute
+      final dataLayerStr = listing.attributes['data-datalayer'];
+      Map<String, dynamic> dataLayer = {};
+
+      if (dataLayerStr != null) {
+        try {
+          // Remove HTML entities and parse JSON
+          final decodedStr = dataLayerStr
+              .replaceAll('&quot;', '"')
+              .replaceAll('\\u00f6', 'ö')
+              .replaceAll('\\u00e4', 'ä');
+          dataLayer = json.decode(decodedStr);
+        } catch (e) {
+          debugPrint('Failed to parse data-datalayer: $e');
+        }
+      }
 
       return CarListing(
-        title: listing
-                .querySelector('.list-card__info_details__title')
-                ?.text
-                .trim() ??
-            'Unknown',
+        title: dataLayer['item_name'] ?? 'Unknown',
         filter: activeFilter?.hakuValue ?? 'Unknown',
-        year: infoDetails.isNotEmpty ? infoDetails[0].text.trim() : '',
-        mileage: infoDetails.length > 1 ? infoDetails[1].text.trim() : '',
-        fuel: infoDetails.length > 2 ? infoDetails[2].text.trim() : '',
-        transmission: infoDetails.length > 3 ? infoDetails[3].text.trim() : '',
-        price: listing
-                .querySelector('.list-card__info_price__main')
-                ?.text
-                .trim() ??
-            'N/A',
-        location: listing
-                .querySelector('.list-card__location-info_address .block-row')
-                ?.text
-                .trim() ??
-            'Unknown',
-        seller: listing.querySelector('.block-row')?.text.trim() ?? 'Unknown',
+        year: dataLayer['item_year_model']?.toString() ?? '',
+        mileage: dataLayer['item_mileage']?.toString() ?? '',
+        price: dataLayer['item_vehicle_price']?.toString() ?? 'N/A',
+        location: dataLayer['item_list_location'] ?? 'Unknown',
+        seller: dataLayer['item_seller'] ?? 'Unknown',
+        detailPage: listing
+                .querySelector('a.product-card-link__tricky-link')
+                ?.attributes['href'] ??
+            '',
         images: listing
             .querySelectorAll('.swiper-slide img')
             .map((img) => img.attributes['src'] ?? '')
             .toList(),
-        detailPage: listing
-                .querySelector('a.list-card__tricky-link')
-                ?.attributes['href'] ??
-            '',
+        fuel: dataLayer['item_fuel'] ?? 'Unknown',
+        transmission: dataLayer['item_transmission'] ?? 'Unknown',
       );
     }).toList();
   }

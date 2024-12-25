@@ -8,8 +8,8 @@ import 'package:car_web_scrapepr/screens/paywall_page.dart';
 import 'package:car_web_scrapepr/screens/settings_page.dart';
 import 'package:car_web_scrapepr/services/trial_service.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 // car_listing_page.dart
 class CarListingPage extends HookConsumerWidget {
@@ -19,11 +19,12 @@ class CarListingPage extends HookConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final state = ref.watch(carListingNotifierProvider);
 
-    useEffect(() {
-      Future.microtask(
-          () => ref.read(carListingNotifierProvider.notifier).fetchListings());
-      return null;
-    }, []);
+    // useEffect(() {
+    //   Future.microtask(() => ref
+    //       .read(carListingNotifierProvider.notifier)
+    //       .fetchCarListingsFromDb());
+    //   return null;
+    // }, []);
 
     return StreamBuilder<bool>(
       stream: TrialService.watchShouldShowPaywall(),
@@ -187,8 +188,9 @@ class CarListingPage extends HookConsumerWidget {
               ],
             ),
             child: ElevatedButton.icon(
-              onPressed: () =>
-                  ref.read(carListingNotifierProvider.notifier).fetchListings(),
+              onPressed: () => ref
+                  .read(carListingNotifierProvider.notifier)
+                  .fetchCarListingsFromDb(),
               icon: const Icon(Icons.refresh, color: AppTheme.textLight),
               label: const Text(
                 'Try Again',
@@ -219,7 +221,9 @@ class CarListingPage extends HookConsumerWidget {
       onRefresh: () async {
         // Wait for the fetch to complete and handle any errors
         try {
-          await ref.read(carListingNotifierProvider.notifier).fetchListings();
+          await ref
+              .read(carListingNotifierProvider.notifier)
+              .fetchCarListingsFromDb();
         } catch (e) {
           // Optional: Handle any errors that occur during refresh
           debugPrint('Error refreshing: $e');
@@ -282,7 +286,7 @@ class CarListingPage extends HookConsumerWidget {
                   child: ElevatedButton.icon(
                     onPressed: () => ref
                         .read(carListingNotifierProvider.notifier)
-                        .fetchListings(),
+                        .fetchCarListingsFromDb(),
                     icon: const Icon(Icons.refresh, color: AppTheme.textLight),
                     label: const Text(
                       'Refresh',
@@ -444,7 +448,7 @@ class CarListingCard extends StatelessWidget {
                           children: [
                             _buildSpecChip(car.year),
                             _buildDot(),
-                            _buildSpecChip(car.mileage),
+                            _buildSpecChip(car.price),
                           ],
                         ),
                         const SizedBox(height: 12),
@@ -482,21 +486,32 @@ class CarListingCard extends StatelessWidget {
             Positioned(
               top: 12,
               right: 12,
-              child: Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 10,
-                  vertical: 6,
-                ),
-                decoration: BoxDecoration(
-                  gradient: AppTheme.primaryGradient,
-                  borderRadius: BorderRadius.circular(20),
-                ),
-                child: Text(
-                  RegExp(r'.*?[€$£]').firstMatch(car.price)?[0] ?? car.price,
-                  style: const TextStyle(
-                    color: AppTheme.textLight,
-                    fontWeight: FontWeight.bold,
-                    fontSize: 12,
+              child: InkWell(
+                onTap: () {
+                  try {
+                    launchUrl(
+                      Uri.parse('https://www.nettiauto.com${car.detailPage}'),
+                    );
+                  } catch (e) {
+                    debugPrint('Failed to launch URL: $e');
+                  }
+                },
+                child: Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 10,
+                    vertical: 6,
+                  ),
+                  decoration: BoxDecoration(
+                    gradient: AppTheme.primaryGradient,
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  child: Text(
+                    'View',
+                    style: const TextStyle(
+                      color: AppTheme.textLight,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 12,
+                    ),
                   ),
                 ),
               ),

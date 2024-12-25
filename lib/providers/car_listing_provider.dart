@@ -23,10 +23,10 @@ class CarListingNotifier extends _$CarListingNotifier {
     return const CarListingState();
   }
 
-  Future<void> fetchListings() async {
+  Future<void> fetchCarListingsFromDb() async {
     state = state.copyWith(isLoading: true, error: null);
     try {
-      final listings = await _repository.fetchCarListings();
+      final listings = await _repository.fetchCarListingsFromDb();
       state = state.copyWith(
         listings: listings,
         isLoading: false,

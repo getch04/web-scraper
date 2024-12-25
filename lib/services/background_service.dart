@@ -18,7 +18,7 @@ class BackgroundService {
     try {
       await wm.Workmanager().initialize(
         callbackDispatcher,
-        isInDebugMode: true,
+        isInDebugMode: false,
       );
       await schedulePeriodicFetch();
     } catch (e) {

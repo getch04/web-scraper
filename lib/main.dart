@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:io';
 
 import 'package:car_web_scrapepr/car_listing_screen.dart';
 import 'package:car_web_scrapepr/core/theme.dart';
@@ -9,22 +8,15 @@ import 'package:car_web_scrapepr/services/notification_service.dart';
 import 'package:car_web_scrapepr/services/trial_service.dart';
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:permission_handler/permission_handler.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  if (Platform.isAndroid) {
-    await Permission.notification.request();
-  }
   await NotificationService.initialize();
-
   await DatabaseService.initialize();
-  // await BackgroundService.initialize();
-
   await TrialService.init();
 
-  Timer.periodic(const Duration(minutes: 1121), (timer) {
+  Timer.periodic(const Duration(minutes: 10), (timer) {
     NotificationService.showNotification(
       title: 'Test Notification',
       body: 'This is a test notification sent at ${DateTime.now().toString()}',
@@ -42,6 +34,7 @@ class MyApp extends ConsumerWidget {
     ref.watch(settingsProvider);
 
     return MaterialApp(
+      navigatorKey: NotificationService.navigatorKey,
       title: 'Flutter Demo',
       home: const CarListingPage(),
       theme: AppTheme.theme.copyWith(
@@ -52,6 +45,10 @@ class MyApp extends ConsumerWidget {
           },
         ),
       ),
+      routes: {
+        '/notification-details': (context) =>
+            const CarListingPage(), // Replace with your notification details page
+      },
     );
   }
 }

@@ -56,5 +56,14 @@
 	</array>
 	<key>NSUserNotificationsUsageDescription</key>
 	<string>We need to send you notifications about new car listings.</string>
+	<!-- Awesome Notifications permissions -->
+	<key>NSCameraUsageDescription</key>
+	<string>We need camera access to capture and attach images to notifications if needed</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>We need photo library access to attach images to notifications if needed</string>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>We need location access to provide location-based notifications if needed</string>
+	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+	<string>We need location access to provide location-based notifications if needed</string>
 </dict>
 </plist>

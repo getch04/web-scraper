@@ -1,65 +1,62 @@
-import 'dart:io';
+import 'dart:isolate';
+import 'dart:ui';
 
-import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-import 'package:permission_handler/permission_handler.dart';
+import 'package:awesome_notifications/awesome_notifications.dart';
+import 'package:flutter/material.dart';
 
 class NotificationService {
-  static final _notifications = FlutterLocalNotificationsPlugin();
-
-  static const _androidChannel = AndroidNotificationChannel(
-    'car_listings_channel',
-    'Car Listings Updates',
-    description: 'Notifications for new car listings',
-    importance: Importance.high,
-  );
-
+  static const String _channelKey = 'car_listings_channel';
   static bool _isInitialized = false;
+  static final GlobalKey<NavigatorState> navigatorKey =
+      GlobalKey<NavigatorState>();
+  static final ReceivePort _port = ReceivePort();
 
   static Future<void> initialize() async {
     if (_isInitialized) return;
 
+    // Register port for background actions
+    IsolateNameServer.registerPortWithName(
+      _port.sendPort,
+      'notification_actions',
+    );
+
+    // Listen for background actions
+    _port.listen((data) async {
+      final receivedAction = ReceivedAction().fromMap(data);
+      await _handleActionReceived(receivedAction);
+    });
+
+    await AwesomeNotifications().initialize(
+      null, // no default icon for now
+      [
+        NotificationChannel(
+          channelKey: _channelKey,
+          channelName: 'Car Listings Updates',
+          channelDescription: 'Notifications for new car listings',
+          defaultColor: const Color(0xFF9D50DD),
+          ledColor: const Color(0xFF9D50DD),
+          importance: NotificationImportance.High,
+          channelShowBadge: true,
+          enableVibration: true,
+          enableLights: true,
+        ),
+      ],
+      debug: true,
+    );
+
     await _requestPermissions();
-
-// initialise the plugin. app_icon needs to be a added as a drawable resource to the Android head project
-
-    const androidSettings = AndroidInitializationSettings('app_icon');
-    const iosSettings = DarwinInitializationSettings(
-      requestAlertPermission: true,
-      requestBadgePermission: true,
-      requestSoundPermission: true,
-    );
-
-    await _notifications.initialize(
-      const InitializationSettings(
-        android: androidSettings,
-        iOS: iosSettings,
-      ),
-      onDidReceiveNotificationResponse: _onNotificationTapped,
-    );
-
-    if (Platform.isAndroid) {
-      await _notifications
-          .resolvePlatformSpecificImplementation<
-              AndroidFlutterLocalNotificationsPlugin>()
-          ?.createNotificationChannel(_androidChannel);
-    }
-
+    await _setListeners();
     _isInitialized = true;
   }
 
   static Future<void> _requestPermissions() async {
-    if (Platform.isAndroid) {
-      await Permission.notification.request();
-    } else if (Platform.isIOS) {
-      await _notifications
-          .resolvePlatformSpecificImplementation<
-              IOSFlutterLocalNotificationsPlugin>()
-          ?.requestPermissions(
-            alert: true,
-            badge: true,
-            sound: true,
-          );
-    }
+    await AwesomeNotifications()
+        .isNotificationAllowed()
+        .then((isAllowed) async {
+      if (!isAllowed) {
+        await AwesomeNotifications().requestPermissionToSendNotifications();
+      }
+    });
   }
 
   static Future<void> showNotification({
@@ -68,33 +65,65 @@ class NotificationService {
   }) async {
     await initialize(); // Ensure initialized before showing notification
 
-    await _notifications.show(
-      DateTime.now().millisecondsSinceEpoch % 100000, // Dynamic notification ID
-      title,
-      body,
-      NotificationDetails(
-        android: AndroidNotificationDetails(
-          _androidChannel.id,
-          _androidChannel.name,
-          channelDescription: _androidChannel.description,
-          importance: Importance.high,
-          priority: Priority.high,
-        ),
-        iOS: const DarwinNotificationDetails(
-          presentAlert: true,
-          presentBadge: true,
-          presentSound: true,
-        ),
+    await AwesomeNotifications().createNotification(
+      content: NotificationContent(
+        id: DateTime.now().millisecondsSinceEpoch % 100000,
+        channelKey: _channelKey,
+        title: title,
+        body: body,
+        notificationLayout: NotificationLayout.Default,
       ),
     );
   }
 
-  static void _onDidReceiveLocalNotification(
-      int id, String? title, String? body, String? payload) {
-    // Handle iOS notification received while app is in foreground
+  static Future<void> _setListeners() async {
+    await AwesomeNotifications().setListeners(
+      onActionReceivedMethod: onActionReceivedMethod,
+      onNotificationCreatedMethod: onNotificationCreatedMethod,
+      onNotificationDisplayedMethod: onNotificationDisplayedMethod,
+      onDismissActionReceivedMethod: onDismissActionReceivedMethod,
+    );
   }
 
-  static void _onNotificationTapped(NotificationResponse details) {
-    // Handle notification tapped logic here
+  @pragma("vm:entry-point")
+  static Future<void> onActionReceivedMethod(ReceivedAction received) async {
+    if (!_isInitialized) {
+      SendPort? uiSendPort =
+          IsolateNameServer.lookupPortByName('notification_actions');
+      if (uiSendPort != null) {
+        uiSendPort.send(received.toMap());
+        return;
+      }
+    }
+    await _handleActionReceived(received);
+  }
+
+  @pragma("vm:entry-point")
+  static Future<void> onNotificationCreatedMethod(
+      ReceivedNotification receivedNotification) async {
+    debugPrint('Notification created: ${receivedNotification.title}');
+  }
+
+  @pragma("vm:entry-point")
+  static Future<void> onNotificationDisplayedMethod(
+      ReceivedNotification receivedNotification) async {
+    debugPrint('Notification displayed: ${receivedNotification.title}');
+  }
+
+  @pragma("vm:entry-point")
+  static Future<void> onDismissActionReceivedMethod(
+      ReceivedAction receivedAction) async {
+    debugPrint('Notification dismissed: ${receivedAction.title}');
+  }
+
+  static Future<void> _handleActionReceived(ReceivedAction received) async {
+    // Handle notification actions here
+    // For example, navigate to a specific page when notification is tapped
+    if (received.actionType == ActionType.Default) {
+      navigatorKey.currentState?.pushNamed(
+        '/notification-details',
+        arguments: received,
+      );
+    }
   }
 }

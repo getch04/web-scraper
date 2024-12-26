@@ -4,6 +4,7 @@ import 'package:car_web_scrapepr/core/theme.dart';
 import 'package:car_web_scrapepr/core/transitions.dart';
 import 'package:car_web_scrapepr/models/car_listing_model.dart';
 import 'package:car_web_scrapepr/providers/car_listing_provider.dart';
+import 'package:car_web_scrapepr/providers/search_provider.dart';
 import 'package:car_web_scrapepr/screens/paywall_page.dart';
 import 'package:car_web_scrapepr/screens/settings_page.dart';
 import 'package:car_web_scrapepr/services/trial_service.dart';
@@ -19,6 +20,9 @@ class CarListingPage extends HookConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final state = ref.watch(carListingNotifierProvider);
+    final searchState = ref.watch(searchProvider);
+    final searchController = useTextEditingController();
+    final focusNode = useFocusNode();
 
     // Handle navigation arguments
     final args =
@@ -46,17 +50,28 @@ class CarListingPage extends HookConsumerWidget {
         return Scaffold(
           backgroundColor: AppTheme.backgroundColor,
           appBar: AppBar(
-            title: ShaderMask(
-              shaderCallback: (bounds) =>
-                  AppTheme.primaryGradient.createShader(bounds),
-              child: const Text(
-                'Premium Carssss',
-                style: TextStyle(
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.white,
-                ),
-              ),
+            title: AnimatedSwitcher(
+              duration: const Duration(milliseconds: 200),
+              child: searchState.isSearching
+                  ? _buildSearchField(
+                      context,
+                      ref,
+                      searchController,
+                      focusNode,
+                      state.listings,
+                    )
+                  : ShaderMask(
+                      shaderCallback: (bounds) =>
+                          AppTheme.primaryGradient.createShader(bounds),
+                      child: const Text(
+                        'Premium Cars',
+                        style: TextStyle(
+                          fontSize: 24,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ),
             ),
             centerTitle: true,
             backgroundColor: AppTheme.backgroundColor,
@@ -112,6 +127,53 @@ class CarListingPage extends HookConsumerWidget {
                 ),
               ),
             ),
+            actions: [
+              Container(
+                margin: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                    colors: [
+                      AppTheme.surfaceColor.withOpacity(0.9),
+                      AppTheme.surfaceColor.withOpacity(0.7),
+                    ],
+                  ),
+                  borderRadius: BorderRadius.circular(12),
+                  boxShadow: [
+                    BoxShadow(
+                      color: AppTheme.primaryBlue.withOpacity(0.2),
+                      blurRadius: 8,
+                      offset: const Offset(0, 2),
+                    ),
+                  ],
+                ),
+                child: Material(
+                  color: Colors.transparent,
+                  child: InkWell(
+                    borderRadius: BorderRadius.circular(12),
+                    onTap: () {
+                      if (searchState.isSearching) {
+                        searchController.clear();
+                        ref.read(searchProvider.notifier).clearSearch();
+                        focusNode.unfocus();
+                      }
+                      ref
+                          .read(searchProvider.notifier)
+                          .setSearching(!searchState.isSearching);
+                    },
+                    child: Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Icon(
+                        searchState.isSearching ? Icons.close : Icons.search,
+                        color: AppTheme.primaryBlue,
+                        size: 24,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ],
           ),
           body: state.isLoading
               ? Center(
@@ -147,9 +209,68 @@ class CarListingPage extends HookConsumerWidget {
                 )
               : state.error != null
                   ? _buildErrorWidget(state.error!, ref)
-                  : _buildListView(state.listings, ref),
+                  : _buildListView(
+                      searchState.isSearching && searchState.query.isNotEmpty
+                          ? searchState.searchResults
+                          : state.listings,
+                      ref,
+                      searchState.isSearching,
+                    ),
         );
       },
+    );
+  }
+
+  Widget _buildSearchField(
+    BuildContext context,
+    WidgetRef ref,
+    TextEditingController controller,
+    FocusNode focusNode,
+    List<CarListing> listings,
+  ) {
+    return Container(
+      height: 40,
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            AppTheme.surfaceColor.withOpacity(0.9),
+            AppTheme.surfaceColor.withOpacity(0.7),
+          ],
+        ),
+        borderRadius: BorderRadius.circular(20),
+        boxShadow: [
+          BoxShadow(
+            color: AppTheme.primaryBlue.withOpacity(0.2),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: TextField(
+        controller: controller,
+        focusNode: focusNode,
+        style: const TextStyle(color: AppTheme.textLight),
+        decoration: InputDecoration(
+          hintText: 'Search cars...',
+          hintStyle: TextStyle(
+            color: AppTheme.textLight.withOpacity(0.5),
+          ),
+          border: InputBorder.none,
+          contentPadding: const EdgeInsets.symmetric(
+            horizontal: 16,
+            vertical: 8,
+          ),
+          prefixIcon: Icon(
+            Icons.search,
+            color: AppTheme.textLight.withOpacity(0.5),
+          ),
+        ),
+        onChanged: (value) {
+          ref.read(searchProvider.notifier).setQuery(value, listings);
+        },
+      ),
     );
   }
 
@@ -224,18 +345,17 @@ class CarListingPage extends HookConsumerWidget {
     );
   }
 
-  Widget _buildListView(List<CarListing> listings, WidgetRef ref) {
+  Widget _buildListView(
+      List<CarListing> listings, WidgetRef ref, bool isSearching) {
     return RefreshIndicator(
       color: AppTheme.primaryBlue,
       backgroundColor: AppTheme.surfaceColor,
       onRefresh: () async {
-        // Wait for the fetch to complete and handle any errors
         try {
           await ref
               .read(carListingNotifierProvider.notifier)
               .fetchCarListingsFromDb();
         } catch (e) {
-          // Optional: Handle any errors that occur during refresh
           debugPrint('Error refreshing: $e');
         }
       },
@@ -260,10 +380,10 @@ class CarListingPage extends HookConsumerWidget {
                 ShaderMask(
                   shaderCallback: (bounds) =>
                       AppTheme.primaryGradient.createShader(bounds),
-                  child: const Text(
-                    'No Cars Found',
+                  child: Text(
+                    isSearching ? 'No Results Found' : 'No Cars Found',
                     textAlign: TextAlign.center,
-                    style: TextStyle(
+                    style: const TextStyle(
                       color: Colors.white,
                       fontSize: 24,
                       fontWeight: FontWeight.bold,
@@ -272,7 +392,9 @@ class CarListingPage extends HookConsumerWidget {
                 ),
                 const SizedBox(height: 12),
                 Text(
-                  'Please add filters to start searching for cars.\nYou can set your preferences in the settings.',
+                  isSearching
+                      ? 'Try different keywords or filters'
+                      : 'Please add filters to start searching for cars.\nYou can set your preferences in the settings.',
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     color: AppTheme.textLight.withOpacity(0.7),
@@ -281,44 +403,46 @@ class CarListingPage extends HookConsumerWidget {
                   ),
                 ),
                 const SizedBox(height: 32),
-                Container(
-                  decoration: BoxDecoration(
-                    gradient: AppTheme.primaryGradient,
-                    borderRadius: BorderRadius.circular(30),
-                    boxShadow: [
-                      BoxShadow(
-                        color: AppTheme.primaryBlue.withOpacity(0.3),
-                        blurRadius: 10,
-                        offset: const Offset(0, 5),
+                if (!isSearching)
+                  Container(
+                    decoration: BoxDecoration(
+                      gradient: AppTheme.primaryGradient,
+                      borderRadius: BorderRadius.circular(30),
+                      boxShadow: [
+                        BoxShadow(
+                          color: AppTheme.primaryBlue.withOpacity(0.3),
+                          blurRadius: 10,
+                          offset: const Offset(0, 5),
+                        ),
+                      ],
+                    ),
+                    child: ElevatedButton.icon(
+                      onPressed: () => ref
+                          .read(carListingNotifierProvider.notifier)
+                          .fetchCarListingsFromDb(),
+                      icon:
+                          const Icon(Icons.refresh, color: AppTheme.textLight),
+                      label: const Text(
+                        'Refresh',
+                        style: TextStyle(
+                          color: AppTheme.textLight,
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
-                    ],
-                  ),
-                  child: ElevatedButton.icon(
-                    onPressed: () => ref
-                        .read(carListingNotifierProvider.notifier)
-                        .fetchCarListingsFromDb(),
-                    icon: const Icon(Icons.refresh, color: AppTheme.textLight),
-                    label: const Text(
-                      'Refresh',
-                      style: TextStyle(
-                        color: AppTheme.textLight,
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.transparent,
+                        elevation: 0,
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 32,
+                          vertical: 16,
+                        ),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(30),
+                        ),
                       ),
                     ),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.transparent,
-                      elevation: 0,
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 32,
-                        vertical: 16,
-                      ),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(30),
-                      ),
-                    ),
                   ),
-                ),
               ],
             )
           : ListView.builder(
@@ -478,7 +602,7 @@ class CarListingCard extends StatelessWidget {
                             ),
                             const SizedBox(width: 8),
                             Text(
-                              car.fuel,
+                              car.seller,
                               style: TextStyle(
                                 fontSize: 12,
                                 color: AppTheme.textLight.withOpacity(0.7),

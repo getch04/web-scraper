@@ -6,13 +6,29 @@ import 'package:path_provider/path_provider.dart';
 
 class DatabaseService {
   static late Isar _isar;
+  static bool _isInitialized = false;
 
   static Future<void> initialize() async {
-    final dir = await getApplicationDocumentsDirectory();
-    _isar = await Isar.open(
-      [CarListingIsarSchema, FilterIsarSchema, SettingsIsarSchema],
-      directory: dir.path,
-    );
+    if (_isInitialized) {
+      return;
+    }
+
+    try {
+      final dir = await getApplicationDocumentsDirectory();
+      _isar = await Isar.open(
+        [CarListingIsarSchema, FilterIsarSchema, SettingsIsarSchema],
+        directory: dir.path,
+      );
+      _isInitialized = true;
+    } catch (e) {
+      if (e.toString().contains('already been opened')) {
+        // If Isar is already open, get the instance
+        _isar = Isar.getInstance()!;
+        _isInitialized = true;
+      } else {
+        rethrow;
+      }
+    }
   }
 
   static Isar get instance => _isar;

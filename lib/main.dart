@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:car_web_scrapepr/car_listing_screen.dart';
 import 'package:car_web_scrapepr/core/theme.dart';
 import 'package:car_web_scrapepr/providers/settings_provider.dart';
+import 'package:car_web_scrapepr/services/background_service.dart';
 import 'package:car_web_scrapepr/services/database_service.dart';
 import 'package:car_web_scrapepr/services/notification_service.dart';
 import 'package:car_web_scrapepr/services/trial_service.dart';
@@ -14,14 +15,16 @@ Future<void> main() async {
 
   await NotificationService.initialize();
   await DatabaseService.initialize();
-  await TrialService.init();
+  await BackgroundService.initialize();
 
-  Timer.periodic(const Duration(minutes: 10), (timer) {
-    NotificationService.showNotification(
-      title: 'Test Notification',
-      body: 'This is a test notification sent at ${DateTime.now().toString()}',
-    );
+  // Simulate background fetch every 1 minute for testing
+  Timer.periodic(const Duration(minutes: 10), (timer) async {
+    debugPrint('🔄 Simulating background fetch...');
+    await BackgroundService.handleBackground();
+    debugPrint('✅ Background fetch simulation completed');
   });
+
+  await TrialService.init();
 
   runApp(const ProviderScope(child: MyApp()));
 }

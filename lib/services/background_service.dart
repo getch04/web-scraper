@@ -53,7 +53,11 @@ class BackgroundService {
 
   static Future<void> handleBackground() async {
     try {
-      await DatabaseService.initialize();
+      // Try to get existing Isar instance first
+      final existingIsar = Isar.getInstance();
+      if (existingIsar == null) {
+        await DatabaseService.initialize();
+      }
 
       final settings = await DatabaseService.getSettings();
       if (settings?.notificationsEnabled == false) return;

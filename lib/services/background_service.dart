@@ -16,39 +16,53 @@ class BackgroundService {
 
   static Future<void> initialize() async {
     try {
+      // First initialize database
+      await DatabaseService.initialize();
+
+      // Then initialize notifications
+      await NotificationService.initialize();
+
+      // Finally initialize workmanager
       await wm.Workmanager().initialize(
         callbackDispatcher,
-        isInDebugMode: false,
+        isInDebugMode: kDebugMode,
       );
+
+      // Schedule periodic fetch only if everything else initialized successfully
       await schedulePeriodicFetch();
-    } catch (e) {
-      debugPrint('Failed to initialize background service: $e');
-      rethrow;
+    } catch (e, stack) {
+      debugPrint('Failed to initialize background service: $e\n$stack');
+      // Don't rethrow - we want the app to continue even if background service fails
     }
   }
 
   static Future<void> schedulePeriodicFetch() async {
-    final settings = await DatabaseService.getSettings();
+    try {
+      final settings = await DatabaseService.getSettings();
 
-    if (settings?.notificationsEnabled == false) {
-      await wm.Workmanager().cancelAll();
-      return;
+      if (settings?.notificationsEnabled == false) {
+        await wm.Workmanager().cancelAll();
+        return;
+      }
+
+      final frequency = settings?.frequency ?? NotificationFrequency.minutes30;
+
+      await wm.Workmanager().registerPeriodicTask(
+        taskName,
+        taskName,
+        frequency: frequency.duration,
+        constraints: wm.Constraints(
+          requiresBatteryNotLow: true,
+          networkType: wm.NetworkType.connected,
+        ),
+        existingWorkPolicy: wm.ExistingWorkPolicy.replace,
+        backoffPolicy: wm.BackoffPolicy.linear,
+        initialDelay: const Duration(seconds: 10),
+      );
+    } catch (e) {
+      debugPrint('Failed to schedule periodic fetch: $e');
+      // Don't rethrow - periodic fetch can be retried later
     }
-
-    final frequency = settings?.frequency ?? NotificationFrequency.minutes30;
-
-    await wm.Workmanager().registerPeriodicTask(
-      taskName,
-      taskName,
-      frequency: frequency.duration,
-      constraints: wm.Constraints(
-        requiresBatteryNotLow: true,
-        networkType: wm.NetworkType.connected,
-      ),
-      existingWorkPolicy: wm.ExistingWorkPolicy.replace,
-      backoffPolicy: wm.BackoffPolicy.linear,
-      initialDelay: const Duration(seconds: 10),
-    );
   }
 
   static Future<void> handleBackground() async {
@@ -89,6 +103,8 @@ class BackgroundService {
       await _handleNewListings(allNewListings, existingListings);
     } catch (e, stackTrace) {
       debugPrint('Background fetch failed: $e\n$stackTrace');
+      // Don't rethrow - we want the background task to be considered successful
+      // so it will be retried later
     }
   }
 
@@ -96,29 +112,35 @@ class BackgroundService {
     List<CarListing> newListings,
     List<CarListingIsar> existingListings,
   ) async {
-    // Use detailPage URL as unique identifier
-    final existingUrls = existingListings.map((e) => e.detailPage).toSet();
-    final newUrls = newListings.map((e) => e.detailPage).toSet();
+    try {
+      // Use detailPage URL as unique identifier
+      final existingUrls = existingListings.map((e) => e.detailPage).toSet();
+      final newUrls = newListings.map((e) => e.detailPage).toSet();
 
-    final uniqueNewListings = newUrls
-        .difference(existingUrls)
-        .map((url) => newListings.firstWhere((l) => l.detailPage == url))
-        .toList();
+      final uniqueNewListings = newUrls
+          .difference(existingUrls)
+          .map((url) => newListings.firstWhere((l) => l.detailPage == url))
+          .toList();
 
-    if (uniqueNewListings.isNotEmpty) {
-      // Save new listings to database
-      await DatabaseService.instance.writeTxn(() async {
-        for (var listing in uniqueNewListings) {
-          await DatabaseService.instance.carListingIsars
-              .put(CarListingIsar.fromCarListing(listing));
-        }
-      });
+      if (uniqueNewListings.isNotEmpty) {
+        // Save new listings to database
+        await DatabaseService.instance.writeTxn(() async {
+          for (var listing in uniqueNewListings) {
+            await DatabaseService.instance.carListingIsars
+                .put(CarListingIsar.fromCarListing(listing));
+          }
+        });
 
-      // Show notification
-      await NotificationService.showNotification(
-        title: 'New Car Listings Available',
-        body: 'Found ${uniqueNewListings.length} new car listings!',
-      );
+        // Show notification
+        await NotificationService.showNotification(
+          title: 'New Car Listings Available',
+          body: 'Found ${uniqueNewListings.length} new car listings!',
+          newListingsCount: uniqueNewListings.length,
+        );
+      }
+    } catch (e) {
+      debugPrint('Failed to handle new listings: $e');
+      // Don't rethrow - we want the background task to be considered successful
     }
   }
 }

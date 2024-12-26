@@ -8,6 +8,7 @@ import 'package:car_web_scrapepr/screens/paywall_page.dart';
 import 'package:car_web_scrapepr/screens/settings_page.dart';
 import 'package:car_web_scrapepr/services/trial_service.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -19,12 +20,21 @@ class CarListingPage extends HookConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final state = ref.watch(carListingNotifierProvider);
 
-    // useEffect(() {
-    //   Future.microtask(() => ref
-    //       .read(carListingNotifierProvider.notifier)
-    //       .fetchCarListingsFromDb());
-    //   return null;
-    // }, []);
+    // Handle navigation arguments
+    final args =
+        ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>?;
+    final showNewestFirst = args?['showNewestFirst'] as bool? ?? false;
+    final timestamp = args?['timestamp'] as int? ?? 0;
+
+    // If coming from notification with showNewestFirst, update sorting preference
+    useEffect(() {
+      if (showNewestFirst && timestamp > 0) {
+        Future.microtask(() => ref
+            .read(carListingNotifierProvider.notifier)
+            .setSortingPreference(showNewestFirst: true, timestamp: timestamp));
+      }
+      return null;
+    }, []);
 
     return StreamBuilder<bool>(
       stream: TrialService.watchShouldShowPaywall(),
@@ -40,7 +50,7 @@ class CarListingPage extends HookConsumerWidget {
               shaderCallback: (bounds) =>
                   AppTheme.primaryGradient.createShader(bounds),
               child: const Text(
-                'Premium Cars',
+                'Premium Carssss',
                 style: TextStyle(
                   fontSize: 24,
                   fontWeight: FontWeight.bold,

@@ -10,12 +10,14 @@ part 'car_listing_provider.g.dart';
 @riverpod
 class CarListingNotifier extends _$CarListingNotifier {
   late final CarListingRepository _repository = CarListingRepository();
+  bool _showNewestFirst = false;
+  int _sortTimestamp = 0;
 
   @override
   CarListingState build() {
     _repository.watchCarListings().listen((listings) {
       state = state.copyWith(
-        listings: listings,
+        listings: _sortListings(listings),
         isLoading: false,
       );
     });
@@ -27,12 +29,40 @@ class CarListingNotifier extends _$CarListingNotifier {
     state = state.copyWith(isLoading: loading);
   }
 
+  void setSortingPreference(
+      {required bool showNewestFirst, int timestamp = 0}) {
+    _showNewestFirst = showNewestFirst;
+    _sortTimestamp = timestamp;
+    // Re-sort current listings
+    state = state.copyWith(
+      listings: _sortListings(state.listings),
+    );
+  }
+
+  List<CarListing> _sortListings(List<CarListing> listings) {
+    if (!_showNewestFirst) return listings;
+
+    final sorted = List<CarListing>.from(listings);
+    if (_sortTimestamp > 0) {
+      // For listings after notification click, prioritize new listings
+      sorted.sort((a, b) {
+        final aIsNew = DateTime.now().millisecondsSinceEpoch - _sortTimestamp <
+            60000; // Within 1 minute
+        final bIsNew =
+            DateTime.now().millisecondsSinceEpoch - _sortTimestamp < 60000;
+        if (aIsNew != bIsNew) return aIsNew ? -1 : 1;
+        return 0;
+      });
+    }
+    return sorted;
+  }
+
   Future<void> fetchCarListingsFromDb() async {
     state = state.copyWith(isLoading: true, error: null);
     try {
       final listings = await _repository.fetchCarListingsFromDb();
       state = state.copyWith(
-        listings: listings,
+        listings: _sortListings(listings),
         isLoading: false,
         error: null,
       );

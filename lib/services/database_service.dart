@@ -50,6 +50,19 @@ class DatabaseService {
     });
   }
 
+  static Future<void> deleteOldListings(int keepCount) async {
+    await _isar.writeTxn(() async {
+      final allListings =
+          await _isar.carListingIsars.where().sortByLastUpdatedDesc().findAll();
+
+      if (allListings.length > keepCount) {
+        final listingsToDelete = allListings.sublist(keepCount);
+        await _isar.carListingIsars
+            .deleteAll(listingsToDelete.map((e) => e.id).toList());
+      }
+    });
+  }
+
   //get settings
   static Future<SettingsIsar?> getSettings() async {
     return _isar.settingsIsars.filter().idEqualTo(0).findFirst();

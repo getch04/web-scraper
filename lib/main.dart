@@ -10,6 +10,14 @@ import 'package:car_web_scrapepr/services/trial_service.dart';
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
+Future<void> cleanupOldListings() async {
+  final listings = await DatabaseService.getExistingListings();
+  if (listings.length > 500) {
+    await DatabaseService.deleteOldListings(500);
+    debugPrint('🧹 Cleaned up ${listings.length - 500} old car listings');
+  }
+}
+
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
@@ -17,8 +25,11 @@ Future<void> main() async {
   await DatabaseService.initialize();
   await BackgroundService.initialize();
 
+  // Clean up old listings
+  await cleanupOldListings();
+
   // Simulate background fetch every 1 minute for testing
-  Timer.periodic(const Duration(minutes: 10), (timer) async {
+  Timer.periodic(const Duration(seconds: 70), (timer) async {
     debugPrint('🔄 Simulating background fetch...');
     await BackgroundService.handleBackground();
     debugPrint('✅ Background fetch simulation completed');
@@ -51,6 +62,11 @@ class MyApp extends ConsumerWidget {
       routes: {
         '/notification-details': (context) =>
             const CarListingPage(), // Replace with your notification details page
+        '/car-listings': (context) {
+          final args = ModalRoute.of(context)?.settings.arguments
+              as Map<String, dynamic>?;
+          return const CarListingPage();
+        },
       },
     );
   }

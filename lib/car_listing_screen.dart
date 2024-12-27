@@ -2,7 +2,7 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:car_web_scrapepr/core/theme.dart';
 import 'package:car_web_scrapepr/core/transitions.dart';
-import 'package:car_web_scrapepr/models/car_listing_model.dart';
+import 'package:car_web_scrapepr/models/car_listing_isar.dart';
 import 'package:car_web_scrapepr/providers/car_listing_provider.dart';
 import 'package:car_web_scrapepr/providers/search_provider.dart';
 import 'package:car_web_scrapepr/screens/paywall_page.dart';
@@ -462,6 +462,21 @@ class CarListingCard extends StatelessWidget {
 
   const CarListingCard({super.key, required this.car});
 
+  String _getTimeAgoText(DateTime dateTime) {
+    final now = DateTime.now();
+    final difference = now.difference(dateTime);
+
+    if (difference.inDays > 0) {
+      return 'Updated ${difference.inDays} ${difference.inDays == 1 ? 'day' : 'days'} ago';
+    } else if (difference.inHours > 0) {
+      return 'Updated ${difference.inHours} ${difference.inHours == 1 ? 'hour' : 'hours'} ago';
+    } else if (difference.inMinutes > 0) {
+      return 'Updated ${difference.inMinutes} ${difference.inMinutes == 1 ? 'minute' : 'minutes'} ago';
+    } else {
+      return 'Updated just now';
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
@@ -601,14 +616,26 @@ class CarListingCard extends StatelessWidget {
                               ),
                             ),
                             const SizedBox(width: 8),
-                            Text(
-                              car.seller,
-                              style: TextStyle(
-                                fontSize: 12,
-                                color: AppTheme.textLight.withOpacity(0.7),
+                            Expanded(
+                              child: Text(
+                                car.seller,
+                                overflow: TextOverflow.ellipsis,
+                                maxLines: 1,
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  color: AppTheme.textLight.withOpacity(0.7),
+                                ),
                               ),
                             ),
                           ],
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          _getTimeAgoText(car.lastUpdated),
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: AppTheme.textLight.withOpacity(0.7),
+                          ),
                         ),
                       ],
                     ),

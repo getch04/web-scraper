@@ -1,4 +1,3 @@
-import 'package:car_web_scrapepr/models/car_listing_model.dart';
 import 'package:isar/isar.dart';
 import 'package:json_annotation/json_annotation.dart';
 
@@ -6,7 +5,7 @@ part 'car_listing_isar.g.dart';
 
 @collection
 @JsonSerializable()
-class CarListingIsar {
+class CarListing {
   Id id = Isar.autoIncrement;
 
   String title;
@@ -22,7 +21,7 @@ class CarListingIsar {
   String detailPage;
   DateTime lastUpdated;
 
-  CarListingIsar({
+  CarListing({
     required this.title,
     required this.year,
     required this.mileage,
@@ -37,41 +36,8 @@ class CarListingIsar {
     required this.lastUpdated,
   });
 
-  factory CarListingIsar.fromJson(Map<String, dynamic> json) =>
-      _$CarListingIsarFromJson(json);
+  factory CarListing.fromJson(Map<String, dynamic> json) =>
+      _$CarListingFromJson(json);
 
-  Map<String, dynamic> toJson() => _$CarListingIsarToJson(this);
-
-  factory CarListingIsar.fromCarListing(CarListing listing) {
-    return CarListingIsar(
-      title: listing.title,
-      year: listing.year,
-      mileage: listing.mileage,
-      fuel: listing.fuel,
-      transmission: listing.transmission,
-      price: listing.price,
-      location: listing.location,
-      seller: listing.seller,
-      filter: listing.filter,
-      images: listing.images,
-      detailPage: listing.detailPage,
-      lastUpdated: DateTime.now(),
-    );
-  }
-
-  CarListing toCarListing() {
-    return CarListing(
-      title: title,
-      year: year,
-      mileage: mileage,
-      fuel: fuel,
-      transmission: transmission,
-      price: price,
-      location: location,
-      seller: seller,
-      filter: filter,
-      images: images,
-      detailPage: detailPage,
-    );
-  }
+  Map<String, dynamic> toJson() => _$CarListingToJson(this);
 }

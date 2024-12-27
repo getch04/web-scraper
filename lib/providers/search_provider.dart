@@ -1,6 +1,6 @@
 import 'dart:async';
 
-import 'package:car_web_scrapepr/models/car_listing_model.dart';
+import 'package:car_web_scrapepr/models/car_listing_isar.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 class SearchState {

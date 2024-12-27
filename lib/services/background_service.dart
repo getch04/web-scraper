@@ -1,5 +1,4 @@
 import 'package:car_web_scrapepr/models/car_listing_isar.dart';
-import 'package:car_web_scrapepr/models/car_listing_model.dart';
 import 'package:car_web_scrapepr/models/filter_isar.dart';
 import 'package:car_web_scrapepr/models/settings_isar.dart';
 import 'package:flutter/foundation.dart';
@@ -110,7 +109,7 @@ class BackgroundService {
 
   static Future<void> _handleNewListings(
     List<CarListing> newListings,
-    List<CarListingIsar> existingListings,
+    List<CarListing> existingListings,
   ) async {
     try {
       // Use detailPage URL as unique identifier
@@ -126,8 +125,7 @@ class BackgroundService {
         // Save new listings to database
         await DatabaseService.instance.writeTxn(() async {
           for (var listing in uniqueNewListings) {
-            await DatabaseService.instance.carListingIsars
-                .put(CarListingIsar.fromCarListing(listing));
+            await DatabaseService.instance.carListings.put(listing);
           }
         });
 

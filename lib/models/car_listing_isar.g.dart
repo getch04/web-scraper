@@ -9,13 +9,13 @@ part of 'car_listing_isar.dart';
 // coverage:ignore-file
 // ignore_for_file: duplicate_ignore, non_constant_identifier_names, constant_identifier_names, invalid_use_of_protected_member, unnecessary_cast, prefer_const_constructors, lines_longer_than_80_chars, require_trailing_commas, inference_failure_on_function_invocation, unnecessary_parenthesis, unnecessary_raw_strings, unnecessary_null_checks, join_return_with_assignment, prefer_final_locals, avoid_js_rounded_ints, avoid_positional_boolean_parameters
 
-extension GetCarListingIsarCollection on Isar {
-  IsarCollection<CarListingIsar> get carListingIsars => this.collection();
+extension GetCarListingCollection on Isar {
+  IsarCollection<CarListing> get carListings => this.collection();
 }
 
-const CarListingIsarSchema = CollectionSchema(
-  name: r'CarListingIsar',
-  id: -2209414698547058022,
+const CarListingSchema = CollectionSchema(
+  name: r'CarListing',
+  id: -3199939083775550636,
   properties: {
     r'detailPage': PropertySchema(
       id: 0,
@@ -78,22 +78,22 @@ const CarListingIsarSchema = CollectionSchema(
       type: IsarType.string,
     )
   },
-  estimateSize: _carListingIsarEstimateSize,
-  serialize: _carListingIsarSerialize,
-  deserialize: _carListingIsarDeserialize,
-  deserializeProp: _carListingIsarDeserializeProp,
+  estimateSize: _carListingEstimateSize,
+  serialize: _carListingSerialize,
+  deserialize: _carListingDeserialize,
+  deserializeProp: _carListingDeserializeProp,
   idName: r'id',
   indexes: {},
   links: {},
   embeddedSchemas: {},
-  getId: _carListingIsarGetId,
-  getLinks: _carListingIsarGetLinks,
-  attach: _carListingIsarAttach,
+  getId: _carListingGetId,
+  getLinks: _carListingGetLinks,
+  attach: _carListingAttach,
   version: '3.0.5',
 );
 
-int _carListingIsarEstimateSize(
-  CarListingIsar object,
+int _carListingEstimateSize(
+  CarListing object,
   List<int> offsets,
   Map<Type, List<int>> allOffsets,
 ) {
@@ -118,8 +118,8 @@ int _carListingIsarEstimateSize(
   return bytesCount;
 }
 
-void _carListingIsarSerialize(
-  CarListingIsar object,
+void _carListingSerialize(
+  CarListing object,
   IsarWriter writer,
   List<int> offsets,
   Map<Type, List<int>> allOffsets,
@@ -138,13 +138,13 @@ void _carListingIsarSerialize(
   writer.writeString(offsets[11], object.year);
 }
 
-CarListingIsar _carListingIsarDeserialize(
+CarListing _carListingDeserialize(
   Id id,
   IsarReader reader,
   List<int> offsets,
   Map<Type, List<int>> allOffsets,
 ) {
-  final object = CarListingIsar(
+  final object = CarListing(
     detailPage: reader.readString(offsets[0]),
     filter: reader.readString(offsets[1]),
     fuel: reader.readString(offsets[2]),
@@ -162,7 +162,7 @@ CarListingIsar _carListingIsarDeserialize(
   return object;
 }
 
-P _carListingIsarDeserializeProp<P>(
+P _carListingDeserializeProp<P>(
   IsarReader reader,
   int propertyId,
   int offset,
@@ -198,32 +198,30 @@ P _carListingIsarDeserializeProp<P>(
   }
 }
 
-Id _carListingIsarGetId(CarListingIsar object) {
+Id _carListingGetId(CarListing object) {
   return object.id;
 }
 
-List<IsarLinkBase<dynamic>> _carListingIsarGetLinks(CarListingIsar object) {
+List<IsarLinkBase<dynamic>> _carListingGetLinks(CarListing object) {
   return [];
 }
 
-void _carListingIsarAttach(
-    IsarCollection<dynamic> col, Id id, CarListingIsar object) {
+void _carListingAttach(IsarCollection<dynamic> col, Id id, CarListing object) {
   object.id = id;
 }
 
-extension CarListingIsarQueryWhereSort
-    on QueryBuilder<CarListingIsar, CarListingIsar, QWhere> {
-  QueryBuilder<CarListingIsar, CarListingIsar, QAfterWhere> anyId() {
+extension CarListingQueryWhereSort
+    on QueryBuilder<CarListing, CarListing, QWhere> {
+  QueryBuilder<CarListing, CarListing, QAfterWhere> anyId() {
     return QueryBuilder.apply(this, (query) {
       return query.addWhereClause(const IdWhereClause.any());
     });
   }
 }
 
-extension CarListingIsarQueryWhere
-    on QueryBuilder<CarListingIsar, CarListingIsar, QWhereClause> {
-  QueryBuilder<CarListingIsar, CarListingIsar, QAfterWhereClause> idEqualTo(
-      Id id) {
+extension CarListingQueryWhere
+    on QueryBuilder<CarListing, CarListing, QWhereClause> {
+  QueryBuilder<CarListing, CarListing, QAfterWhereClause> idEqualTo(Id id) {
     return QueryBuilder.apply(this, (query) {
       return query.addWhereClause(IdWhereClause.between(
         lower: id,
@@ -232,8 +230,7 @@ extension CarListingIsarQueryWhere
     });
   }
 
-  QueryBuilder<CarListingIsar, CarListingIsar, QAfterWhereClause> idNotEqualTo(
-      Id id) {
+  QueryBuilder<CarListing, CarListing, QAfterWhereClause> idNotEqualTo(Id id) {
     return QueryBuilder.apply(this, (query) {
       if (query.whereSort == Sort.asc) {
         return query
@@ -255,8 +252,7 @@ extension CarListingIsarQueryWhere
     });
   }
 
-  QueryBuilder<CarListingIsar, CarListingIsar, QAfterWhereClause> idGreaterThan(
-      Id id,
+  QueryBuilder<CarListing, CarListing, QAfterWhereClause> idGreaterThan(Id id,
       {bool include = false}) {
     return QueryBuilder.apply(this, (query) {
       return query.addWhereClause(
@@ -265,8 +261,7 @@ extension CarListingIsarQueryWhere
     });
   }
 
-  QueryBuilder<CarListingIsar, CarListingIsar, QAfterWhereClause> idLessThan(
-      Id id,
+  QueryBuilder<CarListing, CarListing, QAfterWhereClause> idLessThan(Id id,
       {bool include = false}) {
     return QueryBuilder.apply(this, (query) {
       return query.addWhereClause(
@@ -275,7 +270,7 @@ extension CarListingIsarQueryWhere
     });
   }
 
-  QueryBuilder<CarListingIsar, CarListingIsar, QAfterWhereClause> idBetween(
+  QueryBuilder<CarListing, CarListing, QAfterWhereClause> idBetween(
     Id lowerId,
     Id upperId, {
     bool includeLower = true,
@@ -292,10 +287,9 @@ extension CarListingIsarQueryWhere
   }
 }
 
-extension CarListingIsarQueryFilter
-    on QueryBuilder<CarListingIsar, CarListingIsar, QFilterCondition> {
-  QueryBuilder<CarListingIsar, CarListingIsar, QAfterFilterCondition>
-      detailPageEqualTo(
+extension CarListingQueryFilter
+    on QueryBuilder<CarListing, CarListing, QFilterCondition> {
+  QueryBuilder<CarListing, CarListing, QAfterFilterCondition> detailPageEqualTo(
     String value, {
     bool caseSensitive = true,
   }) {
@@ -308,7 +302,7 @@ extension CarListingIsarQueryFilter
     });
   }
 
-  QueryBuilder<CarListingIsar, CarListingIsar, QAfterFilterCondition>
+  QueryBuilder<CarListing, CarListing, QAfterFilterCondition>
       detailPageGreaterThan(
     String value, {
     bool include = false,
@@ -324,7 +318,7 @@ extension CarListingIsarQueryFilter
     });
   }
 
-  QueryBuilder<CarListingIsar, CarListingIsar, QAfterFilterCondition>
+  QueryBuilder<CarListing, CarListing, QAfterFilterCondition>
       detailPageLessThan(
     String value, {
     bool include = false,
@@ -340,8 +334,7 @@ extension CarListingIsarQueryFilter
     });
   }
 
-  QueryBuilder<CarListingIsar, CarListingIsar, QAfterFilterCondition>
-      detailPageBetween(
+  QueryBuilder<CarListing, CarListing, QAfterFilterCondition> detailPageBetween(
     String lower,
     String upper, {
     bool includeLower = true,
@@ -360,7 +353,7 @@ extension CarListingIsarQueryFilter
     });
   }
 
-  QueryBuilder<CarListingIsar, CarListingIsar, QAfterFilterCondition>
+  QueryBuilder<CarListing, CarListing, QAfterFilterCondition>
       detailPageStartsWith(
     String value, {
     bool caseSensitive = true,
@@ -374,7 +367,7 @@ extension CarListingIsarQueryFilter
     });
   }
 
-  QueryBuilder<CarListingIsar, CarListingIsar, QAfterFilterCondition>
+  QueryBuilder<CarListing, CarListing, QAfterFilterCondition>
       detailPageEndsWith(
     String value, {
     bool caseSensitive = true,
@@ -388,7 +381,7 @@ extension CarListingIsarQueryFilter
     });
   }
 
-  QueryBuilder<CarListingIsar, CarListingIsar, QAfterFilterCondition>
+  QueryBuilder<CarListing, CarListing, QAfterFilterCondition>
       detailPageContains(String value, {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.contains(
@@ -399,8 +392,9 @@ extension CarListingIsarQueryFilter
     });
   }
 
-  QueryBuilder<CarListingIsar, CarListingIsar, QAfterFilterCondition>
-      detailPageMatches(String pattern, {bool caseSensitive = true}) {
+  QueryBuilder<CarListing, CarListing, QAfterFilterCondition> detailPageMatches(
+      String pattern,
+      {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.matches(
         property: r'detailPage',
@@ -410,7 +404,7 @@ extension CarListingIsarQueryFilter
     });
   }
 
-  QueryBuilder<CarListingIsar, CarListingIsar, QAfterFilterCondition>
+  QueryBuilder<CarListing, CarListing, QAfterFilterCondition>
       detailPageIsEmpty() {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.equalTo(
@@ -420,7 +414,7 @@ extension CarListingIsarQueryFilter
     });
   }
 
-  QueryBuilder<CarListingIsar, CarListingIsar, QAfterFilterCondition>
+  QueryBuilder<CarListing, CarListing, QAfterFilterCondition>
       detailPageIsNotEmpty() {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.greaterThan(
@@ -430,8 +424,7 @@ extension CarListingIsarQueryFilter
     });
   }
 
-  QueryBuilder<CarListingIsar, CarListingIsar, QAfterFilterCondition>
-      filterEqualTo(
+  QueryBuilder<CarListing, CarListing, QAfterFilterCondition> filterEqualTo(
     String value, {
     bool caseSensitive = true,
   }) {
@@ -444,8 +437,7 @@ extension CarListingIsarQueryFilter
     });
   }
 
-  QueryBuilder<CarListingIsar, CarListingIsar, QAfterFilterCondition>
-      filterGreaterThan(
+  QueryBuilder<CarListing, CarListing, QAfterFilterCondition> filterGreaterThan(
     String value, {
     bool include = false,
     bool caseSensitive = true,
@@ -460,8 +452,7 @@ extension CarListingIsarQueryFilter
     });
   }
 
-  QueryBuilder<CarListingIsar, CarListingIsar, QAfterFilterCondition>
-      filterLessThan(
+  QueryBuilder<CarListing, CarListing, QAfterFilterCondition> filterLessThan(
     String value, {
     bool include = false,
     bool caseSensitive = true,
@@ -476,8 +467,7 @@ extension CarListingIsarQueryFilter
     });
   }
 
-  QueryBuilder<CarListingIsar, CarListingIsar, QAfterFilterCondition>
-      filterBetween(
+  QueryBuilder<CarListing, CarListing, QAfterFilterCondition> filterBetween(
     String lower,
     String upper, {
     bool includeLower = true,
@@ -496,8 +486,7 @@ extension CarListingIsarQueryFilter
     });
   }
 
-  QueryBuilder<CarListingIsar, CarListingIsar, QAfterFilterCondition>
-      filterStartsWith(
+  QueryBuilder<CarListing, CarListing, QAfterFilterCondition> filterStartsWith(
     String value, {
     bool caseSensitive = true,
   }) {
@@ -510,8 +499,7 @@ extension CarListingIsarQueryFilter
     });
   }
 
-  QueryBuilder<CarListingIsar, CarListingIsar, QAfterFilterCondition>
-      filterEndsWith(
+  QueryBuilder<CarListing, CarListing, QAfterFilterCondition> filterEndsWith(
     String value, {
     bool caseSensitive = true,
   }) {
@@ -524,8 +512,9 @@ extension CarListingIsarQueryFilter
     });
   }
 
-  QueryBuilder<CarListingIsar, CarListingIsar, QAfterFilterCondition>
-      filterContains(String value, {bool caseSensitive = true}) {
+  QueryBuilder<CarListing, CarListing, QAfterFilterCondition> filterContains(
+      String value,
+      {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.contains(
         property: r'filter',
@@ -535,8 +524,9 @@ extension CarListingIsarQueryFilter
     });
   }
 
-  QueryBuilder<CarListingIsar, CarListingIsar, QAfterFilterCondition>
-      filterMatches(String pattern, {bool caseSensitive = true}) {
+  QueryBuilder<CarListing, CarListing, QAfterFilterCondition> filterMatches(
+      String pattern,
+      {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.matches(
         property: r'filter',
@@ -546,8 +536,7 @@ extension CarListingIsarQueryFilter
     });
   }
 
-  QueryBuilder<CarListingIsar, CarListingIsar, QAfterFilterCondition>
-      filterIsEmpty() {
+  QueryBuilder<CarListing, CarListing, QAfterFilterCondition> filterIsEmpty() {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.equalTo(
         property: r'filter',
@@ -556,7 +545,7 @@ extension CarListingIsarQueryFilter
     });
   }
 
-  QueryBuilder<CarListingIsar, CarListingIsar, QAfterFilterCondition>
+  QueryBuilder<CarListing, CarListing, QAfterFilterCondition>
       filterIsNotEmpty() {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.greaterThan(
@@ -566,8 +555,7 @@ extension CarListingIsarQueryFilter
     });
   }
 
-  QueryBuilder<CarListingIsar, CarListingIsar, QAfterFilterCondition>
-      fuelEqualTo(
+  QueryBuilder<CarListing, CarListing, QAfterFilterCondition> fuelEqualTo(
     String value, {
     bool caseSensitive = true,
   }) {
@@ -580,8 +568,7 @@ extension CarListingIsarQueryFilter
     });
   }
 
-  QueryBuilder<CarListingIsar, CarListingIsar, QAfterFilterCondition>
-      fuelGreaterThan(
+  QueryBuilder<CarListing, CarListing, QAfterFilterCondition> fuelGreaterThan(
     String value, {
     bool include = false,
     bool caseSensitive = true,
@@ -596,8 +583,7 @@ extension CarListingIsarQueryFilter
     });
   }
 
-  QueryBuilder<CarListingIsar, CarListingIsar, QAfterFilterCondition>
-      fuelLessThan(
+  QueryBuilder<CarListing, CarListing, QAfterFilterCondition> fuelLessThan(
     String value, {
     bool include = false,
     bool caseSensitive = true,
@@ -612,8 +598,7 @@ extension CarListingIsarQueryFilter
     });
   }
 
-  QueryBuilder<CarListingIsar, CarListingIsar, QAfterFilterCondition>
-      fuelBetween(
+  QueryBuilder<CarListing, CarListing, QAfterFilterCondition> fuelBetween(
     String lower,
     String upper, {
     bool includeLower = true,
@@ -632,8 +617,7 @@ extension CarListingIsarQueryFilter
     });
   }
 
-  QueryBuilder<CarListingIsar, CarListingIsar, QAfterFilterCondition>
-      fuelStartsWith(
+  QueryBuilder<CarListing, CarListing, QAfterFilterCondition> fuelStartsWith(
     String value, {
     bool caseSensitive = true,
   }) {
@@ -646,8 +630,7 @@ extension CarListingIsarQueryFilter
     });
   }
 
-  QueryBuilder<CarListingIsar, CarListingIsar, QAfterFilterCondition>
-      fuelEndsWith(
+  QueryBuilder<CarListing, CarListing, QAfterFilterCondition> fuelEndsWith(
     String value, {
     bool caseSensitive = true,
   }) {
@@ -660,8 +643,9 @@ extension CarListingIsarQueryFilter
     });
   }
 
-  QueryBuilder<CarListingIsar, CarListingIsar, QAfterFilterCondition>
-      fuelContains(String value, {bool caseSensitive = true}) {
+  QueryBuilder<CarListing, CarListing, QAfterFilterCondition> fuelContains(
+      String value,
+      {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.contains(
         property: r'fuel',
@@ -671,8 +655,9 @@ extension CarListingIsarQueryFilter
     });
   }
 
-  QueryBuilder<CarListingIsar, CarListingIsar, QAfterFilterCondition>
-      fuelMatches(String pattern, {bool caseSensitive = true}) {
+  QueryBuilder<CarListing, CarListing, QAfterFilterCondition> fuelMatches(
+      String pattern,
+      {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.matches(
         property: r'fuel',
@@ -682,8 +667,7 @@ extension CarListingIsarQueryFilter
     });
   }
 
-  QueryBuilder<CarListingIsar, CarListingIsar, QAfterFilterCondition>
-      fuelIsEmpty() {
+  QueryBuilder<CarListing, CarListing, QAfterFilterCondition> fuelIsEmpty() {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.equalTo(
         property: r'fuel',
@@ -692,8 +676,7 @@ extension CarListingIsarQueryFilter
     });
   }
 
-  QueryBuilder<CarListingIsar, CarListingIsar, QAfterFilterCondition>
-      fuelIsNotEmpty() {
+  QueryBuilder<CarListing, CarListing, QAfterFilterCondition> fuelIsNotEmpty() {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.greaterThan(
         property: r'fuel',
@@ -702,7 +685,7 @@ extension CarListingIsarQueryFilter
     });
   }
 
-  QueryBuilder<CarListingIsar, CarListingIsar, QAfterFilterCondition> idEqualTo(
+  QueryBuilder<CarListing, CarListing, QAfterFilterCondition> idEqualTo(
       Id value) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.equalTo(
@@ -712,8 +695,7 @@ extension CarListingIsarQueryFilter
     });
   }
 
-  QueryBuilder<CarListingIsar, CarListingIsar, QAfterFilterCondition>
-      idGreaterThan(
+  QueryBuilder<CarListing, CarListing, QAfterFilterCondition> idGreaterThan(
     Id value, {
     bool include = false,
   }) {
@@ -726,8 +708,7 @@ extension CarListingIsarQueryFilter
     });
   }
 
-  QueryBuilder<CarListingIsar, CarListingIsar, QAfterFilterCondition>
-      idLessThan(
+  QueryBuilder<CarListing, CarListing, QAfterFilterCondition> idLessThan(
     Id value, {
     bool include = false,
   }) {
@@ -740,7 +721,7 @@ extension CarListingIsarQueryFilter
     });
   }
 
-  QueryBuilder<CarListingIsar, CarListingIsar, QAfterFilterCondition> idBetween(
+  QueryBuilder<CarListing, CarListing, QAfterFilterCondition> idBetween(
     Id lower,
     Id upper, {
     bool includeLower = true,
@@ -757,7 +738,7 @@ extension CarListingIsarQueryFilter
     });
   }
 
-  QueryBuilder<CarListingIsar, CarListingIsar, QAfterFilterCondition>
+  QueryBuilder<CarListing, CarListing, QAfterFilterCondition>
       imagesElementEqualTo(
     String value, {
     bool caseSensitive = true,
@@ -771,7 +752,7 @@ extension CarListingIsarQueryFilter
     });
   }
 
-  QueryBuilder<CarListingIsar, CarListingIsar, QAfterFilterCondition>
+  QueryBuilder<CarListing, CarListing, QAfterFilterCondition>
       imagesElementGreaterThan(
     String value, {
     bool include = false,
@@ -787,7 +768,7 @@ extension CarListingIsarQueryFilter
     });
   }
 
-  QueryBuilder<CarListingIsar, CarListingIsar, QAfterFilterCondition>
+  QueryBuilder<CarListing, CarListing, QAfterFilterCondition>
       imagesElementLessThan(
     String value, {
     bool include = false,
@@ -803,7 +784,7 @@ extension CarListingIsarQueryFilter
     });
   }
 
-  QueryBuilder<CarListingIsar, CarListingIsar, QAfterFilterCondition>
+  QueryBuilder<CarListing, CarListing, QAfterFilterCondition>
       imagesElementBetween(
     String lower,
     String upper, {
@@ -823,7 +804,7 @@ extension CarListingIsarQueryFilter
     });
   }
 
-  QueryBuilder<CarListingIsar, CarListingIsar, QAfterFilterCondition>
+  QueryBuilder<CarListing, CarListing, QAfterFilterCondition>
       imagesElementStartsWith(
     String value, {
     bool caseSensitive = true,
@@ -837,7 +818,7 @@ extension CarListingIsarQueryFilter
     });
   }
 
-  QueryBuilder<CarListingIsar, CarListingIsar, QAfterFilterCondition>
+  QueryBuilder<CarListing, CarListing, QAfterFilterCondition>
       imagesElementEndsWith(
     String value, {
     bool caseSensitive = true,
@@ -851,7 +832,7 @@ extension CarListingIsarQueryFilter
     });
   }
 
-  QueryBuilder<CarListingIsar, CarListingIsar, QAfterFilterCondition>
+  QueryBuilder<CarListing, CarListing, QAfterFilterCondition>
       imagesElementContains(String value, {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.contains(
@@ -862,7 +843,7 @@ extension CarListingIsarQueryFilter
     });
   }
 
-  QueryBuilder<CarListingIsar, CarListingIsar, QAfterFilterCondition>
+  QueryBuilder<CarListing, CarListing, QAfterFilterCondition>
       imagesElementMatches(String pattern, {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.matches(
@@ -873,7 +854,7 @@ extension CarListingIsarQueryFilter
     });
   }
 
-  QueryBuilder<CarListingIsar, CarListingIsar, QAfterFilterCondition>
+  QueryBuilder<CarListing, CarListing, QAfterFilterCondition>
       imagesElementIsEmpty() {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.equalTo(
@@ -883,7 +864,7 @@ extension CarListingIsarQueryFilter
     });
   }
 
-  QueryBuilder<CarListingIsar, CarListingIsar, QAfterFilterCondition>
+  QueryBuilder<CarListing, CarListing, QAfterFilterCondition>
       imagesElementIsNotEmpty() {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.greaterThan(
@@ -893,7 +874,7 @@ extension CarListingIsarQueryFilter
     });
   }
 
-  QueryBuilder<CarListingIsar, CarListingIsar, QAfterFilterCondition>
+  QueryBuilder<CarListing, CarListing, QAfterFilterCondition>
       imagesLengthEqualTo(int length) {
     return QueryBuilder.apply(this, (query) {
       return query.listLength(
@@ -906,8 +887,7 @@ extension CarListingIsarQueryFilter
     });
   }
 
-  QueryBuilder<CarListingIsar, CarListingIsar, QAfterFilterCondition>
-      imagesIsEmpty() {
+  QueryBuilder<CarListing, CarListing, QAfterFilterCondition> imagesIsEmpty() {
     return QueryBuilder.apply(this, (query) {
       return query.listLength(
         r'images',
@@ -919,7 +899,7 @@ extension CarListingIsarQueryFilter
     });
   }
 
-  QueryBuilder<CarListingIsar, CarListingIsar, QAfterFilterCondition>
+  QueryBuilder<CarListing, CarListing, QAfterFilterCondition>
       imagesIsNotEmpty() {
     return QueryBuilder.apply(this, (query) {
       return query.listLength(
@@ -932,7 +912,7 @@ extension CarListingIsarQueryFilter
     });
   }
 
-  QueryBuilder<CarListingIsar, CarListingIsar, QAfterFilterCondition>
+  QueryBuilder<CarListing, CarListing, QAfterFilterCondition>
       imagesLengthLessThan(
     int length, {
     bool include = false,
@@ -948,7 +928,7 @@ extension CarListingIsarQueryFilter
     });
   }
 
-  QueryBuilder<CarListingIsar, CarListingIsar, QAfterFilterCondition>
+  QueryBuilder<CarListing, CarListing, QAfterFilterCondition>
       imagesLengthGreaterThan(
     int length, {
     bool include = false,
@@ -964,7 +944,7 @@ extension CarListingIsarQueryFilter
     });
   }
 
-  QueryBuilder<CarListingIsar, CarListingIsar, QAfterFilterCondition>
+  QueryBuilder<CarListing, CarListing, QAfterFilterCondition>
       imagesLengthBetween(
     int lower,
     int upper, {
@@ -982,7 +962,7 @@ extension CarListingIsarQueryFilter
     });
   }
 
-  QueryBuilder<CarListingIsar, CarListingIsar, QAfterFilterCondition>
+  QueryBuilder<CarListing, CarListing, QAfterFilterCondition>
       lastUpdatedEqualTo(DateTime value) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.equalTo(
@@ -992,7 +972,7 @@ extension CarListingIsarQueryFilter
     });
   }
 
-  QueryBuilder<CarListingIsar, CarListingIsar, QAfterFilterCondition>
+  QueryBuilder<CarListing, CarListing, QAfterFilterCondition>
       lastUpdatedGreaterThan(
     DateTime value, {
     bool include = false,
@@ -1006,7 +986,7 @@ extension CarListingIsarQueryFilter
     });
   }
 
-  QueryBuilder<CarListingIsar, CarListingIsar, QAfterFilterCondition>
+  QueryBuilder<CarListing, CarListing, QAfterFilterCondition>
       lastUpdatedLessThan(
     DateTime value, {
     bool include = false,
@@ -1020,7 +1000,7 @@ extension CarListingIsarQueryFilter
     });
   }
 
-  QueryBuilder<CarListingIsar, CarListingIsar, QAfterFilterCondition>
+  QueryBuilder<CarListing, CarListing, QAfterFilterCondition>
       lastUpdatedBetween(
     DateTime lower,
     DateTime upper, {
@@ -1038,8 +1018,7 @@ extension CarListingIsarQueryFilter
     });
   }
 
-  QueryBuilder<CarListingIsar, CarListingIsar, QAfterFilterCondition>
-      locationEqualTo(
+  QueryBuilder<CarListing, CarListing, QAfterFilterCondition> locationEqualTo(
     String value, {
     bool caseSensitive = true,
   }) {
@@ -1052,7 +1031,7 @@ extension CarListingIsarQueryFilter
     });
   }
 
-  QueryBuilder<CarListingIsar, CarListingIsar, QAfterFilterCondition>
+  QueryBuilder<CarListing, CarListing, QAfterFilterCondition>
       locationGreaterThan(
     String value, {
     bool include = false,
@@ -1068,8 +1047,7 @@ extension CarListingIsarQueryFilter
     });
   }
 
-  QueryBuilder<CarListingIsar, CarListingIsar, QAfterFilterCondition>
-      locationLessThan(
+  QueryBuilder<CarListing, CarListing, QAfterFilterCondition> locationLessThan(
     String value, {
     bool include = false,
     bool caseSensitive = true,
@@ -1084,8 +1062,7 @@ extension CarListingIsarQueryFilter
     });
   }
 
-  QueryBuilder<CarListingIsar, CarListingIsar, QAfterFilterCondition>
-      locationBetween(
+  QueryBuilder<CarListing, CarListing, QAfterFilterCondition> locationBetween(
     String lower,
     String upper, {
     bool includeLower = true,
@@ -1104,7 +1081,7 @@ extension CarListingIsarQueryFilter
     });
   }
 
-  QueryBuilder<CarListingIsar, CarListingIsar, QAfterFilterCondition>
+  QueryBuilder<CarListing, CarListing, QAfterFilterCondition>
       locationStartsWith(
     String value, {
     bool caseSensitive = true,
@@ -1118,8 +1095,7 @@ extension CarListingIsarQueryFilter
     });
   }
 
-  QueryBuilder<CarListingIsar, CarListingIsar, QAfterFilterCondition>
-      locationEndsWith(
+  QueryBuilder<CarListing, CarListing, QAfterFilterCondition> locationEndsWith(
     String value, {
     bool caseSensitive = true,
   }) {
@@ -1132,8 +1108,9 @@ extension CarListingIsarQueryFilter
     });
   }
 
-  QueryBuilder<CarListingIsar, CarListingIsar, QAfterFilterCondition>
-      locationContains(String value, {bool caseSensitive = true}) {
+  QueryBuilder<CarListing, CarListing, QAfterFilterCondition> locationContains(
+      String value,
+      {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.contains(
         property: r'location',
@@ -1143,8 +1120,9 @@ extension CarListingIsarQueryFilter
     });
   }
 
-  QueryBuilder<CarListingIsar, CarListingIsar, QAfterFilterCondition>
-      locationMatches(String pattern, {bool caseSensitive = true}) {
+  QueryBuilder<CarListing, CarListing, QAfterFilterCondition> locationMatches(
+      String pattern,
+      {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.matches(
         property: r'location',
@@ -1154,7 +1132,7 @@ extension CarListingIsarQueryFilter
     });
   }
 
-  QueryBuilder<CarListingIsar, CarListingIsar, QAfterFilterCondition>
+  QueryBuilder<CarListing, CarListing, QAfterFilterCondition>
       locationIsEmpty() {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.equalTo(
@@ -1164,7 +1142,7 @@ extension CarListingIsarQueryFilter
     });
   }
 
-  QueryBuilder<CarListingIsar, CarListingIsar, QAfterFilterCondition>
+  QueryBuilder<CarListing, CarListing, QAfterFilterCondition>
       locationIsNotEmpty() {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.greaterThan(
@@ -1174,8 +1152,7 @@ extension CarListingIsarQueryFilter
     });
   }
 
-  QueryBuilder<CarListingIsar, CarListingIsar, QAfterFilterCondition>
-      mileageEqualTo(
+  QueryBuilder<CarListing, CarListing, QAfterFilterCondition> mileageEqualTo(
     String value, {
     bool caseSensitive = true,
   }) {
@@ -1188,7 +1165,7 @@ extension CarListingIsarQueryFilter
     });
   }
 
-  QueryBuilder<CarListingIsar, CarListingIsar, QAfterFilterCondition>
+  QueryBuilder<CarListing, CarListing, QAfterFilterCondition>
       mileageGreaterThan(
     String value, {
     bool include = false,
@@ -1204,8 +1181,7 @@ extension CarListingIsarQueryFilter
     });
   }
 
-  QueryBuilder<CarListingIsar, CarListingIsar, QAfterFilterCondition>
-      mileageLessThan(
+  QueryBuilder<CarListing, CarListing, QAfterFilterCondition> mileageLessThan(
     String value, {
     bool include = false,
     bool caseSensitive = true,
@@ -1220,8 +1196,7 @@ extension CarListingIsarQueryFilter
     });
   }
 
-  QueryBuilder<CarListingIsar, CarListingIsar, QAfterFilterCondition>
-      mileageBetween(
+  QueryBuilder<CarListing, CarListing, QAfterFilterCondition> mileageBetween(
     String lower,
     String upper, {
     bool includeLower = true,
@@ -1240,8 +1215,7 @@ extension CarListingIsarQueryFilter
     });
   }
 
-  QueryBuilder<CarListingIsar, CarListingIsar, QAfterFilterCondition>
-      mileageStartsWith(
+  QueryBuilder<CarListing, CarListing, QAfterFilterCondition> mileageStartsWith(
     String value, {
     bool caseSensitive = true,
   }) {
@@ -1254,8 +1228,7 @@ extension CarListingIsarQueryFilter
     });
   }
 
-  QueryBuilder<CarListingIsar, CarListingIsar, QAfterFilterCondition>
-      mileageEndsWith(
+  QueryBuilder<CarListing, CarListing, QAfterFilterCondition> mileageEndsWith(
     String value, {
     bool caseSensitive = true,
   }) {
@@ -1268,8 +1241,9 @@ extension CarListingIsarQueryFilter
     });
   }
 
-  QueryBuilder<CarListingIsar, CarListingIsar, QAfterFilterCondition>
-      mileageContains(String value, {bool caseSensitive = true}) {
+  QueryBuilder<CarListing, CarListing, QAfterFilterCondition> mileageContains(
+      String value,
+      {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.contains(
         property: r'mileage',
@@ -1279,8 +1253,9 @@ extension CarListingIsarQueryFilter
     });
   }
 
-  QueryBuilder<CarListingIsar, CarListingIsar, QAfterFilterCondition>
-      mileageMatches(String pattern, {bool caseSensitive = true}) {
+  QueryBuilder<CarListing, CarListing, QAfterFilterCondition> mileageMatches(
+      String pattern,
+      {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.matches(
         property: r'mileage',
@@ -1290,8 +1265,7 @@ extension CarListingIsarQueryFilter
     });
   }
 
-  QueryBuilder<CarListingIsar, CarListingIsar, QAfterFilterCondition>
-      mileageIsEmpty() {
+  QueryBuilder<CarListing, CarListing, QAfterFilterCondition> mileageIsEmpty() {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.equalTo(
         property: r'mileage',
@@ -1300,7 +1274,7 @@ extension CarListingIsarQueryFilter
     });
   }
 
-  QueryBuilder<CarListingIsar, CarListingIsar, QAfterFilterCondition>
+  QueryBuilder<CarListing, CarListing, QAfterFilterCondition>
       mileageIsNotEmpty() {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.greaterThan(
@@ -1310,8 +1284,7 @@ extension CarListingIsarQueryFilter
     });
   }
 
-  QueryBuilder<CarListingIsar, CarListingIsar, QAfterFilterCondition>
-      priceEqualTo(
+  QueryBuilder<CarListing, CarListing, QAfterFilterCondition> priceEqualTo(
     String value, {
     bool caseSensitive = true,
   }) {
@@ -1324,8 +1297,7 @@ extension CarListingIsarQueryFilter
     });
   }
 
-  QueryBuilder<CarListingIsar, CarListingIsar, QAfterFilterCondition>
-      priceGreaterThan(
+  QueryBuilder<CarListing, CarListing, QAfterFilterCondition> priceGreaterThan(
     String value, {
     bool include = false,
     bool caseSensitive = true,
@@ -1340,8 +1312,7 @@ extension CarListingIsarQueryFilter
     });
   }
 
-  QueryBuilder<CarListingIsar, CarListingIsar, QAfterFilterCondition>
-      priceLessThan(
+  QueryBuilder<CarListing, CarListing, QAfterFilterCondition> priceLessThan(
     String value, {
     bool include = false,
     bool caseSensitive = true,
@@ -1356,8 +1327,7 @@ extension CarListingIsarQueryFilter
     });
   }
 
-  QueryBuilder<CarListingIsar, CarListingIsar, QAfterFilterCondition>
-      priceBetween(
+  QueryBuilder<CarListing, CarListing, QAfterFilterCondition> priceBetween(
     String lower,
     String upper, {
     bool includeLower = true,
@@ -1376,8 +1346,7 @@ extension CarListingIsarQueryFilter
     });
   }
 
-  QueryBuilder<CarListingIsar, CarListingIsar, QAfterFilterCondition>
-      priceStartsWith(
+  QueryBuilder<CarListing, CarListing, QAfterFilterCondition> priceStartsWith(
     String value, {
     bool caseSensitive = true,
   }) {
@@ -1390,8 +1359,7 @@ extension CarListingIsarQueryFilter
     });
   }
 
-  QueryBuilder<CarListingIsar, CarListingIsar, QAfterFilterCondition>
-      priceEndsWith(
+  QueryBuilder<CarListing, CarListing, QAfterFilterCondition> priceEndsWith(
     String value, {
     bool caseSensitive = true,
   }) {
@@ -1404,8 +1372,9 @@ extension CarListingIsarQueryFilter
     });
   }
 
-  QueryBuilder<CarListingIsar, CarListingIsar, QAfterFilterCondition>
-      priceContains(String value, {bool caseSensitive = true}) {
+  QueryBuilder<CarListing, CarListing, QAfterFilterCondition> priceContains(
+      String value,
+      {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.contains(
         property: r'price',
@@ -1415,8 +1384,9 @@ extension CarListingIsarQueryFilter
     });
   }
 
-  QueryBuilder<CarListingIsar, CarListingIsar, QAfterFilterCondition>
-      priceMatches(String pattern, {bool caseSensitive = true}) {
+  QueryBuilder<CarListing, CarListing, QAfterFilterCondition> priceMatches(
+      String pattern,
+      {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.matches(
         property: r'price',
@@ -1426,8 +1396,7 @@ extension CarListingIsarQueryFilter
     });
   }
 
-  QueryBuilder<CarListingIsar, CarListingIsar, QAfterFilterCondition>
-      priceIsEmpty() {
+  QueryBuilder<CarListing, CarListing, QAfterFilterCondition> priceIsEmpty() {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.equalTo(
         property: r'price',
@@ -1436,7 +1405,7 @@ extension CarListingIsarQueryFilter
     });
   }
 
-  QueryBuilder<CarListingIsar, CarListingIsar, QAfterFilterCondition>
+  QueryBuilder<CarListing, CarListing, QAfterFilterCondition>
       priceIsNotEmpty() {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.greaterThan(
@@ -1446,8 +1415,7 @@ extension CarListingIsarQueryFilter
     });
   }
 
-  QueryBuilder<CarListingIsar, CarListingIsar, QAfterFilterCondition>
-      sellerEqualTo(
+  QueryBuilder<CarListing, CarListing, QAfterFilterCondition> sellerEqualTo(
     String value, {
     bool caseSensitive = true,
   }) {
@@ -1460,8 +1428,7 @@ extension CarListingIsarQueryFilter
     });
   }
 
-  QueryBuilder<CarListingIsar, CarListingIsar, QAfterFilterCondition>
-      sellerGreaterThan(
+  QueryBuilder<CarListing, CarListing, QAfterFilterCondition> sellerGreaterThan(
     String value, {
     bool include = false,
     bool caseSensitive = true,
@@ -1476,8 +1443,7 @@ extension CarListingIsarQueryFilter
     });
   }
 
-  QueryBuilder<CarListingIsar, CarListingIsar, QAfterFilterCondition>
-      sellerLessThan(
+  QueryBuilder<CarListing, CarListing, QAfterFilterCondition> sellerLessThan(
     String value, {
     bool include = false,
     bool caseSensitive = true,
@@ -1492,8 +1458,7 @@ extension CarListingIsarQueryFilter
     });
   }
 
-  QueryBuilder<CarListingIsar, CarListingIsar, QAfterFilterCondition>
-      sellerBetween(
+  QueryBuilder<CarListing, CarListing, QAfterFilterCondition> sellerBetween(
     String lower,
     String upper, {
     bool includeLower = true,
@@ -1512,8 +1477,7 @@ extension CarListingIsarQueryFilter
     });
   }
 
-  QueryBuilder<CarListingIsar, CarListingIsar, QAfterFilterCondition>
-      sellerStartsWith(
+  QueryBuilder<CarListing, CarListing, QAfterFilterCondition> sellerStartsWith(
     String value, {
     bool caseSensitive = true,
   }) {
@@ -1526,8 +1490,7 @@ extension CarListingIsarQueryFilter
     });
   }
 
-  QueryBuilder<CarListingIsar, CarListingIsar, QAfterFilterCondition>
-      sellerEndsWith(
+  QueryBuilder<CarListing, CarListing, QAfterFilterCondition> sellerEndsWith(
     String value, {
     bool caseSensitive = true,
   }) {
@@ -1540,8 +1503,9 @@ extension CarListingIsarQueryFilter
     });
   }
 
-  QueryBuilder<CarListingIsar, CarListingIsar, QAfterFilterCondition>
-      sellerContains(String value, {bool caseSensitive = true}) {
+  QueryBuilder<CarListing, CarListing, QAfterFilterCondition> sellerContains(
+      String value,
+      {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.contains(
         property: r'seller',
@@ -1551,8 +1515,9 @@ extension CarListingIsarQueryFilter
     });
   }
 
-  QueryBuilder<CarListingIsar, CarListingIsar, QAfterFilterCondition>
-      sellerMatches(String pattern, {bool caseSensitive = true}) {
+  QueryBuilder<CarListing, CarListing, QAfterFilterCondition> sellerMatches(
+      String pattern,
+      {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.matches(
         property: r'seller',
@@ -1562,8 +1527,7 @@ extension CarListingIsarQueryFilter
     });
   }
 
-  QueryBuilder<CarListingIsar, CarListingIsar, QAfterFilterCondition>
-      sellerIsEmpty() {
+  QueryBuilder<CarListing, CarListing, QAfterFilterCondition> sellerIsEmpty() {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.equalTo(
         property: r'seller',
@@ -1572,7 +1536,7 @@ extension CarListingIsarQueryFilter
     });
   }
 
-  QueryBuilder<CarListingIsar, CarListingIsar, QAfterFilterCondition>
+  QueryBuilder<CarListing, CarListing, QAfterFilterCondition>
       sellerIsNotEmpty() {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.greaterThan(
@@ -1582,8 +1546,7 @@ extension CarListingIsarQueryFilter
     });
   }
 
-  QueryBuilder<CarListingIsar, CarListingIsar, QAfterFilterCondition>
-      titleEqualTo(
+  QueryBuilder<CarListing, CarListing, QAfterFilterCondition> titleEqualTo(
     String value, {
     bool caseSensitive = true,
   }) {
@@ -1596,8 +1559,7 @@ extension CarListingIsarQueryFilter
     });
   }
 
-  QueryBuilder<CarListingIsar, CarListingIsar, QAfterFilterCondition>
-      titleGreaterThan(
+  QueryBuilder<CarListing, CarListing, QAfterFilterCondition> titleGreaterThan(
     String value, {
     bool include = false,
     bool caseSensitive = true,
@@ -1612,8 +1574,7 @@ extension CarListingIsarQueryFilter
     });
   }
 
-  QueryBuilder<CarListingIsar, CarListingIsar, QAfterFilterCondition>
-      titleLessThan(
+  QueryBuilder<CarListing, CarListing, QAfterFilterCondition> titleLessThan(
     String value, {
     bool include = false,
     bool caseSensitive = true,
@@ -1628,8 +1589,7 @@ extension CarListingIsarQueryFilter
     });
   }
 
-  QueryBuilder<CarListingIsar, CarListingIsar, QAfterFilterCondition>
-      titleBetween(
+  QueryBuilder<CarListing, CarListing, QAfterFilterCondition> titleBetween(
     String lower,
     String upper, {
     bool includeLower = true,
@@ -1648,8 +1608,7 @@ extension CarListingIsarQueryFilter
     });
   }
 
-  QueryBuilder<CarListingIsar, CarListingIsar, QAfterFilterCondition>
-      titleStartsWith(
+  QueryBuilder<CarListing, CarListing, QAfterFilterCondition> titleStartsWith(
     String value, {
     bool caseSensitive = true,
   }) {
@@ -1662,8 +1621,7 @@ extension CarListingIsarQueryFilter
     });
   }
 
-  QueryBuilder<CarListingIsar, CarListingIsar, QAfterFilterCondition>
-      titleEndsWith(
+  QueryBuilder<CarListing, CarListing, QAfterFilterCondition> titleEndsWith(
     String value, {
     bool caseSensitive = true,
   }) {
@@ -1676,8 +1634,9 @@ extension CarListingIsarQueryFilter
     });
   }
 
-  QueryBuilder<CarListingIsar, CarListingIsar, QAfterFilterCondition>
-      titleContains(String value, {bool caseSensitive = true}) {
+  QueryBuilder<CarListing, CarListing, QAfterFilterCondition> titleContains(
+      String value,
+      {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.contains(
         property: r'title',
@@ -1687,8 +1646,9 @@ extension CarListingIsarQueryFilter
     });
   }
 
-  QueryBuilder<CarListingIsar, CarListingIsar, QAfterFilterCondition>
-      titleMatches(String pattern, {bool caseSensitive = true}) {
+  QueryBuilder<CarListing, CarListing, QAfterFilterCondition> titleMatches(
+      String pattern,
+      {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.matches(
         property: r'title',
@@ -1698,8 +1658,7 @@ extension CarListingIsarQueryFilter
     });
   }
 
-  QueryBuilder<CarListingIsar, CarListingIsar, QAfterFilterCondition>
-      titleIsEmpty() {
+  QueryBuilder<CarListing, CarListing, QAfterFilterCondition> titleIsEmpty() {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.equalTo(
         property: r'title',
@@ -1708,7 +1667,7 @@ extension CarListingIsarQueryFilter
     });
   }
 
-  QueryBuilder<CarListingIsar, CarListingIsar, QAfterFilterCondition>
+  QueryBuilder<CarListing, CarListing, QAfterFilterCondition>
       titleIsNotEmpty() {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.greaterThan(
@@ -1718,7 +1677,7 @@ extension CarListingIsarQueryFilter
     });
   }
 
-  QueryBuilder<CarListingIsar, CarListingIsar, QAfterFilterCondition>
+  QueryBuilder<CarListing, CarListing, QAfterFilterCondition>
       transmissionEqualTo(
     String value, {
     bool caseSensitive = true,
@@ -1732,7 +1691,7 @@ extension CarListingIsarQueryFilter
     });
   }
 
-  QueryBuilder<CarListingIsar, CarListingIsar, QAfterFilterCondition>
+  QueryBuilder<CarListing, CarListing, QAfterFilterCondition>
       transmissionGreaterThan(
     String value, {
     bool include = false,
@@ -1748,7 +1707,7 @@ extension CarListingIsarQueryFilter
     });
   }
 
-  QueryBuilder<CarListingIsar, CarListingIsar, QAfterFilterCondition>
+  QueryBuilder<CarListing, CarListing, QAfterFilterCondition>
       transmissionLessThan(
     String value, {
     bool include = false,
@@ -1764,7 +1723,7 @@ extension CarListingIsarQueryFilter
     });
   }
 
-  QueryBuilder<CarListingIsar, CarListingIsar, QAfterFilterCondition>
+  QueryBuilder<CarListing, CarListing, QAfterFilterCondition>
       transmissionBetween(
     String lower,
     String upper, {
@@ -1784,7 +1743,7 @@ extension CarListingIsarQueryFilter
     });
   }
 
-  QueryBuilder<CarListingIsar, CarListingIsar, QAfterFilterCondition>
+  QueryBuilder<CarListing, CarListing, QAfterFilterCondition>
       transmissionStartsWith(
     String value, {
     bool caseSensitive = true,
@@ -1798,7 +1757,7 @@ extension CarListingIsarQueryFilter
     });
   }
 
-  QueryBuilder<CarListingIsar, CarListingIsar, QAfterFilterCondition>
+  QueryBuilder<CarListing, CarListing, QAfterFilterCondition>
       transmissionEndsWith(
     String value, {
     bool caseSensitive = true,
@@ -1812,7 +1771,7 @@ extension CarListingIsarQueryFilter
     });
   }
 
-  QueryBuilder<CarListingIsar, CarListingIsar, QAfterFilterCondition>
+  QueryBuilder<CarListing, CarListing, QAfterFilterCondition>
       transmissionContains(String value, {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.contains(
@@ -1823,7 +1782,7 @@ extension CarListingIsarQueryFilter
     });
   }
 
-  QueryBuilder<CarListingIsar, CarListingIsar, QAfterFilterCondition>
+  QueryBuilder<CarListing, CarListing, QAfterFilterCondition>
       transmissionMatches(String pattern, {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.matches(
@@ -1834,7 +1793,7 @@ extension CarListingIsarQueryFilter
     });
   }
 
-  QueryBuilder<CarListingIsar, CarListingIsar, QAfterFilterCondition>
+  QueryBuilder<CarListing, CarListing, QAfterFilterCondition>
       transmissionIsEmpty() {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.equalTo(
@@ -1844,7 +1803,7 @@ extension CarListingIsarQueryFilter
     });
   }
 
-  QueryBuilder<CarListingIsar, CarListingIsar, QAfterFilterCondition>
+  QueryBuilder<CarListing, CarListing, QAfterFilterCondition>
       transmissionIsNotEmpty() {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.greaterThan(
@@ -1854,8 +1813,7 @@ extension CarListingIsarQueryFilter
     });
   }
 
-  QueryBuilder<CarListingIsar, CarListingIsar, QAfterFilterCondition>
-      yearEqualTo(
+  QueryBuilder<CarListing, CarListing, QAfterFilterCondition> yearEqualTo(
     String value, {
     bool caseSensitive = true,
   }) {
@@ -1868,8 +1826,7 @@ extension CarListingIsarQueryFilter
     });
   }
 
-  QueryBuilder<CarListingIsar, CarListingIsar, QAfterFilterCondition>
-      yearGreaterThan(
+  QueryBuilder<CarListing, CarListing, QAfterFilterCondition> yearGreaterThan(
     String value, {
     bool include = false,
     bool caseSensitive = true,
@@ -1884,8 +1841,7 @@ extension CarListingIsarQueryFilter
     });
   }
 
-  QueryBuilder<CarListingIsar, CarListingIsar, QAfterFilterCondition>
-      yearLessThan(
+  QueryBuilder<CarListing, CarListing, QAfterFilterCondition> yearLessThan(
     String value, {
     bool include = false,
     bool caseSensitive = true,
@@ -1900,8 +1856,7 @@ extension CarListingIsarQueryFilter
     });
   }
 
-  QueryBuilder<CarListingIsar, CarListingIsar, QAfterFilterCondition>
-      yearBetween(
+  QueryBuilder<CarListing, CarListing, QAfterFilterCondition> yearBetween(
     String lower,
     String upper, {
     bool includeLower = true,
@@ -1920,8 +1875,7 @@ extension CarListingIsarQueryFilter
     });
   }
 
-  QueryBuilder<CarListingIsar, CarListingIsar, QAfterFilterCondition>
-      yearStartsWith(
+  QueryBuilder<CarListing, CarListing, QAfterFilterCondition> yearStartsWith(
     String value, {
     bool caseSensitive = true,
   }) {
@@ -1934,8 +1888,7 @@ extension CarListingIsarQueryFilter
     });
   }
 
-  QueryBuilder<CarListingIsar, CarListingIsar, QAfterFilterCondition>
-      yearEndsWith(
+  QueryBuilder<CarListing, CarListing, QAfterFilterCondition> yearEndsWith(
     String value, {
     bool caseSensitive = true,
   }) {
@@ -1948,8 +1901,9 @@ extension CarListingIsarQueryFilter
     });
   }
 
-  QueryBuilder<CarListingIsar, CarListingIsar, QAfterFilterCondition>
-      yearContains(String value, {bool caseSensitive = true}) {
+  QueryBuilder<CarListing, CarListing, QAfterFilterCondition> yearContains(
+      String value,
+      {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.contains(
         property: r'year',
@@ -1959,8 +1913,9 @@ extension CarListingIsarQueryFilter
     });
   }
 
-  QueryBuilder<CarListingIsar, CarListingIsar, QAfterFilterCondition>
-      yearMatches(String pattern, {bool caseSensitive = true}) {
+  QueryBuilder<CarListing, CarListing, QAfterFilterCondition> yearMatches(
+      String pattern,
+      {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.matches(
         property: r'year',
@@ -1970,8 +1925,7 @@ extension CarListingIsarQueryFilter
     });
   }
 
-  QueryBuilder<CarListingIsar, CarListingIsar, QAfterFilterCondition>
-      yearIsEmpty() {
+  QueryBuilder<CarListing, CarListing, QAfterFilterCondition> yearIsEmpty() {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.equalTo(
         property: r'year',
@@ -1980,8 +1934,7 @@ extension CarListingIsarQueryFilter
     });
   }
 
-  QueryBuilder<CarListingIsar, CarListingIsar, QAfterFilterCondition>
-      yearIsNotEmpty() {
+  QueryBuilder<CarListing, CarListing, QAfterFilterCondition> yearIsNotEmpty() {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.greaterThan(
         property: r'year',
@@ -1991,393 +1944,372 @@ extension CarListingIsarQueryFilter
   }
 }
 
-extension CarListingIsarQueryObject
-    on QueryBuilder<CarListingIsar, CarListingIsar, QFilterCondition> {}
+extension CarListingQueryObject
+    on QueryBuilder<CarListing, CarListing, QFilterCondition> {}
 
-extension CarListingIsarQueryLinks
-    on QueryBuilder<CarListingIsar, CarListingIsar, QFilterCondition> {}
+extension CarListingQueryLinks
+    on QueryBuilder<CarListing, CarListing, QFilterCondition> {}
 
-extension CarListingIsarQuerySortBy
-    on QueryBuilder<CarListingIsar, CarListingIsar, QSortBy> {
-  QueryBuilder<CarListingIsar, CarListingIsar, QAfterSortBy>
-      sortByDetailPage() {
+extension CarListingQuerySortBy
+    on QueryBuilder<CarListing, CarListing, QSortBy> {
+  QueryBuilder<CarListing, CarListing, QAfterSortBy> sortByDetailPage() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'detailPage', Sort.asc);
     });
   }
 
-  QueryBuilder<CarListingIsar, CarListingIsar, QAfterSortBy>
-      sortByDetailPageDesc() {
+  QueryBuilder<CarListing, CarListing, QAfterSortBy> sortByDetailPageDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'detailPage', Sort.desc);
     });
   }
 
-  QueryBuilder<CarListingIsar, CarListingIsar, QAfterSortBy> sortByFilter() {
+  QueryBuilder<CarListing, CarListing, QAfterSortBy> sortByFilter() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'filter', Sort.asc);
     });
   }
 
-  QueryBuilder<CarListingIsar, CarListingIsar, QAfterSortBy>
-      sortByFilterDesc() {
+  QueryBuilder<CarListing, CarListing, QAfterSortBy> sortByFilterDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'filter', Sort.desc);
     });
   }
 
-  QueryBuilder<CarListingIsar, CarListingIsar, QAfterSortBy> sortByFuel() {
+  QueryBuilder<CarListing, CarListing, QAfterSortBy> sortByFuel() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'fuel', Sort.asc);
     });
   }
 
-  QueryBuilder<CarListingIsar, CarListingIsar, QAfterSortBy> sortByFuelDesc() {
+  QueryBuilder<CarListing, CarListing, QAfterSortBy> sortByFuelDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'fuel', Sort.desc);
     });
   }
 
-  QueryBuilder<CarListingIsar, CarListingIsar, QAfterSortBy>
-      sortByLastUpdated() {
+  QueryBuilder<CarListing, CarListing, QAfterSortBy> sortByLastUpdated() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'lastUpdated', Sort.asc);
     });
   }
 
-  QueryBuilder<CarListingIsar, CarListingIsar, QAfterSortBy>
-      sortByLastUpdatedDesc() {
+  QueryBuilder<CarListing, CarListing, QAfterSortBy> sortByLastUpdatedDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'lastUpdated', Sort.desc);
     });
   }
 
-  QueryBuilder<CarListingIsar, CarListingIsar, QAfterSortBy> sortByLocation() {
+  QueryBuilder<CarListing, CarListing, QAfterSortBy> sortByLocation() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'location', Sort.asc);
     });
   }
 
-  QueryBuilder<CarListingIsar, CarListingIsar, QAfterSortBy>
-      sortByLocationDesc() {
+  QueryBuilder<CarListing, CarListing, QAfterSortBy> sortByLocationDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'location', Sort.desc);
     });
   }
 
-  QueryBuilder<CarListingIsar, CarListingIsar, QAfterSortBy> sortByMileage() {
+  QueryBuilder<CarListing, CarListing, QAfterSortBy> sortByMileage() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'mileage', Sort.asc);
     });
   }
 
-  QueryBuilder<CarListingIsar, CarListingIsar, QAfterSortBy>
-      sortByMileageDesc() {
+  QueryBuilder<CarListing, CarListing, QAfterSortBy> sortByMileageDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'mileage', Sort.desc);
     });
   }
 
-  QueryBuilder<CarListingIsar, CarListingIsar, QAfterSortBy> sortByPrice() {
+  QueryBuilder<CarListing, CarListing, QAfterSortBy> sortByPrice() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'price', Sort.asc);
     });
   }
 
-  QueryBuilder<CarListingIsar, CarListingIsar, QAfterSortBy> sortByPriceDesc() {
+  QueryBuilder<CarListing, CarListing, QAfterSortBy> sortByPriceDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'price', Sort.desc);
     });
   }
 
-  QueryBuilder<CarListingIsar, CarListingIsar, QAfterSortBy> sortBySeller() {
+  QueryBuilder<CarListing, CarListing, QAfterSortBy> sortBySeller() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'seller', Sort.asc);
     });
   }
 
-  QueryBuilder<CarListingIsar, CarListingIsar, QAfterSortBy>
-      sortBySellerDesc() {
+  QueryBuilder<CarListing, CarListing, QAfterSortBy> sortBySellerDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'seller', Sort.desc);
     });
   }
 
-  QueryBuilder<CarListingIsar, CarListingIsar, QAfterSortBy> sortByTitle() {
+  QueryBuilder<CarListing, CarListing, QAfterSortBy> sortByTitle() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'title', Sort.asc);
     });
   }
 
-  QueryBuilder<CarListingIsar, CarListingIsar, QAfterSortBy> sortByTitleDesc() {
+  QueryBuilder<CarListing, CarListing, QAfterSortBy> sortByTitleDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'title', Sort.desc);
     });
   }
 
-  QueryBuilder<CarListingIsar, CarListingIsar, QAfterSortBy>
-      sortByTransmission() {
+  QueryBuilder<CarListing, CarListing, QAfterSortBy> sortByTransmission() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'transmission', Sort.asc);
     });
   }
 
-  QueryBuilder<CarListingIsar, CarListingIsar, QAfterSortBy>
-      sortByTransmissionDesc() {
+  QueryBuilder<CarListing, CarListing, QAfterSortBy> sortByTransmissionDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'transmission', Sort.desc);
     });
   }
 
-  QueryBuilder<CarListingIsar, CarListingIsar, QAfterSortBy> sortByYear() {
+  QueryBuilder<CarListing, CarListing, QAfterSortBy> sortByYear() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'year', Sort.asc);
     });
   }
 
-  QueryBuilder<CarListingIsar, CarListingIsar, QAfterSortBy> sortByYearDesc() {
+  QueryBuilder<CarListing, CarListing, QAfterSortBy> sortByYearDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'year', Sort.desc);
     });
   }
 }
 
-extension CarListingIsarQuerySortThenBy
-    on QueryBuilder<CarListingIsar, CarListingIsar, QSortThenBy> {
-  QueryBuilder<CarListingIsar, CarListingIsar, QAfterSortBy>
-      thenByDetailPage() {
+extension CarListingQuerySortThenBy
+    on QueryBuilder<CarListing, CarListing, QSortThenBy> {
+  QueryBuilder<CarListing, CarListing, QAfterSortBy> thenByDetailPage() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'detailPage', Sort.asc);
     });
   }
 
-  QueryBuilder<CarListingIsar, CarListingIsar, QAfterSortBy>
-      thenByDetailPageDesc() {
+  QueryBuilder<CarListing, CarListing, QAfterSortBy> thenByDetailPageDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'detailPage', Sort.desc);
     });
   }
 
-  QueryBuilder<CarListingIsar, CarListingIsar, QAfterSortBy> thenByFilter() {
+  QueryBuilder<CarListing, CarListing, QAfterSortBy> thenByFilter() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'filter', Sort.asc);
     });
   }
 
-  QueryBuilder<CarListingIsar, CarListingIsar, QAfterSortBy>
-      thenByFilterDesc() {
+  QueryBuilder<CarListing, CarListing, QAfterSortBy> thenByFilterDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'filter', Sort.desc);
     });
   }
 
-  QueryBuilder<CarListingIsar, CarListingIsar, QAfterSortBy> thenByFuel() {
+  QueryBuilder<CarListing, CarListing, QAfterSortBy> thenByFuel() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'fuel', Sort.asc);
     });
   }
 
-  QueryBuilder<CarListingIsar, CarListingIsar, QAfterSortBy> thenByFuelDesc() {
+  QueryBuilder<CarListing, CarListing, QAfterSortBy> thenByFuelDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'fuel', Sort.desc);
     });
   }
 
-  QueryBuilder<CarListingIsar, CarListingIsar, QAfterSortBy> thenById() {
+  QueryBuilder<CarListing, CarListing, QAfterSortBy> thenById() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'id', Sort.asc);
     });
   }
 
-  QueryBuilder<CarListingIsar, CarListingIsar, QAfterSortBy> thenByIdDesc() {
+  QueryBuilder<CarListing, CarListing, QAfterSortBy> thenByIdDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'id', Sort.desc);
     });
   }
 
-  QueryBuilder<CarListingIsar, CarListingIsar, QAfterSortBy>
-      thenByLastUpdated() {
+  QueryBuilder<CarListing, CarListing, QAfterSortBy> thenByLastUpdated() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'lastUpdated', Sort.asc);
     });
   }
 
-  QueryBuilder<CarListingIsar, CarListingIsar, QAfterSortBy>
-      thenByLastUpdatedDesc() {
+  QueryBuilder<CarListing, CarListing, QAfterSortBy> thenByLastUpdatedDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'lastUpdated', Sort.desc);
     });
   }
 
-  QueryBuilder<CarListingIsar, CarListingIsar, QAfterSortBy> thenByLocation() {
+  QueryBuilder<CarListing, CarListing, QAfterSortBy> thenByLocation() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'location', Sort.asc);
     });
   }
 
-  QueryBuilder<CarListingIsar, CarListingIsar, QAfterSortBy>
-      thenByLocationDesc() {
+  QueryBuilder<CarListing, CarListing, QAfterSortBy> thenByLocationDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'location', Sort.desc);
     });
   }
 
-  QueryBuilder<CarListingIsar, CarListingIsar, QAfterSortBy> thenByMileage() {
+  QueryBuilder<CarListing, CarListing, QAfterSortBy> thenByMileage() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'mileage', Sort.asc);
     });
   }
 
-  QueryBuilder<CarListingIsar, CarListingIsar, QAfterSortBy>
-      thenByMileageDesc() {
+  QueryBuilder<CarListing, CarListing, QAfterSortBy> thenByMileageDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'mileage', Sort.desc);
     });
   }
 
-  QueryBuilder<CarListingIsar, CarListingIsar, QAfterSortBy> thenByPrice() {
+  QueryBuilder<CarListing, CarListing, QAfterSortBy> thenByPrice() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'price', Sort.asc);
     });
   }
 
-  QueryBuilder<CarListingIsar, CarListingIsar, QAfterSortBy> thenByPriceDesc() {
+  QueryBuilder<CarListing, CarListing, QAfterSortBy> thenByPriceDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'price', Sort.desc);
     });
   }
 
-  QueryBuilder<CarListingIsar, CarListingIsar, QAfterSortBy> thenBySeller() {
+  QueryBuilder<CarListing, CarListing, QAfterSortBy> thenBySeller() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'seller', Sort.asc);
     });
   }
 
-  QueryBuilder<CarListingIsar, CarListingIsar, QAfterSortBy>
-      thenBySellerDesc() {
+  QueryBuilder<CarListing, CarListing, QAfterSortBy> thenBySellerDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'seller', Sort.desc);
     });
   }
 
-  QueryBuilder<CarListingIsar, CarListingIsar, QAfterSortBy> thenByTitle() {
+  QueryBuilder<CarListing, CarListing, QAfterSortBy> thenByTitle() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'title', Sort.asc);
     });
   }
 
-  QueryBuilder<CarListingIsar, CarListingIsar, QAfterSortBy> thenByTitleDesc() {
+  QueryBuilder<CarListing, CarListing, QAfterSortBy> thenByTitleDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'title', Sort.desc);
     });
   }
 
-  QueryBuilder<CarListingIsar, CarListingIsar, QAfterSortBy>
-      thenByTransmission() {
+  QueryBuilder<CarListing, CarListing, QAfterSortBy> thenByTransmission() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'transmission', Sort.asc);
     });
   }
 
-  QueryBuilder<CarListingIsar, CarListingIsar, QAfterSortBy>
-      thenByTransmissionDesc() {
+  QueryBuilder<CarListing, CarListing, QAfterSortBy> thenByTransmissionDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'transmission', Sort.desc);
     });
   }
 
-  QueryBuilder<CarListingIsar, CarListingIsar, QAfterSortBy> thenByYear() {
+  QueryBuilder<CarListing, CarListing, QAfterSortBy> thenByYear() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'year', Sort.asc);
     });
   }
 
-  QueryBuilder<CarListingIsar, CarListingIsar, QAfterSortBy> thenByYearDesc() {
+  QueryBuilder<CarListing, CarListing, QAfterSortBy> thenByYearDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'year', Sort.desc);
     });
   }
 }
 
-extension CarListingIsarQueryWhereDistinct
-    on QueryBuilder<CarListingIsar, CarListingIsar, QDistinct> {
-  QueryBuilder<CarListingIsar, CarListingIsar, QDistinct> distinctByDetailPage(
+extension CarListingQueryWhereDistinct
+    on QueryBuilder<CarListing, CarListing, QDistinct> {
+  QueryBuilder<CarListing, CarListing, QDistinct> distinctByDetailPage(
       {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'detailPage', caseSensitive: caseSensitive);
     });
   }
 
-  QueryBuilder<CarListingIsar, CarListingIsar, QDistinct> distinctByFilter(
+  QueryBuilder<CarListing, CarListing, QDistinct> distinctByFilter(
       {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'filter', caseSensitive: caseSensitive);
     });
   }
 
-  QueryBuilder<CarListingIsar, CarListingIsar, QDistinct> distinctByFuel(
+  QueryBuilder<CarListing, CarListing, QDistinct> distinctByFuel(
       {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'fuel', caseSensitive: caseSensitive);
     });
   }
 
-  QueryBuilder<CarListingIsar, CarListingIsar, QDistinct> distinctByImages() {
+  QueryBuilder<CarListing, CarListing, QDistinct> distinctByImages() {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'images');
     });
   }
 
-  QueryBuilder<CarListingIsar, CarListingIsar, QDistinct>
-      distinctByLastUpdated() {
+  QueryBuilder<CarListing, CarListing, QDistinct> distinctByLastUpdated() {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'lastUpdated');
     });
   }
 
-  QueryBuilder<CarListingIsar, CarListingIsar, QDistinct> distinctByLocation(
+  QueryBuilder<CarListing, CarListing, QDistinct> distinctByLocation(
       {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'location', caseSensitive: caseSensitive);
     });
   }
 
-  QueryBuilder<CarListingIsar, CarListingIsar, QDistinct> distinctByMileage(
+  QueryBuilder<CarListing, CarListing, QDistinct> distinctByMileage(
       {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'mileage', caseSensitive: caseSensitive);
     });
   }
 
-  QueryBuilder<CarListingIsar, CarListingIsar, QDistinct> distinctByPrice(
+  QueryBuilder<CarListing, CarListing, QDistinct> distinctByPrice(
       {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'price', caseSensitive: caseSensitive);
     });
   }
 
-  QueryBuilder<CarListingIsar, CarListingIsar, QDistinct> distinctBySeller(
+  QueryBuilder<CarListing, CarListing, QDistinct> distinctBySeller(
       {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'seller', caseSensitive: caseSensitive);
     });
   }
 
-  QueryBuilder<CarListingIsar, CarListingIsar, QDistinct> distinctByTitle(
+  QueryBuilder<CarListing, CarListing, QDistinct> distinctByTitle(
       {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'title', caseSensitive: caseSensitive);
     });
   }
 
-  QueryBuilder<CarListingIsar, CarListingIsar, QDistinct>
-      distinctByTransmission({bool caseSensitive = true}) {
+  QueryBuilder<CarListing, CarListing, QDistinct> distinctByTransmission(
+      {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'transmission', caseSensitive: caseSensitive);
     });
   }
 
-  QueryBuilder<CarListingIsar, CarListingIsar, QDistinct> distinctByYear(
+  QueryBuilder<CarListing, CarListing, QDistinct> distinctByYear(
       {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'year', caseSensitive: caseSensitive);
@@ -2385,84 +2317,81 @@ extension CarListingIsarQueryWhereDistinct
   }
 }
 
-extension CarListingIsarQueryProperty
-    on QueryBuilder<CarListingIsar, CarListingIsar, QQueryProperty> {
-  QueryBuilder<CarListingIsar, int, QQueryOperations> idProperty() {
+extension CarListingQueryProperty
+    on QueryBuilder<CarListing, CarListing, QQueryProperty> {
+  QueryBuilder<CarListing, int, QQueryOperations> idProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'id');
     });
   }
 
-  QueryBuilder<CarListingIsar, String, QQueryOperations> detailPageProperty() {
+  QueryBuilder<CarListing, String, QQueryOperations> detailPageProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'detailPage');
     });
   }
 
-  QueryBuilder<CarListingIsar, String, QQueryOperations> filterProperty() {
+  QueryBuilder<CarListing, String, QQueryOperations> filterProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'filter');
     });
   }
 
-  QueryBuilder<CarListingIsar, String, QQueryOperations> fuelProperty() {
+  QueryBuilder<CarListing, String, QQueryOperations> fuelProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'fuel');
     });
   }
 
-  QueryBuilder<CarListingIsar, List<String>, QQueryOperations>
-      imagesProperty() {
+  QueryBuilder<CarListing, List<String>, QQueryOperations> imagesProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'images');
     });
   }
 
-  QueryBuilder<CarListingIsar, DateTime, QQueryOperations>
-      lastUpdatedProperty() {
+  QueryBuilder<CarListing, DateTime, QQueryOperations> lastUpdatedProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'lastUpdated');
     });
   }
 
-  QueryBuilder<CarListingIsar, String, QQueryOperations> locationProperty() {
+  QueryBuilder<CarListing, String, QQueryOperations> locationProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'location');
     });
   }
 
-  QueryBuilder<CarListingIsar, String, QQueryOperations> mileageProperty() {
+  QueryBuilder<CarListing, String, QQueryOperations> mileageProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'mileage');
     });
   }
 
-  QueryBuilder<CarListingIsar, String, QQueryOperations> priceProperty() {
+  QueryBuilder<CarListing, String, QQueryOperations> priceProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'price');
     });
   }
 
-  QueryBuilder<CarListingIsar, String, QQueryOperations> sellerProperty() {
+  QueryBuilder<CarListing, String, QQueryOperations> sellerProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'seller');
     });
   }
 
-  QueryBuilder<CarListingIsar, String, QQueryOperations> titleProperty() {
+  QueryBuilder<CarListing, String, QQueryOperations> titleProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'title');
     });
   }
 
-  QueryBuilder<CarListingIsar, String, QQueryOperations>
-      transmissionProperty() {
+  QueryBuilder<CarListing, String, QQueryOperations> transmissionProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'transmission');
     });
   }
 
-  QueryBuilder<CarListingIsar, String, QQueryOperations> yearProperty() {
+  QueryBuilder<CarListing, String, QQueryOperations> yearProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'year');
     });
@@ -2473,8 +2402,7 @@ extension CarListingIsarQueryProperty
 // JsonSerializableGenerator
 // **************************************************************************
 
-CarListingIsar _$CarListingIsarFromJson(Map<String, dynamic> json) =>
-    CarListingIsar(
+CarListing _$CarListingFromJson(Map<String, dynamic> json) => CarListing(
       title: json['title'] as String,
       year: json['year'] as String,
       mileage: json['mileage'] as String,
@@ -2490,7 +2418,7 @@ CarListingIsar _$CarListingIsarFromJson(Map<String, dynamic> json) =>
       lastUpdated: DateTime.parse(json['lastUpdated'] as String),
     )..id = (json['id'] as num).toInt();
 
-Map<String, dynamic> _$CarListingIsarToJson(CarListingIsar instance) =>
+Map<String, dynamic> _$CarListingToJson(CarListing instance) =>
     <String, dynamic>{
       'id': instance.id,
       'title': instance.title,

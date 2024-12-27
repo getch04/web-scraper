@@ -16,7 +16,7 @@ class DatabaseService {
     try {
       final dir = await getApplicationDocumentsDirectory();
       _isar = await Isar.open(
-        [CarListingIsarSchema, FilterIsarSchema, SettingsIsarSchema],
+        [CarListingSchema, FilterIsarSchema, SettingsIsarSchema],
         directory: dir.path,
       );
       _isInitialized = true;
@@ -35,29 +35,34 @@ class DatabaseService {
 
   static Future<DateTime?> getLastFetchTime() async {
     final lastFetch =
-        await _isar.carListingIsars.where().sortByLastUpdatedDesc().findFirst();
+        await _isar.carListings.where().sortByLastUpdatedDesc().findFirst();
     return lastFetch?.lastUpdated;
   }
 
-  static Future<List<CarListingIsar>> getExistingListings() async {
-    return _isar.carListingIsars.where().findAll();
+  static Future<List<CarListing>> getExistingListings() async {
+    return _isar.carListings.where().findAll();
   }
 
-  static Future<void> updateListings(List<CarListingIsar> listings) async {
+  static Future<void> updateListings(List<CarListing> listings) async {
+    final now = DateTime.now();
+    for (var listing in listings) {
+      listing.lastUpdated = now;
+    }
+
     await _isar.writeTxn(() async {
-      await _isar.carListingIsars.clear();
-      await _isar.carListingIsars.putAll(listings);
+      await _isar.carListings.clear();
+      await _isar.carListings.putAll(listings);
     });
   }
 
   static Future<void> deleteOldListings(int keepCount) async {
     await _isar.writeTxn(() async {
       final allListings =
-          await _isar.carListingIsars.where().sortByLastUpdatedDesc().findAll();
+          await _isar.carListings.where().sortByLastUpdatedDesc().findAll();
 
       if (allListings.length > keepCount) {
         final listingsToDelete = allListings.sublist(keepCount);
-        await _isar.carListingIsars
+        await _isar.carListings
             .deleteAll(listingsToDelete.map((e) => e.id).toList());
       }
     });

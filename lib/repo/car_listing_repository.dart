@@ -2,7 +2,6 @@
 import 'dart:convert' show json;
 
 import 'package:car_web_scrapepr/models/car_listing_isar.dart';
-import 'package:car_web_scrapepr/models/car_listing_model.dart';
 import 'package:car_web_scrapepr/models/filter_isar.dart';
 import 'package:car_web_scrapepr/services/database_service.dart';
 import 'package:flutter/material.dart';
@@ -16,15 +15,14 @@ class CarListingRepository {
 
   Future<void> invalidateCache() async {
     await _isar.writeTxn(() async {
-      await _isar.carListingIsars.clear();
+      await _isar.carListings.clear();
     });
   }
 
   Future<List<CarListing>> fetchCarListingsFromDb() async {
-    final cars =
-        await _isar.carListingIsars.where().sortByLastUpdated().findAll();
+    final cars = await _isar.carListings.where().sortByLastUpdated().findAll();
 
-    return cars.map((e) => e.toCarListing()).toList();
+    return cars.toList();
   }
 
   Future<List<CarListing>> fetchFromNetwork(
@@ -79,6 +77,7 @@ class CarListingRepository {
             .toList(),
         fuel: dataLayer['item_fuel'] ?? 'Unknown',
         transmission: dataLayer['item_transmission'] ?? 'Unknown',
+        lastUpdated: DateTime.now(),
       );
     }).toList();
   }
@@ -92,10 +91,9 @@ class CarListingRepository {
   }
 
   Stream<List<CarListing>> watchCarListings() {
-    return _isar.carListingIsars
+    return _isar.carListings
         .where()
         .sortByLastUpdated()
-        .watch(fireImmediately: true)
-        .map((listings) => listings.map((e) => e.toCarListing()).toList());
+        .watch(fireImmediately: true);
   }
 }

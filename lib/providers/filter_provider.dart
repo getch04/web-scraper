@@ -36,9 +36,8 @@ class Filters extends _$Filters {
         await _isar.filterIsars.put(filter);
 
         // Check for duplicates when adding listings
-        for (var listing
-            in carListings.map((l) => CarListingIsar.fromCarListing(l))) {
-          final existingListing = await _isar.carListingIsars
+        for (var listing in carListings) {
+          final existingListing = await _isar.carListings
               .filter()
               .detailPageEqualTo(listing.detailPage)
               .findFirst();
@@ -47,7 +46,7 @@ class Filters extends _$Filters {
             listing.id = existingListing.id;
           }
 
-          await _isar.carListingIsars.put(listing);
+          await _isar.carListings.put(listing);
         }
       });
 
@@ -85,10 +84,7 @@ class Filters extends _$Filters {
 
         // If the filter was turned off, remove its car listings
         if (wasActive) {
-          await _isar.carListingIsars
-              .filter()
-              .filterEqualTo(hakuValue)
-              .deleteAll();
+          await _isar.carListings.filter().filterEqualTo(hakuValue).deleteAll();
         }
       });
 
@@ -120,7 +116,7 @@ class Filters extends _$Filters {
         // Delete associated car listings first
         final filter = await _isar.filterIsars.get(id);
         if (filter != null) {
-          await _isar.carListingIsars
+          await _isar.carListings
               .filter()
               .filterEqualTo(filter.hakuValue)
               .deleteAll();
@@ -157,9 +153,8 @@ class Filters extends _$Filters {
 
         if (carListings.isNotEmpty) {
           await _isar.writeTxn(() async {
-            for (var listing
-                in carListings.map((l) => CarListingIsar.fromCarListing(l))) {
-              final existingListing = await _isar.carListingIsars
+            for (var listing in carListings) {
+              final existingListing = await _isar.carListings
                   .filter()
                   .detailPageEqualTo(listing.detailPage)
                   .findFirst();
@@ -168,7 +163,7 @@ class Filters extends _$Filters {
                 listing.id = existingListing.id;
               }
 
-              await _isar.carListingIsars.put(listing);
+              await _isar.carListings.put(listing);
             }
           });
         }

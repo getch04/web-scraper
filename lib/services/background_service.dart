@@ -38,12 +38,36 @@ class BackgroundService {
     try {
       final settings = await DatabaseService.getSettings();
 
+      // Cancel existing tasks if notifications are disabled
       if (settings?.notificationsEnabled == false) {
         await wm.Workmanager().cancelAll();
         return;
       }
 
+      // Get user's preferred frequency
       final frequency = settings?.frequency ?? const Duration(minutes: 30);
+
+      // Don't schedule if frequency is too short (workmanager minimum is 15 minutes)
+      if (frequency < const Duration(minutes: 15)) {
+        debugPrint('Frequency too short: ${frequency.inMinutes} minutes');
+        return;
+      }
+
+      // Check when was the last fetch
+      final lastFetch = await DatabaseService.instance.carListings
+          .where()
+          .sortByLastUpdatedDesc()
+          .findFirst();
+
+      if (lastFetch != null) {
+        final timeSinceLastFetch =
+            DateTime.now().difference(lastFetch.lastUpdated);
+        if (timeSinceLastFetch < frequency) {
+          debugPrint(
+              'Skipping fetch - too soon (${timeSinceLastFetch.inMinutes} minutes since last fetch)');
+          return;
+        }
+      }
 
       await wm.Workmanager().registerPeriodicTask(
         taskName,
@@ -57,15 +81,16 @@ class BackgroundService {
         backoffPolicy: wm.BackoffPolicy.linear,
         initialDelay: const Duration(seconds: 10),
       );
+
+      debugPrint(
+          'Scheduled background fetch every ${frequency.inMinutes} minutes');
     } catch (e) {
       debugPrint('Failed to schedule periodic fetch: $e');
-      // Don't rethrow - periodic fetch can be retried later
     }
   }
 
   static Future<void> handleBackground() async {
     try {
-      // Try to get existing Isar instance first
       final existingIsar = Isar.getInstance();
       if (existingIsar == null) {
         await DatabaseService.initialize();
@@ -74,7 +99,24 @@ class BackgroundService {
       final settings = await DatabaseService.getSettings();
       if (settings?.notificationsEnabled == false) return;
 
-      // Get all active filters
+      // Check if enough time has passed since last fetch
+      final lastFetch = await DatabaseService.instance.carListings
+          .where()
+          .sortByLastUpdatedDesc()
+          .findFirst();
+
+      if (lastFetch != null) {
+        final timeSinceLastFetch =
+            DateTime.now().difference(lastFetch.lastUpdated);
+        final minInterval = settings?.frequency ?? const Duration(minutes: 30);
+
+        if (timeSinceLastFetch < minInterval) {
+          debugPrint('Skipping background fetch - too soon');
+          return;
+        }
+      }
+
+      // Continue with fetch if enough time has passed
       final activeFilters = await DatabaseService.instance.filterIsars
           .filter()
           .isActiveEqualTo(true)
@@ -101,8 +143,6 @@ class BackgroundService {
       await _handleNewListings(allNewListings, existingListings);
     } catch (e, stackTrace) {
       debugPrint('Background fetch failed: $e\n$stackTrace');
-      // Don't rethrow - we want the background task to be considered successful
-      // so it will be retried later
     }
   }
 
@@ -111,34 +151,48 @@ class BackgroundService {
     List<CarListing> existingListings,
   ) async {
     try {
-      // Use detailPage URL as unique identifier
+      final newCarsToAdd = <CarListing>[];
+
+      // Create a set of existing detail page URLs for efficient lookup
       final existingUrls = existingListings.map((e) => e.detailPage).toSet();
-      final newUrls = newListings.map((e) => e.detailPage).toSet();
 
-      final uniqueNewListings = newUrls
-          .difference(existingUrls)
-          .map((url) => newListings.firstWhere((l) => l.detailPage == url))
-          .toList();
+      // Only process cars that don't exist in the database
+      for (var newListing in newListings) {
+        if (!existingUrls.contains(newListing.detailPage)) {
+          newCarsToAdd.add(newListing);
+        }
+      }
 
-      if (uniqueNewListings.isNotEmpty) {
-        // Save new listings to database
+      // If we found new cars, add them and notify
+      if (newCarsToAdd.isNotEmpty) {
+        // Add new cars to database
         await DatabaseService.instance.writeTxn(() async {
-          for (var listing in uniqueNewListings) {
+          for (var listing in newCarsToAdd) {
             await DatabaseService.instance.carListings.put(listing);
           }
         });
 
-        // Show notification
+        // Notify user about new cars
         await NotificationService.showNotification(
           title: 'New Car Listings Available',
-          body: 'Found ${uniqueNewListings.length} new car listings!',
-          newListingsCount: uniqueNewListings.length,
+          body: 'Found ${newCarsToAdd.length} new car listings!',
+          newListingsCount: newCarsToAdd.length,
         );
+
+        debugPrint('Added ${newCarsToAdd.length} new car listings');
       }
     } catch (e) {
       debugPrint('Failed to handle new listings: $e');
-      // Don't rethrow - we want the background task to be considered successful
     }
+  }
+
+  // Helper method to check if a listing has significant changes
+  static bool _hasSignificantChanges(
+      CarListing newListing, CarListing oldListing) {
+    // Add conditions for what you consider significant changes
+    return newListing.price != oldListing.price ||
+        newListing.mileage != oldListing.mileage ||
+        newListing.images.length != oldListing.images.length;
   }
 }
 

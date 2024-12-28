@@ -7,7 +7,7 @@ part of 'car_listing_provider.dart';
 // **************************************************************************
 
 String _$carListingNotifierHash() =>
-    r'73c0b97ad03630292eaa9848f8a38980bdbc3507';
+    r'20f4685eec15e813efa6c8819dccf3fddeb0f90f';
 
 /// See also [CarListingNotifier].
 @ProviderFor(CarListingNotifier)

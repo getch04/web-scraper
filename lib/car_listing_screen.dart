@@ -1,4 +1,6 @@
 // car_listing_page.dart
+import 'dart:async';
+
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:car_web_scrapepr/core/theme.dart';
 import 'package:car_web_scrapepr/core/transitions.dart';
@@ -365,7 +367,10 @@ class CarListingPage extends HookConsumerWidget {
           ),
         ),
         onChanged: (value) {
-          ref.read(searchProvider.notifier).setQuery(value, listings);
+          ref.read(searchProvider.notifier).setQuery(
+                value,
+                ref.read(carListingNotifierProvider).listings,
+              );
         },
       ),
     );
@@ -447,6 +452,20 @@ class CarListingPage extends HookConsumerWidget {
     bool isSearching,
     WidgetRef ref,
   ) {
+    final searchState = ref.watch(searchProvider);
+
+    // If searching, use filtered list instead of paged list
+    if (isSearching && searchState.query.isNotEmpty) {
+      return ListView.separated(
+        padding: const EdgeInsets.all(16),
+        itemCount: searchState.searchResults.length,
+        separatorBuilder: (context, index) => const SizedBox(height: 16),
+        itemBuilder: (context, index) =>
+            CarListingCard(car: searchState.searchResults[index]),
+      );
+    }
+
+    // Otherwise use paged list
     return RefreshIndicator(
       onRefresh: () => Future.sync(() => pagingController.refresh()),
       child: PagedListView<int, CarListing>.separated(
@@ -562,18 +581,8 @@ class CarListingCard extends StatelessWidget {
   const CarListingCard({super.key, required this.car});
 
   String _getTimeAgoText(DateTime dateTime) {
-    final now = DateTime.now();
-    final difference = now.difference(dateTime);
-
-    if (difference.inDays > 0) {
-      return 'Updated ${difference.inDays} ${difference.inDays == 1 ? 'day' : 'days'} ago';
-    } else if (difference.inHours > 0) {
-      return 'Updated ${difference.inHours} ${difference.inHours == 1 ? 'hour' : 'hours'} ago';
-    } else if (difference.inMinutes > 0) {
-      return 'Updated ${difference.inMinutes} ${difference.inMinutes == 1 ? 'minute' : 'minutes'} ago';
-    } else {
-      return 'Updated just now';
-    }
+    //show only date
+    return '${dateTime.day}.${dateTime.month}.${dateTime.year}';
   }
 
   @override

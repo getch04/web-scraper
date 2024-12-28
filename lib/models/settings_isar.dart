@@ -9,83 +9,65 @@ class SettingsIsar {
   // Notification Settings
   bool notificationsEnabled;
 
-  // Notification Time Window
+  // Custom notification frequency
+  int frequencyValue; // Store the numeric value
   @enumerated
-  NotificationFrequency frequency;
+  TimeUnit frequencyUnit; // Store the time unit
 
   SettingsIsar({
     this.notificationsEnabled = true,
-    this.frequency = NotificationFrequency.hourly,
+    this.frequencyValue = 1,
+    this.frequencyUnit = TimeUnit.hours,
     this.id = Isar.autoIncrement,
   });
 
   SettingsIsar copyWith({
     final bool? notificationsEnabled,
-    final NotificationFrequency? frequency,
-    final int? quietHoursStart,
-    final int? quietHoursEnd,
-    final bool? quietHoursEnabled,
+    final int? frequencyValue,
+    final TimeUnit? frequencyUnit,
     final Id? id,
   }) {
     return SettingsIsar(
       notificationsEnabled: notificationsEnabled ?? this.notificationsEnabled,
-      frequency: frequency ?? this.frequency,
+      frequencyValue: frequencyValue ?? this.frequencyValue,
+      frequencyUnit: frequencyUnit ?? this.frequencyUnit,
       id: id ?? this.id,
+    );
+  }
+
+  @ignore
+  Duration get frequency {
+    return Duration(
+      microseconds: frequencyValue * frequencyUnit.inMicroseconds,
     );
   }
 }
 
-enum NotificationFrequency {
-  minutes15,
-  minutes30,
-  minutes45,
-  hourly,
-  hours2,
-  hours4,
-  hours8,
-  daily,
-}
+enum TimeUnit {
+  seconds,
+  minutes,
+  hours,
+  days;
 
-extension NotificationFrequencyExtension on NotificationFrequency {
-  String get displayName {
+  int get inMicroseconds {
     switch (this) {
-      case NotificationFrequency.minutes15:
-        return '15 Minutes';
-      case NotificationFrequency.minutes30:
-        return '30 Minutes';
-      case NotificationFrequency.minutes45:
-        return '45 Minutes';
-      case NotificationFrequency.hourly:
-        return 'Hourly';
-      case NotificationFrequency.hours2:
-        return '2 Hours';
-      case NotificationFrequency.hours4:
-        return '4 Hours';
-      case NotificationFrequency.hours8:
-        return '8 Hours';
-      case NotificationFrequency.daily:
-        return 'Daily';
+      case TimeUnit.seconds:
+        return Duration.microsecondsPerSecond;
+      case TimeUnit.minutes:
+        return Duration.microsecondsPerSecond * 60;
+      case TimeUnit.hours:
+        return Duration.microsecondsPerSecond * 60 * 60;
+      case TimeUnit.days:
+        return Duration.microsecondsPerSecond * 60 * 60 * 24;
     }
   }
 
-  Duration get duration {
-    switch (this) {
-      case NotificationFrequency.minutes15:
-        return const Duration(minutes: 15);
-      case NotificationFrequency.minutes30:
-        return const Duration(minutes: 30);
-      case NotificationFrequency.minutes45:
-        return const Duration(minutes: 45);
-      case NotificationFrequency.hourly:
-        return const Duration(hours: 1);
-      case NotificationFrequency.hours2:
-        return const Duration(hours: 2);
-      case NotificationFrequency.hours4:
-        return const Duration(hours: 4);
-      case NotificationFrequency.hours8:
-        return const Duration(hours: 8);
-      case NotificationFrequency.daily:
-        return const Duration(hours: 24);
-    }
+  String get displayName {
+    return switch (this) {
+      TimeUnit.seconds => 'Seconds',
+      TimeUnit.minutes => 'Minutes',
+      TimeUnit.hours => 'Hours',
+      TimeUnit.days => 'Days',
+    };
   }
 }

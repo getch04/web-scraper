@@ -17,14 +17,19 @@ const SettingsIsarSchema = CollectionSchema(
   name: r'SettingsIsar',
   id: 5385768829924721998,
   properties: {
-    r'frequency': PropertySchema(
+    r'frequencyUnit': PropertySchema(
       id: 0,
-      name: r'frequency',
+      name: r'frequencyUnit',
       type: IsarType.byte,
-      enumMap: _SettingsIsarfrequencyEnumValueMap,
+      enumMap: _SettingsIsarfrequencyUnitEnumValueMap,
+    ),
+    r'frequencyValue': PropertySchema(
+      id: 1,
+      name: r'frequencyValue',
+      type: IsarType.long,
     ),
     r'notificationsEnabled': PropertySchema(
-      id: 1,
+      id: 2,
       name: r'notificationsEnabled',
       type: IsarType.bool,
     )
@@ -58,8 +63,9 @@ void _settingsIsarSerialize(
   List<int> offsets,
   Map<Type, List<int>> allOffsets,
 ) {
-  writer.writeByte(offsets[0], object.frequency.index);
-  writer.writeBool(offsets[1], object.notificationsEnabled);
+  writer.writeByte(offsets[0], object.frequencyUnit.index);
+  writer.writeLong(offsets[1], object.frequencyValue);
+  writer.writeBool(offsets[2], object.notificationsEnabled);
 }
 
 SettingsIsar _settingsIsarDeserialize(
@@ -69,11 +75,12 @@ SettingsIsar _settingsIsarDeserialize(
   Map<Type, List<int>> allOffsets,
 ) {
   final object = SettingsIsar(
-    frequency:
-        _SettingsIsarfrequencyValueEnumMap[reader.readByteOrNull(offsets[0])] ??
-            NotificationFrequency.hourly,
+    frequencyUnit: _SettingsIsarfrequencyUnitValueEnumMap[
+            reader.readByteOrNull(offsets[0])] ??
+        TimeUnit.hours,
+    frequencyValue: reader.readLongOrNull(offsets[1]) ?? 1,
     id: id,
-    notificationsEnabled: reader.readBoolOrNull(offsets[1]) ?? true,
+    notificationsEnabled: reader.readBoolOrNull(offsets[2]) ?? true,
   );
   return object;
 }
@@ -86,35 +93,29 @@ P _settingsIsarDeserializeProp<P>(
 ) {
   switch (propertyId) {
     case 0:
-      return (_SettingsIsarfrequencyValueEnumMap[
+      return (_SettingsIsarfrequencyUnitValueEnumMap[
               reader.readByteOrNull(offset)] ??
-          NotificationFrequency.hourly) as P;
+          TimeUnit.hours) as P;
     case 1:
+      return (reader.readLongOrNull(offset) ?? 1) as P;
+    case 2:
       return (reader.readBoolOrNull(offset) ?? true) as P;
     default:
       throw IsarError('Unknown property with id $propertyId');
   }
 }
 
-const _SettingsIsarfrequencyEnumValueMap = {
-  'minutes15': 0,
-  'minutes30': 1,
-  'minutes45': 2,
-  'hourly': 3,
-  'hours2': 4,
-  'hours4': 5,
-  'hours8': 6,
-  'daily': 7,
+const _SettingsIsarfrequencyUnitEnumValueMap = {
+  'seconds': 0,
+  'minutes': 1,
+  'hours': 2,
+  'days': 3,
 };
-const _SettingsIsarfrequencyValueEnumMap = {
-  0: NotificationFrequency.minutes15,
-  1: NotificationFrequency.minutes30,
-  2: NotificationFrequency.minutes45,
-  3: NotificationFrequency.hourly,
-  4: NotificationFrequency.hours2,
-  5: NotificationFrequency.hours4,
-  6: NotificationFrequency.hours8,
-  7: NotificationFrequency.daily,
+const _SettingsIsarfrequencyUnitValueEnumMap = {
+  0: TimeUnit.seconds,
+  1: TimeUnit.minutes,
+  2: TimeUnit.hours,
+  3: TimeUnit.days,
 };
 
 Id _settingsIsarGetId(SettingsIsar object) {
@@ -212,53 +213,109 @@ extension SettingsIsarQueryWhere
 extension SettingsIsarQueryFilter
     on QueryBuilder<SettingsIsar, SettingsIsar, QFilterCondition> {
   QueryBuilder<SettingsIsar, SettingsIsar, QAfterFilterCondition>
-      frequencyEqualTo(NotificationFrequency value) {
+      frequencyUnitEqualTo(TimeUnit value) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.equalTo(
-        property: r'frequency',
+        property: r'frequencyUnit',
         value: value,
       ));
     });
   }
 
   QueryBuilder<SettingsIsar, SettingsIsar, QAfterFilterCondition>
-      frequencyGreaterThan(
-    NotificationFrequency value, {
+      frequencyUnitGreaterThan(
+    TimeUnit value, {
     bool include = false,
   }) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.greaterThan(
         include: include,
-        property: r'frequency',
+        property: r'frequencyUnit',
         value: value,
       ));
     });
   }
 
   QueryBuilder<SettingsIsar, SettingsIsar, QAfterFilterCondition>
-      frequencyLessThan(
-    NotificationFrequency value, {
+      frequencyUnitLessThan(
+    TimeUnit value, {
     bool include = false,
   }) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.lessThan(
         include: include,
-        property: r'frequency',
+        property: r'frequencyUnit',
         value: value,
       ));
     });
   }
 
   QueryBuilder<SettingsIsar, SettingsIsar, QAfterFilterCondition>
-      frequencyBetween(
-    NotificationFrequency lower,
-    NotificationFrequency upper, {
+      frequencyUnitBetween(
+    TimeUnit lower,
+    TimeUnit upper, {
     bool includeLower = true,
     bool includeUpper = true,
   }) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.between(
-        property: r'frequency',
+        property: r'frequencyUnit',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+      ));
+    });
+  }
+
+  QueryBuilder<SettingsIsar, SettingsIsar, QAfterFilterCondition>
+      frequencyValueEqualTo(int value) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'frequencyValue',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<SettingsIsar, SettingsIsar, QAfterFilterCondition>
+      frequencyValueGreaterThan(
+    int value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'frequencyValue',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<SettingsIsar, SettingsIsar, QAfterFilterCondition>
+      frequencyValueLessThan(
+    int value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'frequencyValue',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<SettingsIsar, SettingsIsar, QAfterFilterCondition>
+      frequencyValueBetween(
+    int lower,
+    int upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'frequencyValue',
         lower: lower,
         includeLower: includeLower,
         upper: upper,
@@ -356,15 +413,30 @@ extension SettingsIsarQueryLinks
 
 extension SettingsIsarQuerySortBy
     on QueryBuilder<SettingsIsar, SettingsIsar, QSortBy> {
-  QueryBuilder<SettingsIsar, SettingsIsar, QAfterSortBy> sortByFrequency() {
+  QueryBuilder<SettingsIsar, SettingsIsar, QAfterSortBy> sortByFrequencyUnit() {
     return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(r'frequency', Sort.asc);
+      return query.addSortBy(r'frequencyUnit', Sort.asc);
     });
   }
 
-  QueryBuilder<SettingsIsar, SettingsIsar, QAfterSortBy> sortByFrequencyDesc() {
+  QueryBuilder<SettingsIsar, SettingsIsar, QAfterSortBy>
+      sortByFrequencyUnitDesc() {
     return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(r'frequency', Sort.desc);
+      return query.addSortBy(r'frequencyUnit', Sort.desc);
+    });
+  }
+
+  QueryBuilder<SettingsIsar, SettingsIsar, QAfterSortBy>
+      sortByFrequencyValue() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'frequencyValue', Sort.asc);
+    });
+  }
+
+  QueryBuilder<SettingsIsar, SettingsIsar, QAfterSortBy>
+      sortByFrequencyValueDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'frequencyValue', Sort.desc);
     });
   }
 
@@ -385,15 +457,30 @@ extension SettingsIsarQuerySortBy
 
 extension SettingsIsarQuerySortThenBy
     on QueryBuilder<SettingsIsar, SettingsIsar, QSortThenBy> {
-  QueryBuilder<SettingsIsar, SettingsIsar, QAfterSortBy> thenByFrequency() {
+  QueryBuilder<SettingsIsar, SettingsIsar, QAfterSortBy> thenByFrequencyUnit() {
     return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(r'frequency', Sort.asc);
+      return query.addSortBy(r'frequencyUnit', Sort.asc);
     });
   }
 
-  QueryBuilder<SettingsIsar, SettingsIsar, QAfterSortBy> thenByFrequencyDesc() {
+  QueryBuilder<SettingsIsar, SettingsIsar, QAfterSortBy>
+      thenByFrequencyUnitDesc() {
     return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(r'frequency', Sort.desc);
+      return query.addSortBy(r'frequencyUnit', Sort.desc);
+    });
+  }
+
+  QueryBuilder<SettingsIsar, SettingsIsar, QAfterSortBy>
+      thenByFrequencyValue() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'frequencyValue', Sort.asc);
+    });
+  }
+
+  QueryBuilder<SettingsIsar, SettingsIsar, QAfterSortBy>
+      thenByFrequencyValueDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'frequencyValue', Sort.desc);
     });
   }
 
@@ -426,9 +513,17 @@ extension SettingsIsarQuerySortThenBy
 
 extension SettingsIsarQueryWhereDistinct
     on QueryBuilder<SettingsIsar, SettingsIsar, QDistinct> {
-  QueryBuilder<SettingsIsar, SettingsIsar, QDistinct> distinctByFrequency() {
+  QueryBuilder<SettingsIsar, SettingsIsar, QDistinct>
+      distinctByFrequencyUnit() {
     return QueryBuilder.apply(this, (query) {
-      return query.addDistinctBy(r'frequency');
+      return query.addDistinctBy(r'frequencyUnit');
+    });
+  }
+
+  QueryBuilder<SettingsIsar, SettingsIsar, QDistinct>
+      distinctByFrequencyValue() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'frequencyValue');
     });
   }
 
@@ -448,10 +543,16 @@ extension SettingsIsarQueryProperty
     });
   }
 
-  QueryBuilder<SettingsIsar, NotificationFrequency, QQueryOperations>
-      frequencyProperty() {
+  QueryBuilder<SettingsIsar, TimeUnit, QQueryOperations>
+      frequencyUnitProperty() {
     return QueryBuilder.apply(this, (query) {
-      return query.addPropertyName(r'frequency');
+      return query.addPropertyName(r'frequencyUnit');
+    });
+  }
+
+  QueryBuilder<SettingsIsar, int, QQueryOperations> frequencyValueProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'frequencyValue');
     });
   }
 

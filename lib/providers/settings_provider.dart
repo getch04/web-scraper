@@ -1,4 +1,5 @@
 import 'package:riverpod_annotation/riverpod_annotation.dart';
+
 import '../models/settings_isar.dart';
 import '../services/database_service.dart';
 
@@ -10,19 +11,18 @@ class Settings extends _$Settings {
 
   @override
   Stream<SettingsIsar> build() async* {
-    // Initialize settings if they don't exist
     final existingSettings = await _isar.settingsIsars.get(0);
     if (existingSettings == null) {
       await _isar.writeTxn(() async {
         await _isar.settingsIsars.put(SettingsIsar(
           id: 0,
           notificationsEnabled: true,
-          frequency: NotificationFrequency.hourly,
+          frequencyValue: 1,
+          frequencyUnit: TimeUnit.hours,
         ));
       });
     }
 
-    // Watch for changes
     yield* _isar.settingsIsars.watchObject(0, fireImmediately: true).map(
           (settings) => settings ?? SettingsIsar(id: 0),
         );
@@ -39,8 +39,13 @@ class Settings extends _$Settings {
     await updateSettings(settings.copyWith(notificationsEnabled: enabled));
   }
 
-  Future<void> updateFrequency(NotificationFrequency frequency) async {
+  Future<void> updateFrequencyValue(int value) async {
     final settings = await _isar.settingsIsars.get(0) ?? SettingsIsar(id: 0);
-    await updateSettings(settings.copyWith(frequency: frequency));
+    await updateSettings(settings.copyWith(frequencyValue: value));
+  }
+
+  Future<void> updateFrequencyUnit(TimeUnit unit) async {
+    final settings = await _isar.settingsIsars.get(0) ?? SettingsIsar(id: 0);
+    await updateSettings(settings.copyWith(frequencyUnit: unit));
   }
 }

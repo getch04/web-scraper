@@ -1,6 +1,5 @@
 import 'package:car_web_scrapepr/models/car_listing_isar.dart';
 import 'package:car_web_scrapepr/models/filter_isar.dart';
-import 'package:car_web_scrapepr/models/settings_isar.dart';
 import 'package:flutter/foundation.dart';
 import 'package:isar/isar.dart';
 import 'package:workmanager/workmanager.dart' as wm;
@@ -44,12 +43,12 @@ class BackgroundService {
         return;
       }
 
-      final frequency = settings?.frequency ?? NotificationFrequency.minutes30;
+      final frequency = settings?.frequency ?? const Duration(minutes: 30);
 
       await wm.Workmanager().registerPeriodicTask(
         taskName,
         taskName,
-        frequency: frequency.duration,
+        frequency: frequency,
         constraints: wm.Constraints(
           requiresBatteryNotLow: true,
           networkType: wm.NetworkType.connected,

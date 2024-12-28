@@ -177,55 +177,81 @@ class NotificationSettingsPage extends HookConsumerWidget {
                           color: AppTheme.primaryBlue.withOpacity(0.1),
                         ),
                       ),
-                      child: Theme(
-                        data: Theme.of(context).copyWith(
-                          inputDecorationTheme: InputDecorationTheme(
-                            filled: true,
-                            fillColor: Colors.transparent,
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(12),
-                              borderSide: BorderSide.none,
+                      child: Padding(
+                        padding: const EdgeInsets.all(16),
+                        child: Row(
+                          children: [
+                            Expanded(
+                              flex: 2,
+                              child: TextFormField(
+                                initialValue:
+                                    settings.frequencyValue.toString(),
+                                keyboardType: TextInputType.number,
+                                style:
+                                    const TextStyle(color: AppTheme.textLight),
+                                decoration: const InputDecoration(
+                                  labelText: 'Check Every',
+                                  labelStyle:
+                                      TextStyle(color: AppTheme.textLight),
+                                  enabledBorder: OutlineInputBorder(
+                                    borderSide: BorderSide(
+                                        color: AppTheme.primaryBlue, width: 1),
+                                  ),
+                                  focusedBorder: OutlineInputBorder(
+                                    borderSide: BorderSide(
+                                        color: AppTheme.primaryBlue, width: 2),
+                                  ),
+                                ),
+                                onChanged: (value) {
+                                  final intValue = int.tryParse(value);
+                                  if (intValue != null && intValue > 0) {
+                                    ref
+                                        .read(settingsProvider.notifier)
+                                        .updateFrequencyValue(intValue);
+                                  }
+                                },
+                              ),
                             ),
-                            contentPadding: const EdgeInsets.symmetric(
-                              horizontal: 16,
-                              vertical: 8,
+                            const SizedBox(width: 12),
+                            Expanded(
+                              flex: 3,
+                              child: DropdownButtonFormField<TimeUnit>(
+                                decoration: const InputDecoration(
+                                  labelText: 'Unit',
+                                  labelStyle:
+                                      TextStyle(color: AppTheme.textLight),
+                                  enabledBorder: OutlineInputBorder(
+                                    borderSide: BorderSide(
+                                        color: AppTheme.primaryBlue, width: 1),
+                                  ),
+                                  focusedBorder: OutlineInputBorder(
+                                    borderSide: BorderSide(
+                                        color: AppTheme.primaryBlue, width: 2),
+                                  ),
+                                ),
+                                dropdownColor: AppTheme.surfaceColor,
+                                value: settings.frequencyUnit,
+                                items: TimeUnit.values
+                                    .map((unit) => DropdownMenuItem(
+                                          value: unit,
+                                          child: Text(
+                                            unit.displayName,
+                                            style: const TextStyle(
+                                              color: AppTheme.textLight,
+                                            ),
+                                          ),
+                                        ))
+                                    .toList(),
+                                onChanged: (value) {
+                                  if (value != null) {
+                                    ref
+                                        .read(settingsProvider.notifier)
+                                        .updateFrequencyUnit(value);
+                                  }
+                                },
+                              ),
                             ),
-                          ),
-                        ),
-                        child: DropdownButtonFormField<NotificationFrequency>(
-                          decoration: const InputDecoration(
-                            labelText: 'Check Frequency',
-                            labelStyle: TextStyle(
-                              color: AppTheme.textLight,
-                            ),
-                          ),
-                          dropdownColor: AppTheme.surfaceColor,
-                          value: settings.frequency,
-                          items: NotificationFrequency.values
-                              .map((f) => DropdownMenuItem(
-                                    value: f,
-                                    child: Text(
-                                      f.displayName,
-                                      style: const TextStyle(
-                                        color: AppTheme.textLight,
-                                      ),
-                                    ),
-                                  ))
-                              .toList(),
-                          onChanged: (value) => ref
-                              .read(settingsProvider.notifier)
-                              .updateFrequency(value!),
-                          icon: Container(
-                            padding: const EdgeInsets.all(8),
-                            decoration: BoxDecoration(
-                              gradient: AppTheme.primaryGradient.scale(0.3),
-                              shape: BoxShape.circle,
-                            ),
-                            child: const Icon(
-                              Icons.arrow_drop_down,
-                              color: AppTheme.primaryBlue,
-                            ),
-                          ),
+                          ],
                         ),
                       ),
                     ),

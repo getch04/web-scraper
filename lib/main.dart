@@ -28,8 +28,11 @@ Future<void> main() async {
   // Clean up old listings
   await cleanupOldListings();
 
-  // Simulate background fetch every 1 minute for testing
-  Timer.periodic(const Duration(seconds: 70), (timer) async {
+  // Simulate background fetch based on user settings
+  final settings = await DatabaseService.getSettings();
+  final frequency = settings?.frequency ?? const Duration(minutes: 30);
+
+  Timer.periodic(frequency, (timer) async {
     debugPrint('🔄 Simulating background fetch...');
     await BackgroundService.handleBackground();
     debugPrint('✅ Background fetch simulation completed');

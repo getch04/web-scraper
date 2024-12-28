@@ -20,7 +20,8 @@ class CarListingRepository {
   }
 
   Future<List<CarListing>> fetchCarListingsFromDb() async {
-    final cars = await _isar.carListings.where().sortByLastUpdated().findAll();
+    final cars =
+        await _isar.carListings.where().sortByLastUpdatedDesc().findAll();
 
     return cars.toList();
   }
@@ -93,7 +94,7 @@ class CarListingRepository {
   Stream<List<CarListing>> watchCarListings() {
     return _isar.carListings
         .where()
-        .sortByLastUpdated()
+        .sortByLastUpdatedDesc()
         .watch(fireImmediately: true);
   }
 }

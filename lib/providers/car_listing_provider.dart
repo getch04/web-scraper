@@ -17,7 +17,7 @@ class CarListingNotifier extends _$CarListingNotifier {
   CarListingState build() {
     _repository.watchCarListings().listen((listings) {
       state = state.copyWith(
-        listings: _sortListings(listings),
+        listings: listings,
         isLoading: false,
       );
     });
@@ -35,34 +35,34 @@ class CarListingNotifier extends _$CarListingNotifier {
     _sortTimestamp = timestamp;
     // Re-sort current listings
     state = state.copyWith(
-      listings: _sortListings(state.listings),
+      listings: state.listings,
     );
   }
 
-  List<CarListing> _sortListings(List<CarListing> listings) {
-    if (!_showNewestFirst) return listings;
+  // List<CarListing> _sortListings(List<CarListing> listings) {
+  //   if (!_showNewestFirst) return listings;
 
-    final sorted = List<CarListing>.from(listings);
-    if (_sortTimestamp > 0) {
-      // For listings after notification click, prioritize new listings
-      sorted.sort((a, b) {
-        final aIsNew = DateTime.now().millisecondsSinceEpoch - _sortTimestamp <
-            60000; // Within 1 minute
-        final bIsNew =
-            DateTime.now().millisecondsSinceEpoch - _sortTimestamp < 60000;
-        if (aIsNew != bIsNew) return aIsNew ? -1 : 1;
-        return 0;
-      });
-    }
-    return sorted;
-  }
+  //   final sorted = List<CarListing>.from(listings);
+  //   if (_sortTimestamp > 0) {
+  //     // For listings after notification click, prioritize new listings
+  //     sorted.sort((a, b) {
+  //       final aIsNew = DateTime.now().millisecondsSinceEpoch - _sortTimestamp <
+  //           60000; // Within 1 minute
+  //       final bIsNew =
+  //           DateTime.now().millisecondsSinceEpoch - _sortTimestamp < 60000;
+  //       if (aIsNew != bIsNew) return aIsNew ? -1 : 1;
+  //       return 0;
+  //     });
+  //   }
+  //   return sorted;
+  // }
 
   Future<void> fetchCarListingsFromDb() async {
     state = state.copyWith(isLoading: true, error: null);
     try {
       final listings = await _repository.fetchCarListingsFromDb();
       state = state.copyWith(
-        listings: _sortListings(listings),
+        listings: listings,
         isLoading: false,
         error: null,
       );

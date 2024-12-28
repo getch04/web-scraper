@@ -11,9 +11,12 @@ import 'package:car_web_scrapepr/services/trial_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 // car_listing_page.dart
+final displayCountProvider = StateProvider<(int, int)>((ref) => (0, 0));
+
 class CarListingPage extends HookConsumerWidget {
   const CarListingPage({super.key});
 
@@ -23,6 +26,50 @@ class CarListingPage extends HookConsumerWidget {
     final searchState = ref.watch(searchProvider);
     final searchController = useTextEditingController();
     final focusNode = useFocusNode();
+
+    // Add paging controller hook here
+    final pagingController = useMemoized(
+      () => PagingController<int, CarListing>(firstPageKey: 0),
+      [],
+    );
+
+    useEffect(() {
+      void fetchPage(int pageKey) async {
+        try {
+          final newItems = await ref
+              .read(carListingNotifierProvider.notifier)
+              .fetchPage(pageKey);
+
+          final isLastPage = newItems.length < CarListingNotifier.pageSize;
+          if (isLastPage) {
+            pagingController.appendLastPage(newItems);
+          } else {
+            final nextPageKey = pageKey + 1;
+            pagingController.appendPage(newItems, nextPageKey);
+          }
+        } catch (error) {
+          pagingController.error = error;
+        }
+      }
+
+      pagingController.addPageRequestListener(fetchPage);
+      return () => pagingController.dispose();
+    }, [pagingController]);
+
+    // Add this useEffect to refresh pagingController when total changes
+    useEffect(() {
+      final subscription = ref
+          .read(carListingNotifierProvider.notifier)
+          .repository
+          .watchTotalListings()
+          .listen((total) {
+        if (total > (pagingController.itemList?.length ?? 0)) {
+          pagingController.refresh();
+        }
+      });
+
+      return subscription.cancel;
+    }, []);
 
     // Handle navigation arguments
     final args =
@@ -39,6 +86,27 @@ class CarListingPage extends HookConsumerWidget {
       }
       return null;
     }, []);
+
+    // Add this useEffect to update the count
+    useEffect(() {
+      void updateCount() {
+        final current = pagingController.itemList?.length ?? 0;
+        ref
+            .read(carListingNotifierProvider.notifier)
+            .repository
+            .getTotalListings()
+            .then((total) {
+          ref.read(displayCountProvider.notifier).state = (current, total);
+        });
+      }
+
+      // Update count when items change
+      pagingController.addListener(updateCount);
+      // Initial count
+      updateCount();
+
+      return () => pagingController.removeListener(updateCount);
+    }, [pagingController]);
 
     return StreamBuilder<bool>(
       stream: TrialService.watchShouldShowPaywall(),
@@ -130,6 +198,40 @@ class CarListingPage extends HookConsumerWidget {
             actions: [
               Container(
                 margin: const EdgeInsets.all(8),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                decoration: BoxDecoration(
+                  gradient: AppTheme.primaryGradient.scale(0.3),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Icon(
+                      Icons.directions_car,
+                      color: AppTheme.textLight,
+                      size: 16,
+                    ),
+                    const SizedBox(width: 4),
+                    Consumer(
+                      builder: (context, ref, _) {
+                        final (current, total) =
+                            ref.watch(displayCountProvider);
+                        return Text(
+                          '$current/$total',
+                          style: const TextStyle(
+                            color: AppTheme.textLight,
+                            fontSize: 14,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        );
+                      },
+                    ),
+                  ],
+                ),
+              ),
+              Container(
+                margin: const EdgeInsets.all(8),
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
                     begin: Alignment.topLeft,
@@ -210,12 +312,7 @@ class CarListingPage extends HookConsumerWidget {
               : state.error != null
                   ? _buildErrorWidget(state.error!, ref)
                   : _buildListView(
-                      searchState.isSearching && searchState.query.isNotEmpty
-                          ? searchState.searchResults
-                          : state.listings,
-                      ref,
-                      searchState.isSearching,
-                    ),
+                      pagingController, searchState.isSearching, ref),
         );
       },
     );
@@ -346,113 +443,115 @@ class CarListingPage extends HookConsumerWidget {
   }
 
   Widget _buildListView(
-      List<CarListing> listings, WidgetRef ref, bool isSearching) {
+    PagingController<int, CarListing> pagingController,
+    bool isSearching,
+    WidgetRef ref,
+  ) {
     return RefreshIndicator(
-      color: AppTheme.primaryBlue,
-      backgroundColor: AppTheme.surfaceColor,
-      onRefresh: () async {
-        try {
-          await ref
-              .read(carListingNotifierProvider.notifier)
-              .fetchCarListingsFromDb();
-        } catch (e) {
-          debugPrint('Error refreshing: $e');
-        }
-      },
-      child: listings.isEmpty
-          ? ListView(
-              padding: const EdgeInsets.all(24),
-              children: [
-                const SizedBox(height: 40),
-                Container(
-                  padding: const EdgeInsets.all(20),
-                  decoration: BoxDecoration(
-                    gradient: AppTheme.primaryGradient.scale(0.3),
-                    borderRadius: BorderRadius.circular(20),
-                  ),
-                  child: const Icon(
-                    Icons.directions_car_outlined,
-                    size: 80,
-                    color: AppTheme.primaryBlue,
-                  ),
-                ),
-                const SizedBox(height: 24),
-                ShaderMask(
-                  shaderCallback: (bounds) =>
-                      AppTheme.primaryGradient.createShader(bounds),
-                  child: Text(
-                    isSearching ? 'No Results Found' : 'No Cars Found',
-                    textAlign: TextAlign.center,
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 12),
-                Text(
-                  isSearching
-                      ? 'Try different keywords or filters'
-                      : 'Please add filters to start searching for cars.\nYou can set your preferences in the settings.',
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    color: AppTheme.textLight.withOpacity(0.7),
-                    fontSize: 16,
-                    height: 1.5,
-                  ),
-                ),
-                const SizedBox(height: 32),
-                if (!isSearching)
-                  Container(
-                    decoration: BoxDecoration(
-                      gradient: AppTheme.primaryGradient,
-                      borderRadius: BorderRadius.circular(30),
-                      boxShadow: [
-                        BoxShadow(
-                          color: AppTheme.primaryBlue.withOpacity(0.3),
-                          blurRadius: 10,
-                          offset: const Offset(0, 5),
-                        ),
-                      ],
-                    ),
-                    child: ElevatedButton.icon(
-                      onPressed: () => ref
-                          .read(carListingNotifierProvider.notifier)
-                          .fetchCarListingsFromDb(),
-                      icon:
-                          const Icon(Icons.refresh, color: AppTheme.textLight),
-                      label: const Text(
-                        'Refresh',
-                        style: TextStyle(
-                          color: AppTheme.textLight,
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.transparent,
-                        elevation: 0,
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 32,
-                          vertical: 16,
-                        ),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(30),
-                        ),
-                      ),
-                    ),
-                  ),
-              ],
-            )
-          : ListView.builder(
-              padding: const EdgeInsets.all(16),
-              itemCount: listings.length,
-              itemBuilder: (context, index) {
-                final car = listings[index];
-                return CarListingCard(car: car);
-              },
+      onRefresh: () => Future.sync(() => pagingController.refresh()),
+      child: PagedListView<int, CarListing>.separated(
+        pagingController: pagingController,
+        padding: const EdgeInsets.all(16),
+        separatorBuilder: (context, index) => const SizedBox(height: 16),
+        builderDelegate: PagedChildBuilderDelegate<CarListing>(
+          itemBuilder: (context, car, index) => CarListingCard(car: car),
+          firstPageErrorIndicatorBuilder: (_) => _buildErrorWidget(
+            pagingController.error.toString(),
+            ref,
+          ),
+          noItemsFoundIndicatorBuilder: (_) =>
+              _buildEmptyState(isSearching, ref),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildEmptyState(bool isSearching, WidgetRef ref) {
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(24),
+      child: Column(
+        children: [
+          const SizedBox(height: 40),
+          Container(
+            padding: const EdgeInsets.all(20),
+            decoration: BoxDecoration(
+              gradient: AppTheme.primaryGradient.scale(0.3),
+              borderRadius: BorderRadius.circular(20),
             ),
+            child: const Icon(
+              Icons.directions_car_outlined,
+              size: 80,
+              color: AppTheme.primaryBlue,
+            ),
+          ),
+          const SizedBox(height: 24),
+          ShaderMask(
+            shaderCallback: (bounds) =>
+                AppTheme.primaryGradient.createShader(bounds),
+            child: Text(
+              isSearching ? 'No Results Found' : 'No Cars Found',
+              textAlign: TextAlign.center,
+              style: const TextStyle(
+                color: Colors.white,
+                fontSize: 24,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ),
+          const SizedBox(height: 12),
+          Text(
+            isSearching
+                ? 'Try different keywords or filters'
+                : 'Please add filters to start searching for cars.\nYou can set your preferences in the settings.',
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              color: AppTheme.textLight.withOpacity(0.7),
+              fontSize: 16,
+              height: 1.5,
+            ),
+          ),
+          const SizedBox(height: 32),
+          if (!isSearching)
+            Container(
+              decoration: BoxDecoration(
+                gradient: AppTheme.primaryGradient,
+                borderRadius: BorderRadius.circular(30),
+                boxShadow: [
+                  BoxShadow(
+                    color: AppTheme.primaryBlue.withOpacity(0.3),
+                    blurRadius: 10,
+                    offset: const Offset(0, 5),
+                  ),
+                ],
+              ),
+              child: ElevatedButton.icon(
+                onPressed: () => ref
+                    .read(carListingNotifierProvider.notifier)
+                    .fetchCarListingsFromDb(),
+                icon: const Icon(Icons.refresh, color: AppTheme.textLight),
+                label: const Text(
+                  'Refresh',
+                  style: TextStyle(
+                    color: AppTheme.textLight,
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.transparent,
+                  elevation: 0,
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 32,
+                    vertical: 16,
+                  ),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(30),
+                  ),
+                ),
+              ),
+            ),
+        ],
+      ),
     );
   }
 }
@@ -548,14 +647,17 @@ class CarListingCard extends StatelessWidget {
                                   ),
                                 ),
                               )
-                            : Container(
-                                decoration: BoxDecoration(
-                                  gradient: AppTheme.primaryGradient.scale(0.3),
-                                ),
-                                child: Icon(
-                                  Icons.directions_car,
-                                  color: AppTheme.primaryBlue,
-                                  size: 40,
+                            : Center(
+                                child: Container(
+                                  decoration: BoxDecoration(
+                                    gradient:
+                                        AppTheme.primaryGradient.scale(0.3),
+                                  ),
+                                  child: Icon(
+                                    Icons.directions_car,
+                                    color: AppTheme.primaryBlue,
+                                    size: 40,
+                                  ),
                                 ),
                               ),
                         Container(

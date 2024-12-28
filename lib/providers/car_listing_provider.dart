@@ -12,6 +12,9 @@ class CarListingNotifier extends _$CarListingNotifier {
   late final CarListingRepository _repository = CarListingRepository();
   bool _showNewestFirst = false;
   int _sortTimestamp = 0;
+  static const pageSize = 2;
+
+  CarListingRepository get repository => _repository;
 
   @override
   CarListingState build() {
@@ -78,5 +81,17 @@ class CarListingNotifier extends _$CarListingNotifier {
   Future<List<CarListing>> fetchFromRemote(
       [final FilterIsar? searchValue]) async {
     return await _repository.fetchFromNetwork(searchValue);
+  }
+
+  Future<List<CarListing>> fetchPage(int pageKey) async {
+    try {
+      final listings = await _repository.fetchPagedListings(
+        page: pageKey,
+        pageSize: pageSize,
+      );
+      return listings;
+    } catch (e) {
+      throw Exception('Failed to fetch listings: $e');
+    }
   }
 }

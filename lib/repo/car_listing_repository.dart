@@ -97,4 +97,33 @@ class CarListingRepository {
         .sortByLastUpdatedDesc()
         .watch(fireImmediately: true);
   }
+
+  Future<List<CarListing>> fetchPagedListings({
+    required int page,
+    required int pageSize,
+  }) async {
+    final isar = DatabaseService.instance;
+    final skip = page * pageSize;
+
+    final listings = await isar.carListings
+        .where()
+        .sortByLastUpdatedDesc()
+        .offset(skip)
+        .limit(pageSize)
+        .findAll();
+
+    return listings;
+  }
+
+  Future<int> getTotalListings() async {
+    return DatabaseService.instance.carListings.count();
+  }
+
+  Stream<int> watchTotalListings() {
+    return DatabaseService.instance.carListings
+        .where()
+        .sortByLastUpdatedDesc()
+        .watch(fireImmediately: true)
+        .map((event) => event.length);
+  }
 }

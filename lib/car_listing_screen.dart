@@ -575,10 +575,64 @@ class CarListingPage extends HookConsumerWidget {
   }
 }
 
-class CarListingCard extends StatelessWidget {
+class CarListingCard extends ConsumerWidget {
   final CarListing car;
 
   const CarListingCard({super.key, required this.car});
+
+  Future<bool> _showDeleteConfirmation(BuildContext context) async {
+    return await showDialog(
+          context: context,
+          builder: (context) => AlertDialog(
+            backgroundColor: AppTheme.surfaceColor,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(20),
+              side: BorderSide(
+                color: AppTheme.primaryBlue.withOpacity(0.1),
+              ),
+            ),
+            title: const Text(
+              'Delete Listing',
+              style: TextStyle(
+                color: AppTheme.textLight,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            content: const Text(
+              'Are you sure you want to delete this car listing?',
+              style: TextStyle(color: AppTheme.textLight),
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(false),
+                child: Text(
+                  'Cancel',
+                  style: TextStyle(
+                    color: AppTheme.textLight.withOpacity(0.7),
+                  ),
+                ),
+              ),
+              Container(
+                decoration: BoxDecoration(
+                  gradient: AppTheme.primaryGradient,
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: TextButton(
+                  onPressed: () => Navigator.of(context).pop(true),
+                  child: const Text(
+                    'Delete',
+                    style: TextStyle(
+                      color: AppTheme.textLight,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ) ??
+        false;
+  }
 
   String _getTimeAgoText(DateTime dateTime) {
     //show only date
@@ -586,231 +640,299 @@ class CarListingCard extends StatelessWidget {
   }
 
   @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: () => Navigator.push(
-        context,
-        PageTransitions.scaleTransition(CarDetailPage(car: car)),
-      ),
-      child: Container(
-        margin: const EdgeInsets.only(bottom: 16),
+  Widget build(BuildContext context, WidgetRef ref) {
+    return Dismissible(
+      key: Key(car.id.toString()),
+      direction: DismissDirection.endToStart,
+      confirmDismiss: (direction) => _showDeleteConfirmation(context),
+      onDismissed: (direction) {
+        ref.read(carListingNotifierProvider.notifier).deleteCar(car);
+      },
+      background: Container(
         decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: [
-              AppTheme.surfaceColor,
-              AppTheme.surfaceColor.withOpacity(0.9),
-            ],
+          gradient: const LinearGradient(
+            colors: [Colors.red, Colors.redAccent],
           ),
           borderRadius: BorderRadius.circular(20),
-          border: Border.all(
-            color: AppTheme.primaryBlue.withOpacity(0.1),
-            width: 1,
-          ),
-          boxShadow: [
-            BoxShadow(
-              color: AppTheme.backgroundColor.withOpacity(0.5),
-              blurRadius: 10,
-              offset: const Offset(0, 5),
-            ),
-          ],
         ),
-        child: Stack(
-          children: [
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // Car Image with Gradient Overlay
-                Container(
-                  width: 140,
-                  height: 140,
-                  decoration: const BoxDecoration(
-                    borderRadius: BorderRadius.only(
-                      topLeft: Radius.circular(20),
-                      bottomLeft: Radius.circular(20),
+        alignment: Alignment.centerRight,
+        padding: const EdgeInsets.only(right: 20),
+        child: const Icon(
+          Icons.delete,
+          color: Colors.white,
+        ),
+      ),
+      child: GestureDetector(
+        onTap: () => Navigator.push(
+          context,
+          PageTransitions.scaleTransition(CarDetailPage(car: car)),
+        ),
+        child: Container(
+          margin: const EdgeInsets.only(bottom: 16),
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [
+                AppTheme.surfaceColor,
+                AppTheme.surfaceColor.withOpacity(0.9),
+              ],
+            ),
+            borderRadius: BorderRadius.circular(20),
+            border: Border.all(
+              color: AppTheme.primaryBlue.withOpacity(0.1),
+              width: 1,
+            ),
+            boxShadow: [
+              BoxShadow(
+                color: AppTheme.backgroundColor.withOpacity(0.5),
+                blurRadius: 10,
+                offset: const Offset(0, 5),
+              ),
+            ],
+          ),
+          child: Stack(
+            children: [
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Car Image with Gradient Overlay
+                  Container(
+                    width: 140,
+                    height: 140,
+                    decoration: const BoxDecoration(
+                      borderRadius: BorderRadius.only(
+                        topLeft: Radius.circular(20),
+                        bottomLeft: Radius.circular(20),
+                      ),
                     ),
-                  ),
-                  child: ClipRRect(
-                    borderRadius: const BorderRadius.only(
-                      topLeft: Radius.circular(20),
-                      bottomLeft: Radius.circular(20),
-                    ),
-                    child: Stack(
-                      children: [
-                        car.images.isNotEmpty
-                            ? CachedNetworkImage(
-                                imageUrl: car.images.first,
-                                fit: BoxFit.cover,
-                                width: double.infinity,
-                                height: double.infinity,
-                                placeholder: (context, url) => Container(
-                                  decoration: BoxDecoration(
-                                    gradient: AppTheme.primaryGradient,
-                                    // opacity: 0.3,
+                    child: ClipRRect(
+                      borderRadius: const BorderRadius.only(
+                        topLeft: Radius.circular(20),
+                        bottomLeft: Radius.circular(20),
+                      ),
+                      child: Stack(
+                        children: [
+                          car.images.isNotEmpty
+                              ? CachedNetworkImage(
+                                  imageUrl: car.images.first,
+                                  fit: BoxFit.cover,
+                                  width: double.infinity,
+                                  height: double.infinity,
+                                  placeholder: (context, url) => Container(
+                                    decoration: BoxDecoration(
+                                      gradient: AppTheme.primaryGradient,
+                                      // opacity: 0.3,
+                                    ),
+                                    child: const Center(
+                                      child: CircularProgressIndicator(
+                                        color: AppTheme.primaryBlue,
+                                      ),
+                                    ),
                                   ),
-                                  child: const Center(
-                                    child: CircularProgressIndicator(
+                                )
+                              : Center(
+                                  child: Container(
+                                    decoration: BoxDecoration(
+                                      gradient:
+                                          AppTheme.primaryGradient.scale(0.3),
+                                    ),
+                                    child: Icon(
+                                      Icons.directions_car,
                                       color: AppTheme.primaryBlue,
+                                      size: 40,
                                     ),
                                   ),
                                 ),
-                              )
-                            : Center(
-                                child: Container(
-                                  decoration: BoxDecoration(
-                                    gradient:
-                                        AppTheme.primaryGradient.scale(0.3),
-                                  ),
-                                  child: Icon(
-                                    Icons.directions_car,
-                                    color: AppTheme.primaryBlue,
-                                    size: 40,
+                          Container(
+                            decoration: BoxDecoration(
+                              gradient: LinearGradient(
+                                begin: Alignment.topRight,
+                                end: Alignment.bottomLeft,
+                                colors: [
+                                  Colors.black.withOpacity(0.1),
+                                  Colors.black.withOpacity(0.3),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                  // Car Details
+                  Expanded(
+                    child: Padding(
+                      padding: const EdgeInsets.all(16),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            car.title,
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                              letterSpacing: -0.5,
+                              color: AppTheme.textLight.withOpacity(0.9),
+                            ),
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                          const SizedBox(height: 8),
+                          Row(
+                            children: [
+                              _buildSpecChip(car.year),
+                              _buildDot(),
+                              _buildSpecChip(car.price),
+                            ],
+                          ),
+                          const SizedBox(height: 12),
+                          Row(
+                            children: [
+                              Container(
+                                padding: const EdgeInsets.all(6),
+                                decoration: BoxDecoration(
+                                  gradient: AppTheme.primaryGradient.scale(0.3),
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                                child: Icon(
+                                  Icons.local_gas_station,
+                                  size: 14,
+                                  color: AppTheme.primaryBlue,
+                                ),
+                              ),
+                              const SizedBox(width: 8),
+                              Expanded(
+                                child: Text(
+                                  car.seller,
+                                  overflow: TextOverflow.ellipsis,
+                                  maxLines: 1,
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    color: AppTheme.textLight.withOpacity(0.7),
                                   ),
                                 ),
                               ),
-                        Container(
-                          decoration: BoxDecoration(
-                            gradient: LinearGradient(
-                              begin: Alignment.topRight,
-                              end: Alignment.bottomLeft,
-                              colors: [
-                                Colors.black.withOpacity(0.1),
-                                Colors.black.withOpacity(0.3),
-                              ],
+                            ],
+                          ),
+                          const SizedBox(height: 8),
+                          Text(
+                            _getTimeAgoText(car.lastUpdated),
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: AppTheme.textLight.withOpacity(0.7),
                             ),
                           ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-                // Car Details
-                Expanded(
-                  child: Padding(
-                    padding: const EdgeInsets.all(16),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          car.title,
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                            letterSpacing: -0.5,
-                            color: AppTheme.textLight.withOpacity(0.9),
-                          ),
-                          maxLines: 2,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                        const SizedBox(height: 8),
-                        Row(
-                          children: [
-                            _buildSpecChip(car.year),
-                            _buildDot(),
-                            _buildSpecChip(car.price),
-                          ],
-                        ),
-                        const SizedBox(height: 12),
-                        Row(
-                          children: [
-                            Container(
-                              padding: const EdgeInsets.all(6),
-                              decoration: BoxDecoration(
-                                gradient: AppTheme.primaryGradient.scale(0.3),
-                                borderRadius: BorderRadius.circular(8),
-                              ),
-                              child: Icon(
-                                Icons.local_gas_station,
-                                size: 14,
-                                color: AppTheme.primaryBlue,
-                              ),
-                            ),
-                            const SizedBox(width: 8),
-                            Expanded(
-                              child: Text(
-                                car.seller,
-                                overflow: TextOverflow.ellipsis,
-                                maxLines: 1,
-                                style: TextStyle(
-                                  fontSize: 12,
-                                  color: AppTheme.textLight.withOpacity(0.7),
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 8),
-                        Text(
-                          _getTimeAgoText(car.lastUpdated),
-                          style: TextStyle(
-                            fontSize: 12,
-                            color: AppTheme.textLight.withOpacity(0.7),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ],
-            ),
-            // Price Tag
-            Positioned(
-              top: 12,
-              right: 12,
-              child: InkWell(
-                onTap: () {
-                  try {
-                    launchUrl(
-                      Uri.parse('https://www.nettiauto.com${car.detailPage}'),
-                    );
-                  } catch (e) {
-                    debugPrint('Failed to launch URL: $e');
-                  }
-                },
-                child: Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 10,
-                    vertical: 6,
-                  ),
-                  decoration: BoxDecoration(
-                    gradient: AppTheme.primaryGradient,
-                    borderRadius: BorderRadius.circular(20),
-                  ),
-                  child: Text(
-                    'View',
-                    style: const TextStyle(
-                      color: AppTheme.textLight,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 12,
-                    ),
-                  ),
-                ),
-              ),
-            ),
-            // Location Tag
-            Positioned(
-              bottom: 12,
-              right: 12,
-              child: Row(
-                children: [
-                  Icon(
-                    Icons.location_on,
-                    size: 12,
-                    color: AppTheme.textLight.withOpacity(0.7),
-                  ),
-                  const SizedBox(width: 4),
-                  Text(
-                    car.location,
-                    style: TextStyle(
-                      fontSize: 12,
-                      color: AppTheme.textLight.withOpacity(0.7),
+                        ],
+                      ),
                     ),
                   ),
                 ],
               ),
-            ),
-          ],
+              // Action Buttons
+              Positioned(
+                top: 12,
+                right: 12,
+                child: Row(
+                  children: [
+                    InkWell(
+                      onTap: () async {
+                        if (await _showDeleteConfirmation(context)) {
+                          ref
+                              .read(carListingNotifierProvider.notifier)
+                              .deleteCar(car);
+                        }
+                      },
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 10,
+                          vertical: 6,
+                        ),
+                        decoration: BoxDecoration(
+                          gradient: const LinearGradient(
+                            colors: [Colors.red, Colors.redAccent],
+                          ),
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                        child: const Row(
+                          children: [
+                            Icon(
+                              Icons.delete,
+                              color: AppTheme.textLight,
+                              size: 12,
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    InkWell(
+                      onTap: () {
+                        try {
+                          launchUrl(
+                            Uri.parse(
+                                'https://www.nettiauto.com${car.detailPage}'),
+                          );
+                        } catch (e) {
+                          debugPrint('Failed to launch URL: $e');
+                        }
+                      },
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 10,
+                          vertical: 6,
+                        ),
+                        decoration: BoxDecoration(
+                          gradient: AppTheme.primaryGradient,
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                        child: const Row(
+                          children: [
+                            Icon(
+                              Icons.open_in_new,
+                              color: AppTheme.textLight,
+                              size: 12,
+                            ),
+                            SizedBox(width: 4),
+                            Text(
+                              'View',
+                              style: TextStyle(
+                                color: AppTheme.textLight,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 12,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              // Location Tag
+              Positioned(
+                bottom: 12,
+                right: 12,
+                child: Row(
+                  children: [
+                    Icon(
+                      Icons.location_on,
+                      size: 12,
+                      color: AppTheme.textLight.withOpacity(0.7),
+                    ),
+                    const SizedBox(width: 4),
+                    Text(
+                      car.location,
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: AppTheme.textLight.withOpacity(0.7),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -840,13 +962,67 @@ class CarListingCard extends StatelessWidget {
   }
 }
 
-class CarDetailPage extends StatelessWidget {
+class CarDetailPage extends ConsumerWidget {
   final CarListing car;
 
   const CarDetailPage({super.key, required this.car});
 
+  Future<bool> _showDeleteConfirmation(BuildContext context) async {
+    return await showDialog(
+          context: context,
+          builder: (context) => AlertDialog(
+            backgroundColor: AppTheme.surfaceColor,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(20),
+              side: BorderSide(
+                color: AppTheme.primaryBlue.withOpacity(0.1),
+              ),
+            ),
+            title: const Text(
+              'Delete Listing',
+              style: TextStyle(
+                color: AppTheme.textLight,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            content: const Text(
+              'Are you sure you want to delete this car listing?',
+              style: TextStyle(color: AppTheme.textLight),
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(false),
+                child: Text(
+                  'Cancel',
+                  style: TextStyle(
+                    color: AppTheme.textLight.withOpacity(0.7),
+                  ),
+                ),
+              ),
+              Container(
+                decoration: BoxDecoration(
+                  gradient: AppTheme.primaryGradient,
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: TextButton(
+                  onPressed: () => Navigator.of(context).pop(true),
+                  child: const Text(
+                    'Delete',
+                    style: TextStyle(
+                      color: AppTheme.textLight,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ) ??
+        false;
+  }
+
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     return Scaffold(
       backgroundColor: AppTheme.backgroundColor,
       body: CustomScrollView(
@@ -894,6 +1070,52 @@ class CarDetailPage extends StatelessWidget {
                 ),
               ),
             ),
+            actions: [
+              Padding(
+                padding: const EdgeInsets.only(right: 8),
+                child: Container(
+                  margin: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      colors: [
+                        AppTheme.surfaceColor.withOpacity(0.9),
+                        AppTheme.surfaceColor.withOpacity(0.7),
+                      ],
+                    ),
+                    borderRadius: BorderRadius.circular(12),
+                    boxShadow: [
+                      BoxShadow(
+                        color: AppTheme.primaryBlue.withOpacity(0.2),
+                        blurRadius: 8,
+                        offset: const Offset(0, 2),
+                      ),
+                    ],
+                  ),
+                  child: Material(
+                    color: Colors.transparent,
+                    child: InkWell(
+                      borderRadius: BorderRadius.circular(12),
+                      onTap: () async {
+                        if (await _showDeleteConfirmation(context)) {
+                          ref
+                              .read(carListingNotifierProvider.notifier)
+                              .deleteCar(car);
+                          Navigator.of(context).pop();
+                        }
+                      },
+                      child: const Padding(
+                        padding: EdgeInsets.all(8.0),
+                        child: Icon(
+                          Icons.delete,
+                          color: Colors.red,
+                          size: 20,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ],
             flexibleSpace: FlexibleSpaceBar(
               background: Stack(
                 children: [

@@ -1,11 +1,56 @@
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+
 import '../core/theme.dart';
+import '../services/database_service.dart';
 import 'filter_settings_page.dart';
 import 'notification_settings_page.dart';
 
 class SettingsPage extends HookConsumerWidget {
   const SettingsPage({super.key});
+
+  Future<void> _showClearConfirmationDialog(BuildContext context) async {
+    return showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          backgroundColor: AppTheme.surfaceColor,
+          title: const Text(
+            'Clear All Listings',
+            style: TextStyle(color: AppTheme.textLight),
+          ),
+          content: const Text(
+            'Are you sure you want to clear all car listings? This action cannot be undone.',
+            style: TextStyle(color: AppTheme.textLight),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: const Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () async {
+                await DatabaseService().clearAllListings();
+                if (context.mounted) {
+                  Navigator.of(context).pop();
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('All listings cleared successfully'),
+                      backgroundColor: AppTheme.primaryBlue,
+                    ),
+                  );
+                }
+              },
+              child: const Text(
+                'Clear',
+                style: TextStyle(color: Colors.red),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -14,7 +59,8 @@ class SettingsPage extends HookConsumerWidget {
       appBar: AppBar(
         centerTitle: true,
         title: ShaderMask(
-          shaderCallback: (bounds) => AppTheme.primaryGradient.createShader(bounds),
+          shaderCallback: (bounds) =>
+              AppTheme.primaryGradient.createShader(bounds),
           child: const Text(
             'Settings',
             style: TextStyle(
@@ -78,7 +124,8 @@ class SettingsPage extends HookConsumerWidget {
             Padding(
               padding: const EdgeInsets.only(bottom: 24),
               child: ShaderMask(
-                shaderCallback: (bounds) => AppTheme.primaryGradient.createShader(bounds),
+                shaderCallback: (bounds) =>
+                    AppTheme.primaryGradient.createShader(bounds),
                 child: const Text(
                   'Customize your experience',
                   style: TextStyle(
@@ -107,8 +154,17 @@ class SettingsPage extends HookConsumerWidget {
               subtitle: 'Manage your notifications',
               onTap: () => Navigator.push(
                 context,
-                MaterialPageRoute(builder: (_) => const NotificationSettingsPage()),
+                MaterialPageRoute(
+                    builder: (_) => const NotificationSettingsPage()),
               ),
+            ),
+            const SizedBox(height: 20),
+            _buildSettingCard(
+              context,
+              title: 'Clear All Listings',
+              icon: Icons.delete_outline_rounded,
+              subtitle: 'Remove all saved car listings',
+              onTap: () => _showClearConfirmationDialog(context),
             ),
           ],
         ),

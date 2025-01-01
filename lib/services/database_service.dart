@@ -72,4 +72,10 @@ class DatabaseService {
   static Future<SettingsIsar?> getSettings() async {
     return _isar.settingsIsars.filter().idEqualTo(0).findFirst();
   }
+
+  Future<void> clearAllListings() async {
+    await _isar.writeTxn(() async {
+      await _isar.carListings.clear();
+    });
+  }
 }

@@ -201,4 +201,10 @@ class CarListingRepository {
         .watch(fireImmediately: true)
         .map((event) => event.length);
   }
+
+  Future<void> deleteCar(int id) async {
+    await _isar.writeTxn(() async {
+      await _isar.carListings.delete(id);
+    });
+  }
 }

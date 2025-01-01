@@ -94,4 +94,11 @@ class CarListingNotifier extends _$CarListingNotifier {
       throw Exception('Failed to fetch listings: $e');
     }
   }
+
+  Future<void> deleteCar(CarListing car) async {
+    await repository.deleteCar(car.id);
+    state = state.copyWith(
+      listings: state.listings.where((c) => c.id != car.id).toList(),
+    );
+  }
 }

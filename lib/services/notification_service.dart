@@ -45,6 +45,8 @@ class NotificationService {
             channelShowBadge: true,
             enableVibration: true,
             enableLights: true,
+            playSound: true,
+            soundSource: 'assets/audios/notification.m4a',
           ),
         ],
         debug: kDebugMode,

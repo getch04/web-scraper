@@ -20,6 +20,8 @@ class CarListing {
   List<String> images;
   String detailPage;
   DateTime lastUpdated;
+  @Index()
+  int orderIndex;
 
   CarListing({
     required this.title,
@@ -34,6 +36,7 @@ class CarListing {
     required this.images,
     required this.detailPage,
     required this.lastUpdated,
+    this.orderIndex = 0,
   });
 
   factory CarListing.fromJson(Map<String, dynamic> json) =>

@@ -52,28 +52,33 @@ const CarListingSchema = CollectionSchema(
       name: r'mileage',
       type: IsarType.string,
     ),
-    r'price': PropertySchema(
+    r'orderIndex': PropertySchema(
       id: 7,
+      name: r'orderIndex',
+      type: IsarType.long,
+    ),
+    r'price': PropertySchema(
+      id: 8,
       name: r'price',
       type: IsarType.string,
     ),
     r'seller': PropertySchema(
-      id: 8,
+      id: 9,
       name: r'seller',
       type: IsarType.string,
     ),
     r'title': PropertySchema(
-      id: 9,
+      id: 10,
       name: r'title',
       type: IsarType.string,
     ),
     r'transmission': PropertySchema(
-      id: 10,
+      id: 11,
       name: r'transmission',
       type: IsarType.string,
     ),
     r'year': PropertySchema(
-      id: 11,
+      id: 12,
       name: r'year',
       type: IsarType.string,
     )
@@ -83,7 +88,21 @@ const CarListingSchema = CollectionSchema(
   deserialize: _carListingDeserialize,
   deserializeProp: _carListingDeserializeProp,
   idName: r'id',
-  indexes: {},
+  indexes: {
+    r'orderIndex': IndexSchema(
+      id: -6149432298716175352,
+      name: r'orderIndex',
+      unique: false,
+      replace: false,
+      properties: [
+        IndexPropertySchema(
+          name: r'orderIndex',
+          type: IndexType.value,
+          caseSensitive: false,
+        )
+      ],
+    )
+  },
   links: {},
   embeddedSchemas: {},
   getId: _carListingGetId,
@@ -131,11 +150,12 @@ void _carListingSerialize(
   writer.writeDateTime(offsets[4], object.lastUpdated);
   writer.writeString(offsets[5], object.location);
   writer.writeString(offsets[6], object.mileage);
-  writer.writeString(offsets[7], object.price);
-  writer.writeString(offsets[8], object.seller);
-  writer.writeString(offsets[9], object.title);
-  writer.writeString(offsets[10], object.transmission);
-  writer.writeString(offsets[11], object.year);
+  writer.writeLong(offsets[7], object.orderIndex);
+  writer.writeString(offsets[8], object.price);
+  writer.writeString(offsets[9], object.seller);
+  writer.writeString(offsets[10], object.title);
+  writer.writeString(offsets[11], object.transmission);
+  writer.writeString(offsets[12], object.year);
 }
 
 CarListing _carListingDeserialize(
@@ -152,11 +172,12 @@ CarListing _carListingDeserialize(
     lastUpdated: reader.readDateTime(offsets[4]),
     location: reader.readString(offsets[5]),
     mileage: reader.readString(offsets[6]),
-    price: reader.readString(offsets[7]),
-    seller: reader.readString(offsets[8]),
-    title: reader.readString(offsets[9]),
-    transmission: reader.readString(offsets[10]),
-    year: reader.readString(offsets[11]),
+    orderIndex: reader.readLongOrNull(offsets[7]) ?? 0,
+    price: reader.readString(offsets[8]),
+    seller: reader.readString(offsets[9]),
+    title: reader.readString(offsets[10]),
+    transmission: reader.readString(offsets[11]),
+    year: reader.readString(offsets[12]),
   );
   object.id = id;
   return object;
@@ -184,7 +205,7 @@ P _carListingDeserializeProp<P>(
     case 6:
       return (reader.readString(offset)) as P;
     case 7:
-      return (reader.readString(offset)) as P;
+      return (reader.readLongOrNull(offset) ?? 0) as P;
     case 8:
       return (reader.readString(offset)) as P;
     case 9:
@@ -192,6 +213,8 @@ P _carListingDeserializeProp<P>(
     case 10:
       return (reader.readString(offset)) as P;
     case 11:
+      return (reader.readString(offset)) as P;
+    case 12:
       return (reader.readString(offset)) as P;
     default:
       throw IsarError('Unknown property with id $propertyId');
@@ -215,6 +238,14 @@ extension CarListingQueryWhereSort
   QueryBuilder<CarListing, CarListing, QAfterWhere> anyId() {
     return QueryBuilder.apply(this, (query) {
       return query.addWhereClause(const IdWhereClause.any());
+    });
+  }
+
+  QueryBuilder<CarListing, CarListing, QAfterWhere> anyOrderIndex() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addWhereClause(
+        const IndexWhereClause.any(indexName: r'orderIndex'),
+      );
     });
   }
 }
@@ -281,6 +312,96 @@ extension CarListingQueryWhere
         lower: lowerId,
         includeLower: includeLower,
         upper: upperId,
+        includeUpper: includeUpper,
+      ));
+    });
+  }
+
+  QueryBuilder<CarListing, CarListing, QAfterWhereClause> orderIndexEqualTo(
+      int orderIndex) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addWhereClause(IndexWhereClause.equalTo(
+        indexName: r'orderIndex',
+        value: [orderIndex],
+      ));
+    });
+  }
+
+  QueryBuilder<CarListing, CarListing, QAfterWhereClause> orderIndexNotEqualTo(
+      int orderIndex) {
+    return QueryBuilder.apply(this, (query) {
+      if (query.whereSort == Sort.asc) {
+        return query
+            .addWhereClause(IndexWhereClause.between(
+              indexName: r'orderIndex',
+              lower: [],
+              upper: [orderIndex],
+              includeUpper: false,
+            ))
+            .addWhereClause(IndexWhereClause.between(
+              indexName: r'orderIndex',
+              lower: [orderIndex],
+              includeLower: false,
+              upper: [],
+            ));
+      } else {
+        return query
+            .addWhereClause(IndexWhereClause.between(
+              indexName: r'orderIndex',
+              lower: [orderIndex],
+              includeLower: false,
+              upper: [],
+            ))
+            .addWhereClause(IndexWhereClause.between(
+              indexName: r'orderIndex',
+              lower: [],
+              upper: [orderIndex],
+              includeUpper: false,
+            ));
+      }
+    });
+  }
+
+  QueryBuilder<CarListing, CarListing, QAfterWhereClause> orderIndexGreaterThan(
+    int orderIndex, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addWhereClause(IndexWhereClause.between(
+        indexName: r'orderIndex',
+        lower: [orderIndex],
+        includeLower: include,
+        upper: [],
+      ));
+    });
+  }
+
+  QueryBuilder<CarListing, CarListing, QAfterWhereClause> orderIndexLessThan(
+    int orderIndex, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addWhereClause(IndexWhereClause.between(
+        indexName: r'orderIndex',
+        lower: [],
+        upper: [orderIndex],
+        includeUpper: include,
+      ));
+    });
+  }
+
+  QueryBuilder<CarListing, CarListing, QAfterWhereClause> orderIndexBetween(
+    int lowerOrderIndex,
+    int upperOrderIndex, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addWhereClause(IndexWhereClause.between(
+        indexName: r'orderIndex',
+        lower: [lowerOrderIndex],
+        includeLower: includeLower,
+        upper: [upperOrderIndex],
         includeUpper: includeUpper,
       ));
     });
@@ -1284,6 +1405,61 @@ extension CarListingQueryFilter
     });
   }
 
+  QueryBuilder<CarListing, CarListing, QAfterFilterCondition> orderIndexEqualTo(
+      int value) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'orderIndex',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<CarListing, CarListing, QAfterFilterCondition>
+      orderIndexGreaterThan(
+    int value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'orderIndex',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<CarListing, CarListing, QAfterFilterCondition>
+      orderIndexLessThan(
+    int value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'orderIndex',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<CarListing, CarListing, QAfterFilterCondition> orderIndexBetween(
+    int lower,
+    int upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'orderIndex',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+      ));
+    });
+  }
+
   QueryBuilder<CarListing, CarListing, QAfterFilterCondition> priceEqualTo(
     String value, {
     bool caseSensitive = true,
@@ -2024,6 +2200,18 @@ extension CarListingQuerySortBy
     });
   }
 
+  QueryBuilder<CarListing, CarListing, QAfterSortBy> sortByOrderIndex() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'orderIndex', Sort.asc);
+    });
+  }
+
+  QueryBuilder<CarListing, CarListing, QAfterSortBy> sortByOrderIndexDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'orderIndex', Sort.desc);
+    });
+  }
+
   QueryBuilder<CarListing, CarListing, QAfterSortBy> sortByPrice() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'price', Sort.asc);
@@ -2171,6 +2359,18 @@ extension CarListingQuerySortThenBy
     });
   }
 
+  QueryBuilder<CarListing, CarListing, QAfterSortBy> thenByOrderIndex() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'orderIndex', Sort.asc);
+    });
+  }
+
+  QueryBuilder<CarListing, CarListing, QAfterSortBy> thenByOrderIndexDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'orderIndex', Sort.desc);
+    });
+  }
+
   QueryBuilder<CarListing, CarListing, QAfterSortBy> thenByPrice() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'price', Sort.asc);
@@ -2281,6 +2481,12 @@ extension CarListingQueryWhereDistinct
     });
   }
 
+  QueryBuilder<CarListing, CarListing, QDistinct> distinctByOrderIndex() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'orderIndex');
+    });
+  }
+
   QueryBuilder<CarListing, CarListing, QDistinct> distinctByPrice(
       {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
@@ -2367,6 +2573,12 @@ extension CarListingQueryProperty
     });
   }
 
+  QueryBuilder<CarListing, int, QQueryOperations> orderIndexProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'orderIndex');
+    });
+  }
+
   QueryBuilder<CarListing, String, QQueryOperations> priceProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'price');
@@ -2416,6 +2628,7 @@ CarListing _$CarListingFromJson(Map<String, dynamic> json) => CarListing(
           (json['images'] as List<dynamic>).map((e) => e as String).toList(),
       detailPage: json['detailPage'] as String,
       lastUpdated: DateTime.parse(json['lastUpdated'] as String),
+      orderIndex: (json['orderIndex'] as num?)?.toInt() ?? 0,
     )..id = (json['id'] as num).toInt();
 
 Map<String, dynamic> _$CarListingToJson(CarListing instance) =>
@@ -2433,4 +2646,5 @@ Map<String, dynamic> _$CarListingToJson(CarListing instance) =>
       'images': instance.images,
       'detailPage': instance.detailPage,
       'lastUpdated': instance.lastUpdated.toIso8601String(),
+      'orderIndex': instance.orderIndex,
     };

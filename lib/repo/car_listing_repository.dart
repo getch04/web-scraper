@@ -80,12 +80,23 @@ class CarListingRepository {
     final hakuValue = activeFilter?.hakuValue;
 
     final url =
-        'https://www.nettiauto.com/hakutulokset?haku=${hakuValue ?? ''}';
+        'https://www.nettiauto.com/hakutulokset?haku=${hakuValue ?? ''}&sortCol=dateCreated&ord=desc&latest=new';
     final res = await http.get(Uri.parse(url));
 
     if (res.statusCode != 200) {
       throw Exception('Failed to fetch car listings');
     }
+
+    // Get existing listings and find the highest order index
+    final existingListings = await DatabaseService.getExistingListings();
+    final existingUrls = existingListings.map((e) => e.detailPage).toSet();
+    final lastOrderIndex = existingListings.isEmpty
+        ? 0
+        : existingListings
+            .map((e) => e.orderIndex)
+            .reduce((max, value) => value > max ? value : max);
+
+    var orderIndex = lastOrderIndex + 1; // Start from next available number
 
     final document = html.parse(res.body);
     final listings = document.querySelectorAll('.swiper-slider-custom-on-card');
@@ -93,7 +104,6 @@ class CarListingRepository {
     final cars = <CarListing>[];
 
     for (final listing in listings) {
-      // Extract basic data as before
       final dataLayerStr = listing.attributes['data-datalayer'];
       Map<String, dynamic> dataLayer = {};
 
@@ -104,6 +114,9 @@ class CarListingRepository {
               .replaceAll('\\u00f6', 'ö')
               .replaceAll('\\u00e4', 'ä');
           dataLayer = json.decode(decodedStr);
+
+          final position = dataLayer['position'] as int? ?? orderIndex;
+          orderIndex = position;
         } catch (e) {
           debugPrint('Failed to parse data-datalayer: $e');
         }
@@ -114,13 +127,13 @@ class CarListingRepository {
               ?.attributes['href'] ??
           '';
 
-      // Fetch update time for each car
-      final updateTime = await _fetchCarUpdateTime(detailPage);
-      if (updateTime == null) {
-        debugPrint(
-            'Skipping car listing due to missing update time: ${dataLayer['item_name']}');
-        continue; // Skip cars where we can't get the update time
+      // Skip fetching details if car already exists
+      if (existingUrls.contains(detailPage)) {
+        continue;
       }
+
+      final updateTime = await _fetchCarUpdateTime(detailPage);
+      if (updateTime == null) continue;
 
       cars.add(CarListing(
         title: dataLayer['item_name'] ?? 'Unknown',
@@ -137,7 +150,8 @@ class CarListingRepository {
             .toList(),
         fuel: dataLayer['item_fuel'] ?? 'Unknown',
         transmission: dataLayer['item_transmission'] ?? 'Unknown',
-        lastUpdated: updateTime, // No fallback to DateTime.now()
+        lastUpdated: updateTime,
+        orderIndex: orderIndex++,
       ));
     }
 
@@ -168,7 +182,7 @@ class CarListingRepository {
 
     final listings = await isar.carListings
         .where()
-        .sortByLastUpdatedDesc()
+        .sortByOrderIndex()
         .offset(skip)
         .limit(pageSize)
         .findAll();

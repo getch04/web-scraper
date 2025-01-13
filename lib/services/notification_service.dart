@@ -46,7 +46,7 @@ class NotificationService {
             enableVibration: true,
             enableLights: true,
             playSound: true,
-            soundSource: 'assets/audios/notification.m4a',
+            soundSource: 'resource://raw/notification',
           ),
         ],
         debug: kDebugMode,
